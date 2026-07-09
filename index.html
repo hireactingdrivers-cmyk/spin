@@ -3,86 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Driver Lucky Spin 🎯</title>
+    <title>Driver Multi-App 🎯🟢</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 10px; }
         .app-container { max-width: 450px; margin: auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); min-height: 90vh; }
         .nav-tabs { display: flex; background: #333; }
-        .tab-btn { flex: 1; padding: 15px; border: none; background: none; color: #bbb; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.3s; }
+        .tab-btn { flex: 1; padding: 12px 5px; border: none; background: none; color: #bbb; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.3s; text-align: center; }
         .tab-btn.active { color: white; background: #222; border-bottom: 3px solid #ffc107; }
         section { padding: 20px; display: none; }
-        h2 { color: #333; font-size: 20px; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; text-align: center; }
-        h3 { color: #444; font-size: 16px; margin-top: 15px; }
+        h2 { color: #333; font-size: 18px; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; text-align: center; }
+        h3 { color: #444; font-size: 15px; margin-top: 15px; border-bottom: 1px dashed #ddd; padding-bottom: 5px; }
         input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; font-size: 15px; }
         button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 15px; }
         button:disabled { background: #cccccc !important; color: #666666 !important; cursor: not-allowed; }
         
-        /* Admin Login */
-        #adminLoginBtn { background: #333; color: white; }
-        #setTargetBtn { background: #ffc107; color: #333; margin-top: 5px; }
-        .status-box { background: #e8f5e9; color: #2e7d32; padding: 10px; border-radius: 8px; font-weight: bold; text-align: center; margin-top: 10px; border: 1px solid #a5d6a7; }
-
-        /* Game Screen */
+        /* Lucky Spin Styles */
         .game-card { background: #fff; border-radius: 12px; padding: 15px; text-align: center; }
-        #wheel-container { margin: 20px auto; width: 150px; height: 150px; border-radius: 50%; border: 6px solid #333; display: flex; align-items: center; justify-content: center; font-size: 46px; font-weight: bold; background: #ffc107; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .spin-btn { background: #28a745; color: white; font-size: 16px; }
-        #gameResult { font-weight: bold; font-size: 15px; margin: 15px 0; line-height: 1.4; }
+        #wheel-container { margin: 15px auto; width: 130px; height: 130px; border-radius: 50%; border: 6px solid #333; display: flex; align-items: center; justify-content: center; font-size: 42px; font-weight: bold; background: #ffc107; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .spin-btn { background: #28a745; color: white; }
+        #gameResult { font-weight: bold; font-size: 14px; margin: 10px 0; line-height: 1.4; }
+        .target-display { background: #e3f2fd; color: #0d47a1; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #90caf9; font-size: 14px; }
 
-        /* Leaderboard */
-        .target-display { background: #e3f2fd; color: #0d47a1; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #90caf9; }
-        .winner-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; background: white; border-radius: 8px; overflow: hidden; }
-        .winner-table th, .winner-table td { border: 1px solid #eee; padding: 10px; text-align: center; }
-        .winner-table th { background: #f4f4f9; color: #555; font-weight: 600; }
+        /* Vacant Tracker Styles */
+        .lock-card { background: #ffebee; color: #c62828; padding: 15px; border-radius: 12px; text-align: center; font-weight: bold; border: 1px solid #ffcdd2; margin: 15px 0; font-size: 13px; line-height: 1.5; }
+        .vacant-btn { background: #007bff; color: white; }
+        .off-btn { background: #dc3545; color: white; padding: 6px 12px; font-size: 12px; border-radius: 5px; width: auto; }
+
+        /* Global Table Styles */
+        .app-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; background: white; border-radius: 8px; overflow: hidden; }
+        .app-table th, .app-table td { border: 1px solid #eee; padding: 10px; text-align: left; }
+        .app-table th { background: #f4f4f9; color: #555; font-weight: 600; }
         .day-winner-row { background: #fffde7; font-weight: bold; }
+        .status-badge { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+        .status-box { background: #e8f5e9; color: #2e7d32; padding: 10px; border-radius: 8px; font-weight: bold; text-align: center; margin-top: 10px; font-size: 13px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     
+    <!-- 3 TABS NAVIGATION -->
     <div class="nav-tabs">
-        <button class="tab-btn active" id="gameTabBtn">🎯 LUCKY SPIN</button>
-        <button class="tab-btn" id="adminTabBtn">🎛️ ADMIN</button>
+        <button class="tab-btn active" id="spinTabBtn">🎯 LUCKY SPIN</button>
+        <button class="tab-btn" id="vacantTabBtn">🟢 VACANT ENTRY</button>
+        <button class="tab-btn" id="adminTabBtn">🎛️ ADMIN PANEL</button>
     </div>
 
-    <section id="gameSection" style="display: block;">
+    <!-- 1. LUCKY SPIN SECTION -->
+    <section id="spinSection" style="display: block;">
         <h2>🎯 Lucky Spin & Win (₹50)</h2>
         <div class="game-card">
-            <input type="text" id="gameDriverName" placeholder="உங்கள் பெயரை உள்ளிடவும் (Your Name)">
+            <input type="text" id="gameDriverName" placeholder="உங்கள் பெயர் (Your Name)">
             <button class="spin-btn" id="spinBtn">SPIN NOW</button>
             <div id="wheel-container">?</div>
             <div id="gameResult">பெயரை பதிவிட்டு சக்கரத்தை சுற்றவும்!</div>
         </div>
         
-        <h3>🏆 Today's Leaderboard</h3>
+        <h3>🏆 Today's Spin Winners</h3>
         <div id="currentWebTarget" class="target-display">🎯 Winning Number: Loading...</div>
-        <table class="winner-table">
+        <table class="app-table">
             <thead>
-                <tr>
-                    <th>Driver Name</th>
-                    <th>No</th>
-                    <th>Time</th>
-                </tr>
+                <tr><th>Driver Name</th><th>No</th><th>Time</th></tr>
             </thead>
-            <tbody id="leaderboardBody">
-                </tbody>
+            <tbody id="leaderboardBody"></tbody>
         </table>
     </section>
 
+    <!-- 2. VACANT ENTRY SECTION -->
+    <section id="vacantSection">
+        <h2>🟢 Driver Availability (Vacant)</h2>
+        
+        <div id="timeLockMessage" class="lock-card" style="display: none;">
+            🔒 பதிவேற்ற நேரம் முடிந்தது!<br>
+            <span style="font-size:12px; font-weight:normal; color:#555;">நாளைக்கான Duty-க்குக் தயாராக உள்ள டிரைவர்கள் தினமும் மாலை <b>6:00 PM முதல் 7:00 PM</b> வரை மட்டுமே இங்கு பதிவு செய்ய முடியும்.</span>
+        </div>
+
+        <div id="driverFormArea">
+            <input type="text" id="vacantDriverName" placeholder="உங்கள் பெயர் (Driver Name)">
+            <input type="text" id="vacantDriverArea" placeholder="தற்போதைய ஏரியா (Current Area)">
+            <button class="vacant-btn" id="submitVacantBtn">SET AS VACANT (🟢 தயார்)</button>
+        </div>
+
+        <h3>📋 Today's Available Drivers</h3>
+        <table class="app-table">
+            <thead>
+                <tr><th>Driver & Area</th><th>Status</th><th>Time</th></tr>
+            </thead>
+            <tbody id="vacantListBody"></tbody>
+        </table>
+    </section>
+
+    <!-- 3. ADMIN SECTION -->
     <section id="adminSection">
-        <h2>🎛️ Admin Control Panel</h2>
+        <h2>🎛️ Admin Management Panel</h2>
         
         <div id="adminLoginArea">
-            <input type="password" id="passInput" placeholder="Enter Admin Password">
-            <button id="adminLoginBtn">Login / Unlock</button>
+            <input type="password" id="adminPass" placeholder="Enter Admin Password">
+            <button id="adminLoginBtn" style="background:#333; color:white;">Login / Unlock</button>
         </div>
 
         <div id="adminPanel" style="display:none;">
-            <h3>🎯 Set Game Target Number</h3>
-            <label style="font-size:12px; color:#666;">இன்றைய வின்னிங் நம்பரை பிக்ஸ் செய்யவும் (1 - 20):</label>
-            <input type="number" id="targetNumInput" placeholder="எடுத்துக்காட்டு: 7" min="1" max="20">
-            <button id="setTargetBtn">Save Winning Number</button>
-            <div id="currentAdminTarget" class="status-box">Current Target: Loading...</div>
+            <!-- Spin Control -->
+            <div style="background:#fffde7; padding:12px; border-radius:10px; border:1px solid #ffe082; margin-bottom:15px;">
+                <h3 style="margin-top:0; color:#b76e00;">🎯 Spin Configuration</h3>
+                <input type="number" id="targetNumInput" placeholder="வின்னிங் நம்பர் (1 - 20)" min="1" max="20">
+                <button id="setTargetBtn" style="background:#ffc107; color:#333;">Save Winning Number</button>
+                <div id="currentAdminTarget" class="status-box" style="background:#fff; border:1px solid #ffe082;">Target: Loading...</div>
+            </div>
+
+            <!-- Vacant Control -->
+            <div style="background:#f9f9f9; padding:12px; border-radius:10px; border:1px solid #ddd; margin-bottom:15px;">
+                <h3 style="margin-top:0;">➕ Force Add Driver (Anytime)</h3>
+                <input type="text" id="adminAddName" placeholder="Driver Name">
+                <input type="text" id="adminAddArea" placeholder="Area">
+                <button id="adminAddBtn" style="background:#007bff; color:white;">Add to Vacant List</button>
+            </div>
+
+            <h3>🛠️ Manage Available Drivers (Off Mode)</h3>
+            <table class="app-table">
+                <thead>
+                    <tr><th>Driver & Area</th><th>Action</th></tr>
+                </thead>
+                <tbody id="adminVacantListBody"></tbody>
+            </table>
         </div>
     </section>
 
@@ -90,7 +133,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, set, get } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue, set, get, remove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBf2I74LYfdifdJnpxy8m-xgwuhwpib3zo",
@@ -105,81 +148,74 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     
-    const gameRef = ref(db, 'game_spins');
+    // ஒரே பேக்அண்டில் இரண்டு தனித்தனி பகுதிகள் (Nodes)
+    const spinRef = ref(db, 'game_spins');
     const targetRef = ref(db, 'game_target');
+    const vacantRef = ref(db, 'vacant_drivers');
 
-    let currentTargetNum = 0;
+    let currentTargetNum = 7;
 
-    // --- TAB NAVIGATION ---
-    const gameTabBtn = document.getElementById('gameTabBtn');
-    const adminTabBtn = document.getElementById('adminTabBtn');
-    const gameSection = document.getElementById('gameSection');
-    const adminSection = document.getElementById('adminSection');
+    // --- TAB SWITCHING ---
+    const tabs = {
+        'spin': { btn: document.getElementById('spinTabBtn'), sec: document.getElementById('spinSection') },
+        'vacant': { btn: document.getElementById('vacantTabBtn'), sec: document.getElementById('vacantSection') },
+        'admin': { btn: document.getElementById('adminTabBtn'), sec: document.getElementById('adminSection') }
+    };
 
-    gameTabBtn.addEventListener('click', () => {
-        gameTabBtn.classList.add('active');
-        adminTabBtn.classList.remove('active');
-        gameSection.style.display = "block";
-        adminSection.style.display = "none";
-    });
+    function switchTab(activeKey) {
+        Object.keys(tabs).forEach(key => {
+            if(key === activeKey) {
+                tabs[key].btn.classList.add('active');
+                tabs[key].sec.style.display = "block";
+            } else {
+                tabs[key].btn.classList.remove('active');
+                tabs[key].sec.style.display = "none";
+            }
+        });
+    }
+    tabs.spin.btn.addEventListener('click', () => switchTab('spin'));
+    tabs.vacant.btn.addEventListener('click', () => switchTab('vacant'));
+    tabs.admin.btn.addEventListener('click', () => switchTab('admin'));
 
-    adminTabBtn.addEventListener('click', () => {
-        adminTabBtn.classList.add('active');
-        gameTabBtn.classList.remove('active');
-        adminSection.style.display = "block";
-        gameSection.style.display = "none";
-    });
+    // --- TIME LOCK FOR VACANT ENTRY (6 PM to 7 PM) ---
+    function checkTimeLock() {
+        const currentHour = new Date().getHours();
+        if (currentHour >= 18 && currentHour < 19) {
+            document.getElementById('timeLockMessage').style.display = "none";
+            document.getElementById('driverFormArea').style.display = "block";
+        } else {
+            document.getElementById('timeLockMessage').style.display = "block";
+            document.getElementById('driverFormArea').style.display = "none";
+        }
+    }
+    checkTimeLock();
+    setInterval(checkTimeLock, 30000);
 
-    // --- ADMIN LOGIN & TARGET SET ---
-    document.getElementById('adminLoginBtn').addEventListener('click', () => {
-        if (document.getElementById('passInput').value === "divya") {
-            document.getElementById('adminLoginArea').style.display = "none";
-            document.getElementById('adminPanel').style.display = "block";
-        } else { alert("Wrong Password!"); }
-    });
-
-    document.getElementById('setTargetBtn').addEventListener('click', () => {
-        const tNum = parseInt(document.getElementById('targetNumInput').value);
-        if(tNum && tNum >= 1 && tNum <= 20) {
-            set(targetRef, { target: tNum }).then(() => {
-                alert("Target Number Updated!");
-                document.getElementById('targetNumInput').value = "";
-            });
-        } else { alert("தயவுசெய்து 1 முதல் 20-க்குள் ஒரு எண்ணை உள்ளிடவும்!"); }
-    });
-
+    // --- WHEEL SPIN LOGIC ---
     onValue(targetRef, (snapshot) => {
         const data = snapshot.val();
         currentTargetNum = data ? data.target : 7; 
-        document.getElementById('currentAdminTarget').innerText = `Current Winning Number: ${currentTargetNum}`;
+        document.getElementById('currentAdminTarget').innerText = `Current Target Number: ${currentTargetNum}`;
         document.getElementById('currentWebTarget').innerText = `🎯 Winning Number: ${currentTargetNum}`;
     });
 
-    // --- SPIN LOGIC ---
     document.getElementById('spinBtn').addEventListener('click', async () => {
         const originalName = document.getElementById('gameDriverName').value.trim();
-        const dNameLower = originalName.toLowerCase();
-        
         if(!originalName) { alert("தயவுசெய்து உங்கள் பெயரை உள்ளிடவும்!"); return; }
 
         document.getElementById('spinBtn').disabled = true;
         const wheel = document.getElementById('wheel-container');
         const resMsg = document.getElementById('gameResult');
-        resMsg.style.color = "#333";
-        resMsg.innerText = "செக் செய்யப்படுகிறது... ⏳";
+        resMsg.style.color = "#333"; resMsg.innerText = "செக் செய்யப்படுகிறது... ⏳";
 
         const todayDate = new Date().toISOString().split('T')[0];
 
         try {
-            const snapshot = await get(gameRef);
+            const snapshot = await get(spinRef);
             let alreadyPlayed = false;
-
             if (snapshot.exists()) {
-                const data = snapshot.val();
-                Object.keys(data).forEach(key => {
-                    const spin = data[key];
-                    const spinDate = new Date(spin.timestamp).toISOString().split('T')[0];
-                    if (spin.driverName.toLowerCase() === dNameLower && spinDate === todayDate) {
+                Object.values(snapshot.val()).forEach(spin => {
+                    if (spin.driverName.toLowerCase() === originalName.toLowerCase() && new Date(spin.timestamp).toISOString().split('T')[0] === todayDate) {
                         alreadyPlayed = true;
                     }
                 });
@@ -187,9 +223,8 @@
 
             if (alreadyPlayed) {
                 resMsg.style.color = "orange";
-                resMsg.innerHTML = `❌ மன்னிக்கவும் ${originalName}!<br>நீங்கள் இன்றைய வாய்ப்பை ஏற்கனவே பயன்படுத்திவிட்டீர்கள். நாளை மீண்டும் முயலவும்!`;
-                document.getElementById('spinBtn').disabled = false;
-                return;
+                resMsg.innerHTML = `❌ மன்னிக்கவும் ${originalName}!<br>நீங்கள் இன்றைய வாய்ப்பை ஏற்கனவே பயன்படுத்திவிட்டீர்கள்.`;
+                document.getElementById('spinBtn').disabled = false; return;
             }
 
             resMsg.innerText = "சக்கரம் சுழல்கிறது... 🎡";
@@ -198,78 +233,109 @@
 
             const interval = setInterval(() => {
                 wheel.innerText = Math.floor(Math.random() * 20) + 1;
-                count++;
-                if(count > 15) {
+                if(++count > 15) {
                     clearInterval(interval);
                     wheel.innerText = selectedNumber;
-
                     const now = new Date();
                     const localTime = now.toLocaleTimeString('en-US', { hour12: true }) + "." + String(now.getMilliseconds()).padStart(3, '0');
-                    const serverTime = Date.now(); 
 
-                    push(gameRef, {
-                        driverName: originalName,
-                        rolledNumber: selectedNumber,
-                        playedTime: localTime,
-                        timestamp: serverTime
-                    }).then(() => {
+                    push(spinRef, { driverName: originalName, rolledNumber: selectedNumber, playedTime: localTime, timestamp: Date.now() }).then(() => {
                         document.getElementById('spinBtn').disabled = false;
                         if(selectedNumber === currentTargetNum) {
-                            resMsg.style.color = "green";
-                            resMsg.innerHTML = `🎉 வாழ்த்துகள் ${originalName}!<br>நீங்கள் பிக்ஸ் செய்த டார்கெட் எண் ${currentTargetNum}-ஐ அடித்துவிட்டீர்கள்!`;
+                            resMsg.style.color = "green"; resMsg.innerHTML = `🎉 வாழ்த்துகள் ${originalName}!<br>நீங்கள் டார்கெட் எண் ${currentTargetNum}-ஐ அடித்துவிட்டீர்கள்!`;
                         } else {
-                            resMsg.style.color = "red";
-                            resMsg.innerHTML = `உங்களுக்கு வந்த எண்: ${selectedNumber}.<br>இன்று டார்கெட் கிடைக்கவில்லை!`;
+                            resMsg.style.color = "red"; resMsg.innerHTML = `உங்களுக்கு வந்த எண்: ${selectedNumber}.<br>இன்று டார்கெட் கிடைக்கவில்லை!`;
                         }
                     });
                 }
             }, 100);
-
-        } catch (error) {
-            alert("Error: " + error.message);
-            document.getElementById('spinBtn').disabled = false;
-        }
+        } catch (error) { alert(error.message); document.getElementById('spinBtn').disabled = false; }
     });
 
-    // --- LIVE LEADERBOARD ---
-    onValue(gameRef, (snapshot) => {
-        const tableBody = document.getElementById('leaderboardBody');
-        tableBody.innerHTML = "";
-        const data = snapshot.val();
-        if(!data) return;
-
+    onValue(spinRef, (snapshot) => {
+        const tableBody = document.getElementById('leaderboardBody'); tableBody.innerHTML = "";
+        const data = snapshot.val(); if(!data) return;
         const todayDate = new Date().toISOString().split('T')[0];
-        let spinList = [];
         
-        Object.keys(data).forEach(key => { spinList.push(data[key]); });
-
-        let todayWinners = spinList.filter(spin => {
-            const spinDate = new Date(spin.timestamp).toISOString().split('T')[0];
-            return spin.rolledNumber === currentTargetNum && spinDate === todayDate;
-        });
-
+        let todayWinners = Object.values(data).filter(spin => spin.rolledNumber === currentTargetNum && new Date(spin.timestamp).toISOString().split('T')[0] === todayDate);
         todayWinners.sort((a, b) => a.timestamp - b.timestamp);
 
         if(todayWinners.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="3" style="color:#999;">இன்று இன்னும் யாரும் டார்கெட் எண் அடிக்கவில்லை!</td></tr>`;
-            return;
+            tableBody.innerHTML = `<tr><td colspan="3" style="color:#999; text-align:center;">இன்று இன்னும் யாரும் டார்கெட் எண் அடிக்கவில்லை!</td></tr>`; return;
         }
-
         todayWinners.forEach((winner, index) => {
             const tr = document.createElement('tr');
-            let badge = "✅ (Won)";
-            
-            if (index === 0) {
-                tr.className = "day-winner-row";
-                badge = "🏆 <span style='color:#d97706;'>Day Winner (First)</span>";
-            }
-            
-            tr.innerHTML = `
-                <td><strong>${winner.driverName}</strong><br><small>${badge}</small></td>
-                <td style="color:green; font-weight:bold; font-size:16px;">${winner.rolledNumber}</td>
-                <td><small>${winner.playedTime}</small></td>
-            `;
+            if (index === 0) tr.className = "day-winner-row";
+            tr.innerHTML = `<td><strong>${winner.driverName}</strong><br><small>${index === 0 ? '🏆 Day Winner' : '✅ Won'}</small></td><td style="color:green;font-weight:bold;">${winner.rolledNumber}</td><td><small>${winner.playedTime}</small></td>`;
             tableBody.appendChild(tr);
+        });
+    });
+
+    // --- VACANT DRIVER LOGIC ---
+    document.getElementById('submitVacantBtn').addEventListener('click', () => {
+        const name = document.getElementById('vacantDriverName').value.trim();
+        const area = document.getElementById('vacantDriverArea').value.trim();
+        if(!name || !area) { alert("பெயர் மற்றும் ஏரியாவை உள்ளிடவும்!"); return; }
+
+        push(vacantRef, { name, area, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }), timestamp: Date.now() }).then(() => {
+            alert("வெற்றிகரமாக Vacant லிஸ்டில் சேர்ந்தீர்கள்! 🟢");
+            document.getElementById('vacantDriverName').value = ""; document.getElementById('vacantDriverArea').value = "";
+        });
+    });
+
+    // --- ADMIN CONTROLS ---
+    document.getElementById('adminLoginBtn').addEventListener('click', () => {
+        if(document.getElementById('adminPass').value === "divya") {
+            document.getElementById('adminLoginArea').style.display = "none";
+            document.getElementById('adminPanel').style.display = "block";
+        } else { alert("Wrong Password!"); }
+    });
+
+    document.getElementById('setTargetBtn').addEventListener('click', () => {
+        const tNum = parseInt(document.getElementById('targetNumInput').value);
+        if(tNum >= 1 && tNum <= 20) {
+            set(targetRef, { target: tNum }).then(() => { alert("Target Updated!"); document.getElementById('targetNumInput').value=""; });
+        } else { alert("Enter 1 to 20"); }
+    });
+
+    document.getElementById('adminAddBtn').addEventListener('click', () => {
+        const name = document.getElementById('adminAddName').value.trim();
+        const area = document.getElementById('adminAddArea').value.trim();
+        if(!name || !area) return;
+        push(vacantRef, { name, area, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }), timestamp: Date.now() }).then(() => {
+            alert("Driver Added!"); document.getElementById('adminAddName').value = ""; document.getElementById('adminAddArea').value = "";
+        });
+    });
+
+    // --- LIVE SYNC VACANT LIST ---
+    onValue(vacantRef, (snapshot) => {
+        const vBody = document.getElementById('vacantListBody');
+        const aBody = document.getElementById('adminVacantListBody');
+        vBody.innerHTML = ""; aBody.innerHTML = "";
+        
+        const data = snapshot.val();
+        if(!data) {
+            vBody.innerHTML = `<tr><td colspan="3" style="color:#999; text-align:center;">யாரும் இல்லை</td></tr>`;
+            aBody.innerHTML = `<tr><td colspan="2" style="color:#999; text-align:center;">No drivers</td></tr>`; return;
+        }
+
+        let list = Object.keys(data).map(key => ({ id: key, ...data[key] })).sort((a,b) => b.timestamp - a.timestamp);
+
+        list.forEach(driver => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td><strong>${driver.name}</strong><br><small style="color:#666;">📍 ${driver.area}</small></td><td><span class="status-badge">🟢 Vacant</span></td><td><small>${driver.time}</small></td>`;
+            vBody.appendChild(tr);
+
+            const atr = document.createElement('tr');
+            atr.innerHTML = `<td><strong>${driver.name}</strong> (${driver.area})</td><td><button class="off-btn" data-id="${driver.id}">🔴 Off Mode</button></td>`;
+            aBody.appendChild(atr);
+        });
+
+        document.querySelectorAll('.off-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = e.target.getAttribute('data-id');
+                if(confirm("Off Mode-க்கு மாற்றி நீக்கலாமா?")) remove(ref(db, `vacant_drivers/${id}`));
+            });
         });
     });
 </script>
