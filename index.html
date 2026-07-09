@@ -334,36 +334,59 @@
     // --- DRIVER LEDGER SYNC & DISPLAY (NEW) ---
     onValue(ledgerRef, (snapshot) => {
         allLedgerData = snapshot.val() || {};
+        updateDriverDropdown();
+    });
+
+    function updateDriverDropdown() {
         const selectBox = document.getElementById('ledgerDriverSelect');
         const currentSelection = selectBox.value;
         
-        // டிராப்-டவுன் லிஸ்ட்டை ரீ-பிரெஷ் செய்ய
+        let driverNames = new Set();
+        Object.values(allLedgerData).forEach(dateBlock => {
+            Object.keys(dateBlock).forEach(name => driverNames.add(name));
+        });
+
         selectBox.innerHTML = '<option value="">-- Select Your Name --</option>';
-        Object.keys(allLedgerData).sort().forEach(driverName => {
+        Array.from(driverNames).sort().forEach(driverName => {
             const opt = document.createElement('option');
             opt.value = driverName; opt.innerText = driverName;
             selectBox.appendChild(opt);
         });
 
-        if(currentSelection) { selectBox.value = currentSelection; updateLedgerCardView(currentSelection); }
+        if(currentSelection) { selectBox.value = currentSelection; }
+    }
+
+    document.getElementById('searchLedgerBtn').addEventListener('click', () => {
+        const driverName = document.getElementById('ledgerDriverSelect').value;
+        if(!driverName) { alert("தயவுசெய்து உங்கள் பெயரைத் தேர்ந்தெடுக்கவும்!"); return; }
+        showDriverLedgerResult();
     });
 
-    document.getElementById('ledgerDriverSelect').addEventListener('change', (e) => {
-        updateLedgerCardView(e.target.value);
-    });
-
-    function updateLedgerCardView(driverName) {
+    function showDriverLedgerResult() {
+        const driverName = document.getElementById('ledgerDriverSelect').value;
+        const selectedDate = document.getElementById('searchLedgerDate').value;
         const card = document.getElementById('driverLedgerCard');
-        if(!driverName || !allLedgerData[driverName]) { card.style.display = "none"; return; }
 
-        const info = allLedgerData[driverName];
-        const pending = (info.received || 0) - (info.paid || 0);
+        if(!driverName || !selectedDate) { card.style.display = "none"; return; }
 
         document.getElementById('displayDriverName').innerText = driverName;
-        document.getElementById('lblDuties').innerText = info.duties || 0;
-        document.getElementById('lblReceived').innerText = `₹${info.received || 0}`;
-        document.getElementById('lblPaid').innerText = `₹${info.paid || 0}`;
-        document.getElementById('lblPending').innerText = `₹${pending}`;
+        document.getElementById('displayLedgerDate').innerText = `Date: ${selectedDate}`;
+
+        if(allLedgerData[selectedDate] && allLedgerData[selectedDate][driverName]) {
+            const info = allLedgerData[selectedDate][driverName];
+            const pending = (info.received || 0) - (info.paid || 0);
+
+            document.getElementById('lblDuties').innerText = info.duties || 0;
+            document.getElementById('lblReceived').innerText = `₹${info.received || 0}`;
+            document.getElementById('lblPaid').innerText = `₹${info.paid || 0}`;
+            document.getElementById('lblPending').innerText = `₹${pending}`;
+        } else {
+            // குறிப்பிட்ட தேதியில் கணக்கு இல்லை என்றால் எல்லாவற்றையும் 0 ஆகக் காட்டும்
+            document.getElementById('lblDuties').innerText = "0";
+            document.getElementById('lblReceived').innerText = "₹0";
+            document.getElementById('lblPaid').innerText = "₹0";
+            document.getElementById('lblPending').innerText = "₹0";
+        }
         card.style.display = "block";
     }
 
@@ -391,18 +414,19 @@
         });
     });
 
-    // அட்மின் லெட்ஜர் எடிட் பவர் (SAVE/UPDATE LEDGER)
+    // அட்மின் குறிப்பிட்ட தேதிக்கு லெட்ஜர் ரிப்போர்ட் சேவ் செய்யும் வசதி
     document.getElementById('saveLedgerBtn').addEventListener('click', () => {
         const name = document.getElementById('editDriverName').value.trim();
+        const dateKey = document.getElementById('editLedgerDate').value;
         const duties = parseInt(document.getElementById('editDuties').value) || 0;
         const received = parseInt(document.getElementById('editReceived').value) || 0;
         const paid = parseInt(document.getElementById('editPaid').value) || 0;
 
-        if(!name) { alert("தயவுசெய்து டிரைவர் பெயரை உள்ளிடவும்!"); return; }
+        if(!name || !dateKey) { alert("டிரைவர் பெயர் மற்றும் தேதியைத் தேர்ந்தெடுக்கவும்!"); return; }
 
-        // Firebase-ல் குறிப்பிட்ட டிரைவரின் பெயரிலேயே டேட்டாவை ஓவர்ரைட் செய்யும்
-        set(ref(db, `driver_ledgers/${name}`), { duties, received, paid }).then(() => {
-            alert(`${name} லெட்ஜர் விபரங்கள் வெற்றிகரமாக அப்டேட் செய்யப்பட்டன! 💰`);
+        // Firebase-ல் தேதியின் கீழ் டிரைவர் பெயர் போட்டு கணக்குச் சேமிக்கப்படும்
+        set(ref(db, `driver_date_ledgers/${dateKey}/${name}`), { duties, received, paid }).then(() => {
+            alert(`${name}-ன் [${dateKey}] கணக்கு வெற்றிகரமாக அப்டேட் செய்யப்பட்டது! 💰`);
             document.getElementById('editDriverName').value = "";
             document.getElementById('editDuties').value = "";
             document.getElementById('editReceived').value = "";
