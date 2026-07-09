@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Driver Super App 🎯🟢💰</title>
+    <title>Driver Professional App 🎯🟢💰</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 5px; }
         .app-container { max-width: 460px; margin: auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); min-height: 95vh; }
@@ -25,7 +25,8 @@
         .target-display { background: #e3f2fd; color: #0d47a1; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #90caf9; font-size: 14px; }
 
         /* Vacant Styles */
-        .vacant-btn { background: #007bff; color: white; }
+        .vacant-btn { background: #28a745; color: white; margin-bottom: 8px; }
+        .self-off-btn { background: #dc3545; color: white; }
         .off-btn { background: #dc3545; color: white; padding: 6px 12px; font-size: 12px; border-radius: 5px; width: auto; }
 
         /* Ledger Card Styles */
@@ -35,6 +36,7 @@
         .stat-card.pending { background: #fff3e0; border-color: #ffe0b2; color: #e65100; }
         .stat-card.success { background: #e8f5e9; border-color: #c8e6c9; color: #2e7d32; }
         .stat-val { font-size: 18px; font-weight: bold; margin-top: 5px; }
+        .search-btn { background: #007bff; color: white; margin-top: 5px; }
 
         /* Global Table Styles */
         .app-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; background: white; border-radius: 8px; overflow: hidden; }
@@ -47,7 +49,6 @@
 
 <div class="app-container">
     
-    <!-- 4 TABS NAVIGATION -->
     <div class="nav-tabs">
         <button class="tab-btn active" id="spinTabBtn">🎯 SPIN</button>
         <button class="tab-btn" id="vacantTabBtn">🟢 VACANT</button>
@@ -55,7 +56,6 @@
         <button class="tab-btn" id="adminTabBtn">🎛️ ADMIN</button>
     </div>
 
-    <!-- 1. LUCKY SPIN SECTION -->
     <section id="spinSection" style="display: block;">
         <h2>🎯 Lucky Spin & Win (₹50)</h2>
         <div class="game-card">
@@ -72,13 +72,13 @@
         </table>
     </section>
 
-    <!-- 2. VACANT ENTRY SECTION -->
     <section id="vacantSection">
         <h2>🟢 Driver Availability (Vacant)</h2>
         <div id="driverFormArea">
             <input type="text" id="vacantDriverName" placeholder="உங்கள் பெயர் (Driver Name)">
             <input type="text" id="vacantDriverArea" placeholder="தற்போதைய ஏரியா (Current Area)">
-            <button class="vacant-btn" id="submitVacantBtn">SET AS VACANT (🟢 தயார்)</button>
+            <button class="vacant-btn" id="submitVacantBtn">ON DUTY (🟢 ஆன்லைன் வரவும்)</button>
+            <button class="self-off-btn" id="selfOffBtn">OFF DUTY (🔴 ஆஃப்லைன் செல்ல)</button>
         </div>
         <h3>📋 Today's Available Drivers</h3>
         <table class="app-table">
@@ -87,24 +87,28 @@
         </table>
     </section>
 
-    <!-- 3. DRIVER LEDGER SECTION -->
     <section id="ledgerSection">
         <h2>💰 Driver Personal Ledger</h2>
-        <p style="font-size: 13px; color: #666; text-align: center; margin-top: -5px;">உங்கள் பெயரைத் தேர்ந்தெடுத்து கணக்கைச் சரிபார்க்கவும்</p>
-        
         <select id="ledgerDriverSelect">
             <option value="">-- Select Your Name --</option>
         </select>
 
+        <div style="background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-top: 10px;">
+            <label style="font-size: 12px; font-weight: bold; color: #555;">தேதியைத் தேர்ந்தெடுக்கவும் (Select Date):</label>
+            <input type="date" id="searchLedgerDate">
+            <button class="search-btn" id="searchLedgerBtn">🔍 SEARCH REPORT</button>
+        </div>
+
         <div id="driverLedgerCard" class="ledger-box" style="display:none;">
             <h3 id="displayDriverName" style="margin-top:0; text-align:center; color:#007bff;">Driver Name</h3>
+            <p id="displayLedgerDate" style="text-align:center; font-weight:bold; font-size:13px; margin-top:-5px; color:#666;">Date: </p>
             <div class="grid-stats">
                 <div class="stat-card">
-                    <div style="font-size:12px; color:#666;">Today's Duties</div>
+                    <div style="font-size:12px; color:#666;">Duties</div>
                     <div class="stat-val" id="lblDuties">0</div>
                 </div>
                 <div class="stat-card success">
-                    <div style="font-size:12px; color:#2e7d32;">Received Amount</div>
+                    <div style="font-size:12px; color:#2e7d32;">Received</div>
                     <div class="stat-val" id="lblReceived">₹0</div>
                 </div>
                 <div class="stat-card">
@@ -112,23 +116,20 @@
                     <div class="stat-val" id="lblPaid">₹0</div>
                 </div>
                 <div class="stat-card pending">
-                    <div style="font-size:12px; color:#e65100;">📊 Pending Amount</div>
+                    <div style="font-size:12px; color:#e65100;">📊 Balance</div>
                     <div class="stat-val" id="lblPending">₹0</div>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- 4. ADMIN SECTION -->
-    <section id="adminSection">
+        <section id="adminSection">
         <h2>🎛️ Admin Management Panel</h2>
         <div id="adminLoginArea">
-            <input type="password" id="adminPass" placeholder="admin password">
+            <input type="password" id="adminPass" placeholder="Enter Admin Password">
             <button id="adminLoginBtn" style="background:#333; color:white;">Login / Unlock</button>
         </div>
 
         <div id="adminPanel" style="display:none;">
-            <!-- Spin Control -->
             <div style="background:#fffde7; padding:12px; border-radius:10px; border:1px solid #ffe082; margin-bottom:15px;">
                 <h3 style="margin-top:0; color:#b76e00;">🎯 Spin Configuration</h3>
                 <input type="number" id="targetNumInput" placeholder="வின்னிங் நம்பர் (1 - 20)" min="1" max="20">
@@ -136,19 +137,18 @@
                 <div id="currentAdminTarget" style="font-size:12px; font-weight:bold; text-align:center; margin-top:5px;">Target: Loading...</div>
             </div>
 
-            <!-- DRIVER LEDGER EDIT CONTROL (NEW) -->
             <div style="background:#e8f5e9; padding:12px; border-radius:10px; border:1px solid #a5d6a7; margin-bottom:15px;">
-                <h3 style="margin-top:0; color:#1b5e20;">✏️ Edit Driver Earnings / Duties</h3>
-                <input type="text" id="editDriverName" placeholder="டிரைவர் பெயர் (துல்லியமாக டைப் செய்யவும்)">
+                <h3 style="margin-top:0; color:#1b5e20;">✏️ Entry/Edit Driver Account</h3>
+                <input type="text" id="editDriverName" placeholder="டிரைவர் பெயர் (Driver Name)">
+                <input type="date" id="editLedgerDate">
                 <div class="grid-stats" style="margin-top:0;">
-                    <input type="number" id="editDuties" placeholder="Duties (எண்ணிக்கை)" min="0">
+                    <input type="number" id="editDuties" placeholder="Duties Count" min="0">
                     <input type="number" id="editReceived" placeholder="Received (₹)" min="0">
                 </div>
-                <input type="number" id="editPaid" placeholder="Paid Amount (சம்பளம் கொடுத்தது ₹)" min="0">
-                <button id="saveLedgerBtn" style="background:#2e7d32; color:white; margin-top:5px;">Update Driver Ledger</button>
+                <input type="number" id="editPaid" placeholder="Paid Amount (₹)" min="0">
+                <button id="saveLedgerBtn" style="background:#2e7d32; color:white; margin-top:5px;">Save Report</button>
             </div>
 
-            <!-- Vacant Control -->
             <div style="background:#f9f9f9; padding:12px; border-radius:10px; border:1px solid #ddd; margin-bottom:15px;">
                 <h3 style="margin-top:0;">➕ Force Add Driver to Vacant</h3>
                 <input type="text" id="adminAddName" placeholder="Driver Name">
@@ -186,12 +186,15 @@
     const spinRef = ref(db, 'game_spins');
     const targetRef = ref(db, 'game_target');
     const vacantRef = ref(db, 'vacant_drivers');
-    const ledgerRef = ref(db, 'driver_ledgers');
+    const ledgerRef = ref(db, 'driver_date_ledgers');
 
     let currentTargetNum = 7;
     let allLedgerData = {};
 
-    // --- TAB SWITCHING ---
+    const todayStr = new Date().toISOString().split('T')[0];
+    document.getElementById('searchLedgerDate').value = todayStr;
+    document.getElementById('editLedgerDate').value = todayStr;
+
     const tabs = {
         'spin': { btn: document.getElementById('spinTabBtn'), sec: document.getElementById('spinSection') },
         'vacant': { btn: document.getElementById('vacantTabBtn'), sec: document.getElementById('vacantSection') },
@@ -215,7 +218,6 @@
     tabs.ledger.btn.addEventListener('click', () => switchTab('ledger'));
     tabs.admin.btn.addEventListener('click', () => switchTab('admin'));
 
-    // --- WHEEL SPIN LOGIC ---
     onValue(targetRef, (snapshot) => {
         const data = snapshot.val();
         currentTargetNum = data ? data.target : 7; 
@@ -226,25 +228,21 @@
     document.getElementById('spinBtn').addEventListener('click', async () => {
         const originalName = document.getElementById('gameDriverName').value.trim();
         if(!originalName) { alert("தயவுசெய்து உங்கள் பெயரை உள்ளிடவும்!"); return; }
-
         document.getElementById('spinBtn').disabled = true;
         const wheel = document.getElementById('wheel-container');
         const resMsg = document.getElementById('gameResult');
         resMsg.style.color = "#333"; resMsg.innerText = "செக் செய்யப்படுகிறது... ⏳";
-
-        const todayDate = new Date().toISOString().split('T')[0];
 
         try {
             const snapshot = await get(spinRef);
             let alreadyPlayed = false;
             if (snapshot.exists()) {
                 Object.values(snapshot.val()).forEach(spin => {
-                    if (spin.driverName.toLowerCase() === originalName.toLowerCase() && new Date(spin.timestamp).toISOString().split('T')[0] === todayDate) {
+                    if (spin.driverName.toLowerCase() === originalName.toLowerCase() && new Date(spin.timestamp).toISOString().split('T')[0] === todayStr) {
                         alreadyPlayed = true;
                     }
                 });
             }
-
             if (alreadyPlayed) {
                 resMsg.style.color = "orange"; resMsg.innerHTML = `❌ மன்னிக்கவும் ${originalName}!<br>நீங்கள் இன்றைய வாய்ப்பை ஏற்கனவே பயன்படுத்திவிட்டீர்கள்.`;
                 document.getElementById('spinBtn').disabled = false; return;
@@ -253,7 +251,6 @@
             resMsg.innerText = "சக்கரம் சுழல்கிறது... 🎡";
             const selectedNumber = Math.floor(Math.random() * 20) + 1; 
             let count = 0;
-
             const interval = setInterval(() => {
                 wheel.innerText = Math.floor(Math.random() * 20) + 1;
                 if(++count > 15) {
@@ -278,47 +275,58 @@
     onValue(spinRef, (snapshot) => {
         const tableBody = document.getElementById('leaderboardBody'); tableBody.innerHTML = "";
         const data = snapshot.val(); if(!data) return;
-        const todayDate = new Date().toISOString().split('T')[0];
-        
-        let todayWinners = Object.values(data).filter(spin => spin.rolledNumber === currentTargetNum && new Date(spin.timestamp).toISOString().split('T')[0] === todayDate);
+        let todayWinners = Object.values(data).filter(spin => spin.rolledNumber === currentTargetNum && new Date(spin.timestamp).toISOString().split('T')[0] === todayStr);
         todayWinners.sort((a, b) => a.timestamp - b.timestamp);
-
         if(todayWinners.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="3" style="color:#999; text-align:center;">இன்று இன்னும் யாரும் டார்கெட் எண் அடிக்கவில்லை!</td></tr>`; return;
         }
-        todayWinners.forEach((winner, index) => {
+        todayWinners.forEach((winner) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td><strong>${winner.driverName}</strong></td><td style="color:green;font-weight:bold;">${winner.rolledNumber}</td><td><small>${winner.playedTime}</small></td>`;
             tableBody.appendChild(tr);
         });
     });
 
-    // --- VACANT DRIVER LOGIC ---
     document.getElementById('submitVacantBtn').addEventListener('click', () => {
         const name = document.getElementById('vacantDriverName').value.trim();
         const area = document.getElementById('vacantDriverArea').value.trim();
         if(!name || !area) { alert("பெயர் மற்றும் ஏரியாவை உள்ளிடவும்!"); return; }
-
         push(vacantRef, { name, area, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }), timestamp: Date.now() }).then(() => {
-            alert("வெற்றிகரமாக Vacant லிஸ்டில் சேர்ந்தீர்கள்! 🟢");
-            document.getElementById('vacantDriverName').value = ""; document.getElementById('vacantDriverArea').value = "";
+            alert("வெற்றிகரமாக Vacant ஆன்லைன் லிஸ்டில் சேர்ந்தீர்கள்! 🟢");
+            document.getElementById('vacantDriverArea').value = "";
         });
+    });
+
+    document.getElementById('selfOffBtn').addEventListener('click', async () => {
+        const name = document.getElementById('vacantDriverName').value.trim();
+        if(!name) { alert("ஆஃப்லைன் செல்ல உங்கள் பெயரை டைப் செய்யவும்!"); return; }
+        const snapshot = await get(vacantRef);
+        if(snapshot.exists()) {
+            let found = false;
+            Object.entries(snapshot.val()).forEach(([key, driver]) => {
+                if(driver.name.toLowerCase() === name.toLowerCase()) {
+                    remove(ref(db, `vacant_drivers/${key}`)); found = true;
+                }
+            });
+            if(found) {
+                alert("நீங்கள் வெற்றிகரமாக ஆஃப்லைன் (Off Duty) மாற்றப்பட்டீர்கள்! 🔴");
+                document.getElementById('vacantDriverName').value = ""; document.getElementById('vacantDriverArea').value = "";
+            } else { alert("உங்கள் பெயர் தற்போதைய ஆன்லைன் லிஸ்டில் இல்லை!"); }
+        }
     });
 
     onValue(vacantRef, (snapshot) => {
         const vBody = document.getElementById('vacantListBody'); const aBody = document.getElementById('adminVacantListBody');
-        vBody.innerHTML = ""; aBody.innerHTML = "";
-        const data = snapshot.val();
+        vBody.innerHTML = ""; aBody.innerHTML = ""; const data = snapshot.val();
         if(!data) {
-            vBody.innerHTML = `<tr><td colspan="3" style="color:#999; text-align:center;">யாரும் இல்லை</td></tr>`;
-            aBody.innerHTML = `<tr><td colspan="2" style="color:#999; text-align:center;">No drivers</td></tr>`; return;
+            vBody.innerHTML = `<tr><td colspan="3" style="color:#999; text-align:center;">ஆன்லைனில் யாரும் இல்லை</td></tr>`;
+            aBody.innerHTML = `<tr><td colspan="2" style="color:#999; text-align:center;">No drivers online</td></tr>`; return;
         }
         let list = Object.keys(data).map(key => ({ id: key, ...data[key] })).sort((a,b) => b.timestamp - a.timestamp);
         list.forEach(driver => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td><strong>${driver.name}</strong><br><small style="color:#666;">📍 ${driver.area}</small></td><td><span class="status-badge">🟢 Vacant</span></td><td><small>${driver.time}</small></td>`;
             vBody.appendChild(tr);
-
             const atr = document.createElement('tr');
             atr.innerHTML = `<td><strong>${driver.name}</strong> (${driver.area})</td><td><button class="off-btn" data-id="${driver.id}">🔴 Off Mode</button></td>`;
             aBody.appendChild(atr);
@@ -331,7 +339,6 @@
         });
     });
 
-    // --- DRIVER LEDGER SYNC & DISPLAY (NEW) ---
     onValue(ledgerRef, (snapshot) => {
         allLedgerData = snapshot.val() || {};
         updateDriverDropdown();
@@ -340,19 +347,16 @@
     function updateDriverDropdown() {
         const selectBox = document.getElementById('ledgerDriverSelect');
         const currentSelection = selectBox.value;
-        
         let driverNames = new Set();
         Object.values(allLedgerData).forEach(dateBlock => {
             Object.keys(dateBlock).forEach(name => driverNames.add(name));
         });
-
         selectBox.innerHTML = '<option value="">-- Select Your Name --</option>';
         Array.from(driverNames).sort().forEach(driverName => {
             const opt = document.createElement('option');
             opt.value = driverName; opt.innerText = driverName;
             selectBox.appendChild(opt);
         });
-
         if(currentSelection) { selectBox.value = currentSelection; }
     }
 
@@ -366,7 +370,6 @@
         const driverName = document.getElementById('ledgerDriverSelect').value;
         const selectedDate = document.getElementById('searchLedgerDate').value;
         const card = document.getElementById('driverLedgerCard');
-
         if(!driverName || !selectedDate) { card.style.display = "none"; return; }
 
         document.getElementById('displayDriverName').innerText = driverName;
@@ -375,13 +378,11 @@
         if(allLedgerData[selectedDate] && allLedgerData[selectedDate][driverName]) {
             const info = allLedgerData[selectedDate][driverName];
             const pending = (info.received || 0) - (info.paid || 0);
-
             document.getElementById('lblDuties').innerText = info.duties || 0;
             document.getElementById('lblReceived').innerText = `₹${info.received || 0}`;
             document.getElementById('lblPaid').innerText = `₹${info.paid || 0}`;
             document.getElementById('lblPending').innerText = `₹${pending}`;
         } else {
-            // குறிப்பிட்ட தேதியில் கணக்கு இல்லை என்றால் எல்லாவற்றையும் 0 ஆகக் காட்டும்
             document.getElementById('lblDuties').innerText = "0";
             document.getElementById('lblReceived').innerText = "₹0";
             document.getElementById('lblPaid').innerText = "₹0";
@@ -390,7 +391,6 @@
         card.style.display = "block";
     }
 
-    // --- ADMIN CONTROLS ---
     document.getElementById('adminLoginBtn').addEventListener('click', () => {
         if(document.getElementById('adminPass').value === "divya") {
             document.getElementById('adminLoginArea').style.display = "none";
@@ -414,17 +414,14 @@
         });
     });
 
-    // அட்மின் குறிப்பிட்ட தேதிக்கு லெட்ஜர் ரிப்போர்ட் சேவ் செய்யும் வசதி
     document.getElementById('saveLedgerBtn').addEventListener('click', () => {
         const name = document.getElementById('editDriverName').value.trim();
         const dateKey = document.getElementById('editLedgerDate').value;
         const duties = parseInt(document.getElementById('editDuties').value) || 0;
         const received = parseInt(document.getElementById('editReceived').value) || 0;
         const paid = parseInt(document.getElementById('editPaid').value) || 0;
-
         if(!name || !dateKey) { alert("டிரைவர் பெயர் மற்றும் தேதியைத் தேர்ந்தெடுக்கவும்!"); return; }
 
-        // Firebase-ல் தேதியின் கீழ் டிரைவர் பெயர் போட்டு கணக்குச் சேமிக்கப்படும்
         set(ref(db, `driver_date_ledgers/${dateKey}/${name}`), { duties, received, paid }).then(() => {
             alert(`${name}-ன் [${dateKey}] கணக்கு வெற்றிகரமாக அப்டேட் செய்யப்பட்டது! 💰`);
             document.getElementById('editDriverName').value = "";
