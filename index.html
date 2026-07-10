@@ -5,15 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Driver Professional App 🎯🟢💰⭐</title>
     
-    <!-- OneSignal Push Notification Integration -->
+    <!-- லேட்டஸ்ட் OneSignal SDK v16 Integration -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      window.OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "89ebd1da-bea4-4676-8fac-4a80b6435822",
-        });
+      window.OneSignal = window.OneSignal || [];
+      
+      // ஒன்சிக்னல் ஸ்டார்ட் செய்யும் சரியான புதிய முறை bby
+      async function initOneSignal() {
+        try {
+          await OneSignal.init({
+            appId: "89ebd1da-bea4-4676-8fac-4a80b6435822",
+            safari_web_id: "web.onesignal.auto.17646df7-5154-46bb-be11-891d4e08bfca",
+            notifyButton: {
+              enable: true, // போன் ஸ்கிரீன்ல ஒரு சின்ன பெல் ஐகான் காட்டும் bby
+            },
+            allowLocalhostAsSecureOrigin: true
+          });
+          console.log("OneSignal Auto Init Completed!");
+        } catch (error) {
+          console.error("OneSignal Init Error:", error);
+        }
+      }
+
+      window.addEventListener("load", () => {
+        initOneSignal();
       });
+
+      // டிரைவர் பேரை லாகின் செய்ய நாம பயன்படுத்தும் சரியான புதிய ஃபங்க்ஷன்
+      async function registerDriverNotification(driverName) {
+          if (typeof OneSignal !== "undefined" && OneSignal.User) {
+              try {
+                  let cleanName = driverName.trim().toLowerCase();
+                  await OneSignal.login(cleanName);
+                  console.log("Driver identity synchronized successfully:", cleanName);
+              } catch (e) {
+                  console.error("Error linking driver identity:", e);
+              }
+          } else {
+              console.error("OneSignal is not loaded yet bby!");
+          }
+      }
     </script>
 
     <style>
@@ -29,19 +60,16 @@
         button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 15px; }
         button:disabled { background: #cccccc !important; color: #666666 !important; cursor: not-allowed; }
         
-        /* Lucky Spin Styles */
         .game-card { background: #fff; border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #eee; }
         #wheel-container { margin: 15px auto; width: 120px; height: 120px; border-radius: 50%; border: 6px solid #333; display: flex; align-items: center; justify-content: center; font-size: 42px; font-weight: bold; background: #ffc107; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .spin-btn { background: #28a745; color: white; }
         #gameResult { font-weight: bold; font-size: 14px; margin: 10px 0; line-height: 1.4; }
         .target-display { background: #e3f2fd; color: #0d47a1; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #90caf9; font-size: 14px; }
 
-        /* Vacant Styles */
         .vacant-btn { background: #28a745; color: white; margin-bottom: 8px; }
         .self-off-btn { background: #dc3545; color: white; }
         .off-btn { background: #dc3545; color: white; padding: 6px 12px; font-size: 12px; border-radius: 5px; width: auto; }
 
-        /* Ledger Card Styles */
         .ledger-box { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-top: 15px; }
         .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .stat-card { background: white; padding: 10px; border-radius: 8px; border: 1px solid #eee; text-align: center; }
@@ -50,20 +78,17 @@
         .stat-val { font-size: 18px; font-weight: bold; margin-top: 5px; }
         .search-btn { background: #007bff; color: white; margin-top: 5px; }
 
-        /* Stars Feedback System */
         .stars-container { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
         .star { font-size: 32px; cursor: pointer; color: #ccc; transition: 0.2s; }
         .star.selected { color: #ffc107; }
         .rating-desc { font-weight: bold; text-align: center; color: #666; font-size: 14px; margin-bottom: 10px; }
         .share-link-box { background: #f1f8ff; border: 1px dashed #007bff; padding: 10px; border-radius: 8px; margin-top: 8px; word-break: break-all; font-size: 12px; }
 
-        /* Global Table Styles */
         .app-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; background: white; border-radius: 8px; overflow: hidden; }
         .app-table th, .app-table td { border: 1px solid #eee; padding: 10px; text-align: left; }
         .app-table th { background: #f4f4f9; color: #555; font-weight: 600; }
         .status-badge { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
 
-        /* Collapsible Menu Styles for Admin Panel */
         .admin-menu-item { background: #fff; border: 1px solid #ddd; margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .menu-header { background: #f8f9fa; padding: 14px 18px; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #333; user-select: none; }
         .menu-header:hover { background: #f1f3f5; }
@@ -292,16 +317,6 @@
     document.getElementById('searchLedgerDate').value = todayStr;
     document.getElementById('editLedgerDate').value = todayStr;
 
-    // --- ONESIGNAL DRIVER IDENTITY SYNC ---
-    function syncDriverWithOneSignal(driverName) {
-        if (!driverName) return;
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        window.OneSignalDeferred.push(async function(OneSignal) {
-            await OneSignal.login(driverName.trim().toLowerCase());
-            console.log("OneSignal Sync Done for: " + driverName);
-        });
-    }
-
     // --- ACCORDION COLLAPSIBLE MENUS ---
     const menuItems = ['spin', 'ledger', 'links', 'vacant', 'reviews'];
     menuItems.forEach(item => {
@@ -369,7 +384,10 @@
         const originalName = document.getElementById('gameDriverName').value.trim();
         if(!originalName) { alert("தயவுசெய்து உங்கள் பெயரை உள்ளிடவும்!"); return; }
         
-        syncDriverWithOneSignal(originalName);
+        // சரிசெய்யப்பட்ட புதிய OneSignal Identity Sync சிஸ்டம் இங்க கூப்பிடப்படுது bby!
+        if (typeof registerDriverNotification === "function") {
+            registerDriverNotification(originalName);
+        }
 
         document.getElementById('spinBtn').disabled = true;
         const wheel = document.getElementById('wheel-container');
@@ -436,7 +454,10 @@
         const area = document.getElementById('vacantDriverArea').value.trim();
         if(!name || !area) { alert("பெயர் மற்றும் ஏரியாவை உள்ளிடவும்!"); return; }
         
-        syncDriverWithOneSignal(name);
+        // ஆன்லைன் வரும்போதும் OneSignal சிங்க் ஆகும் பாஸ்!
+        if (typeof registerDriverNotification === "function") {
+            registerDriverNotification(name);
+        }
 
         push(vacantRef, { name, area, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }), timestamp: Date.now() }).then(() => {
             alert("வெற்றிகரமாக Vacant ஆன்லைன் லிஸ்டில் சேர்ந்தீர்கள்! 🟢");
@@ -509,7 +530,9 @@
     }
 
     document.getElementById('ledgerDriverSelect').addEventListener('change', (e) => {
-        syncDriverWithOneSignal(e.target.value);
+        if (typeof registerDriverNotification === "function" && e.target.value) {
+            registerDriverNotification(e.target.value);
+        }
     });
 
     document.getElementById('searchLedgerBtn').addEventListener('click', () => {
@@ -646,6 +669,7 @@
 
         set(ref(db, `driver_date_ledgers/${dateKey}/${name}`), { duties, received, paid }).then(() => {
             
+            // நோட்டிபிகேஷன் அனுப்பும் பங்க்ஷன் bby!
             sendOneSignalNotificationToDriver(name, duties);
 
             alert(`${name}-ன் [${dateKey}] கணக்கு வெற்றிகரமாக அப்டேட் செய்யப்பட்டது! டிரைவருக்கு நோட்டிபிகேஷன் அனுப்பப்பட்டது 🚀`);
