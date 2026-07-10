@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Driver Professional App 🎯🟢💰</title>
+    <title>Driver Professional App 🎯🟢💰⭐</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 5px; }
         .app-container { max-width: 460px; margin: auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); min-height: 95vh; }
@@ -13,7 +13,7 @@
         section { padding: 15px; display: none; }
         h2 { color: #333; font-size: 18px; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; text-align: center; }
         h3 { color: #444; font-size: 15px; margin-top: 15px; border-bottom: 1px dashed #ddd; padding-bottom: 5px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; font-size: 15px; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; font-size: 15px; }
         button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 15px; }
         button:disabled { background: #cccccc !important; color: #666666 !important; cursor: not-allowed; }
         
@@ -38,6 +38,13 @@
         .stat-val { font-size: 18px; font-weight: bold; margin-top: 5px; }
         .search-btn { background: #007bff; color: white; margin-top: 5px; }
 
+        /* Stars Feedback System (NEW) */
+        .stars-container { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
+        .star { font-size: 32px; cursor: pointer; color: #ccc; transition: 0.2s; }
+        .star.selected { color: #ffc107; }
+        .rating-desc { font-weight: bold; text-align: center; color: #666; font-size: 14px; margin-bottom: 10px; }
+        .share-link-box { background: #f1f8ff; border: 1px dashed #007bff; padding: 10px; border-radius: 8px; margin-top: 8px; word-break: break-all; font-size: 12px; }
+
         /* Global Table Styles */
         .app-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; background: white; border-radius: 8px; overflow: hidden; }
         .app-table th, .app-table td { border: 1px solid #eee; padding: 10px; text-align: left; }
@@ -53,6 +60,7 @@
         <button class="tab-btn active" id="spinTabBtn">🎯 SPIN</button>
         <button class="tab-btn" id="vacantTabBtn">🟢 VACANT</button>
         <button class="tab-btn" id="ledgerTabBtn">💰 LEDGER</button>
+        <button class="tab-btn" id="feedbackTabBtn">⭐ FEEDBACK</button>
         <button class="tab-btn" id="adminTabBtn">🎛️ ADMIN</button>
     </div>
 
@@ -122,6 +130,28 @@
             </div>
         </div>
     </section>
+
+    <section id="feedbackSection">
+        <h2>⭐ Client Feedback System</h2>
+        <div id="feedbackFormArea">
+            <p style="text-align: center; color: #555; font-size: 14px;">டிரைவரைத் தேர்ந்தெடுத்து உங்கள் மதிப்பீட்டை வழங்கவும்:</p>
+            <select id="feedbackDriverSelect">
+                <option value="">-- Select Driver Name --</option>
+            </select>
+            
+            <div class="stars-container">
+                <span class="star" data-value="1">★</span>
+                <span class="star" data-value="2">★</span>
+                <span class="star" data-value="3">★</span>
+                <span class="star" data-value="4">★</span>
+                <span class="star" data-value="5">★</span>
+            </div>
+            <div id="ratingText" class="rating-desc">மதிப்பீடு செய்ய கிளிக் செய்யவும்</div>
+
+            <textarea id="feedbackExperience" rows="3" placeholder="Share your experience with this driver... (உங்கள் கருத்துக்களைப் பகிரவும்)"></textarea>
+            <button id="submitFeedbackBtn" style="background: #ffc107; color: #222;">SUBMIT FEEDBACK</button>
+        </div>
+    </section>
         <section id="adminSection">
         <h2>🎛️ Admin Management Panel</h2>
         <div id="adminLoginArea">
@@ -149,6 +179,13 @@
                 <button id="saveLedgerBtn" style="background:#2e7d32; color:white; margin-top:5px;">Save Report</button>
             </div>
 
+            <div style="background:#fff3e0; padding:12px; border-radius:10px; border:1px solid #ffcc80; margin-bottom:15px;">
+                <h3 style="margin-top:0; color:#e65100;">🔗 Create Driver Feedback Link</h3>
+                <input type="text" id="newFeedbackDriverName" placeholder="டிரைவர் பெயர் (Ramesh, Suresh..)">
+                <button id="genFeedbackLinkBtn" style="background:#e65100; color:white;">Generate Link</button>
+                <div id="generatedLinkArea" class="share-link-box" style="display:none;"></div>
+            </div>
+
             <div style="background:#f9f9f9; padding:12px; border-radius:10px; border:1px solid #ddd; margin-bottom:15px;">
                 <h3 style="margin-top:0;">➕ Force Add Driver to Vacant</h3>
                 <input type="text" id="adminAddName" placeholder="Driver Name">
@@ -156,7 +193,13 @@
                 <button id="adminAddBtn" style="background:#007bff; color:white;">Add to Vacant List</button>
             </div>
 
-            <h3>🛠️ Manage Available Drivers (Off Mode)</h3>
+            <h3>📊 Driver Feedback Reviews</h3>
+            <table class="app-table">
+                <thead><tr><th>Driver</th><th>Rating</th><th>Comments</th></tr></thead>
+                <tbody id="adminFeedbackListBody"></tbody>
+            </table>
+
+            <h3 style="margin-top:20px;">🛠️ Manage Available Drivers (Off Mode)</h3>
             <table class="app-table">
                 <thead><tr><th>Driver & Area</th><th>Action</th></tr></thead>
                 <tbody id="adminVacantListBody"></tbody>
@@ -187,18 +230,24 @@
     const targetRef = ref(db, 'game_target');
     const vacantRef = ref(db, 'vacant_drivers');
     const ledgerRef = ref(db, 'driver_date_ledgers');
+    const feedbackListRef = ref(db, 'driver_feedbacks');
+    const activeDriversRef = ref(db, 'feedback_registered_drivers');
 
     let currentTargetNum = 7;
     let allLedgerData = {};
+    let selectedRating = 0;
+    const ratingLabels = { 1: "1★ Worst 🔴", 2: "2★ OK 🟡", 3: "3★ Good 🟢", 4: "4★ Very Good 🔵", 5: "5★ Excellent 👑" };
 
     const todayStr = new Date().toISOString().split('T')[0];
     document.getElementById('searchLedgerDate').value = todayStr;
     document.getElementById('editLedgerDate').value = todayStr;
 
+    // --- TAB SWITCHING ---
     const tabs = {
         'spin': { btn: document.getElementById('spinTabBtn'), sec: document.getElementById('spinSection') },
         'vacant': { btn: document.getElementById('vacantTabBtn'), sec: document.getElementById('vacantSection') },
         'ledger': { btn: document.getElementById('ledgerTabBtn'), sec: document.getElementById('ledgerSection') },
+        'feedback': { btn: document.getElementById('feedbackTabBtn'), sec: document.getElementById('feedbackSection') },
         'admin': { btn: document.getElementById('adminTabBtn'), sec: document.getElementById('adminSection') }
     };
 
@@ -216,8 +265,22 @@
     tabs.spin.btn.addEventListener('click', () => switchTab('spin'));
     tabs.vacant.btn.addEventListener('click', () => switchTab('vacant'));
     tabs.ledger.btn.addEventListener('click', () => switchTab('ledger'));
+    tabs.feedback.btn.addEventListener('click', () => switchTab('feedback'));
     tabs.admin.btn.addEventListener('click', () => switchTab('admin'));
 
+    // --- AUTOMATIC URL PARSING FOR DIRECT FEEDBACK LINK ---
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const driverParam = urlParams.get('driver');
+        if (driverParam) {
+            switchTab('feedback');
+            setTimeout(() => {
+                document.getElementById('feedbackDriverSelect').value = driverParam;
+            }, 1500);
+        }
+    });
+
+    // --- WHEEL SPIN LOGIC ---
     onValue(targetRef, (snapshot) => {
         const data = snapshot.val();
         currentTargetNum = data ? data.target : 7; 
@@ -287,6 +350,7 @@
         });
     });
 
+    // --- VACANT DRIVER LOGIC ---
     document.getElementById('submitVacantBtn').addEventListener('click', () => {
         const name = document.getElementById('vacantDriverName').value.trim();
         const area = document.getElementById('vacantDriverArea').value.trim();
@@ -339,6 +403,7 @@
         });
     });
 
+    // --- DRIVER LEDGER SYNC ---
     onValue(ledgerRef, (snapshot) => {
         allLedgerData = snapshot.val() || {};
         updateDriverDropdown();
@@ -391,6 +456,65 @@
         card.style.display = "block";
     }
 
+    // --- STARS FEEDBACK WORKING ---
+    const starNodes = document.querySelectorAll('.star');
+    starNodes.forEach(star => {
+        star.addEventListener('click', (e) => {
+            selectedRating = parseInt(e.target.getAttribute('data-value'));
+            starNodes.forEach(s => {
+                if(parseInt(s.getAttribute('data-value')) <= selectedRating) {
+                    s.classList.add('selected');
+                } else {
+                    s.classList.remove('selected');
+                }
+            });
+            document.getElementById('ratingText').innerText = ratingLabels[selectedRating];
+        });
+    });
+
+    document.getElementById('submitFeedbackBtn').addEventListener('click', () => {
+        const driver = document.getElementById('feedbackDriverSelect').value;
+        const comments = document.getElementById('feedbackExperience').value.trim();
+        if(!driver) { alert("Please select a driver!"); return; }
+        if(selectedRating === 0) { alert("Please select star rating!"); return; }
+
+        push(feedbackListRef, { driver, rating: selectedRating, label: ratingLabels[selectedRating], comments, timestamp: Date.now() }).then(() => {
+            alert("Thank you! Your valuable feedback submitted. ⭐");
+            selectedRating = 0;
+            starNodes.forEach(s => s.classList.remove('selected'));
+            document.getElementById('ratingText').innerText = "மதிப்பீடு செய்ய கிளிக் செய்யவும்";
+            document.getElementById('feedbackExperience').value = "";
+        });
+    });
+
+    // Sync active driver list for feedback dropdown
+    onValue(activeDriversRef, (snapshot) => {
+        const fSelect = document.getElementById('feedbackDriverSelect');
+        fSelect.innerHTML = '<option value="">-- Select Driver Name --</option>';
+        if(snapshot.exists()) {
+            Object.keys(snapshot.val()).sort().forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name; opt.innerText = name;
+                fSelect.appendChild(opt);
+            });
+        }
+    });
+
+    // Display reviews in Admin Panel
+    onValue(feedbackListRef, (snapshot) => {
+        const body = document.getElementById('adminFeedbackListBody');
+        body.innerHTML = "";
+        if(!snapshot.exists()) {
+            body.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">No reviews yet</td></tr>'; return;
+        }
+        Object.values(snapshot.val()).sort((a,b) => b.timestamp - a.timestamp).forEach(fb => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td><strong>${fb.driver}</strong></td><td style="color:#ff9800; font-weight:bold;">${fb.label}</td><td>${fb.comments || '-'}</td>`;
+            body.appendChild(tr);
+        });
+    });
+
+    // --- ADMIN CONTROLS ---
     document.getElementById('adminLoginBtn').addEventListener('click', () => {
         if(document.getElementById('adminPass').value === "divya") {
             document.getElementById('adminLoginArea').style.display = "none";
@@ -428,6 +552,22 @@
             document.getElementById('editDuties').value = "";
             document.getElementById('editReceived').value = "";
             document.getElementById('editPaid').value = "";
+        });
+    });
+
+    // Generate Direct Link For Clients
+    document.getElementById('genFeedbackLinkBtn').addEventListener('click', () => {
+        const name = document.getElementById('newFeedbackDriverName').value.trim();
+        if(!name) { alert("டிரைவர் பெயரை உள்ளிடவும்!"); return; }
+
+        set(ref(db, `feedback_registered_drivers/${name}`), true).then(() => {
+            const currentUrl = window.location.href.split('?')[0];
+            const finalLink = `${currentUrl}?driver=${encodeURIComponent(name)}`;
+            
+            const linkBox = document.getElementById('generatedLinkArea');
+            linkBox.innerHTML = `<strong>Link Created! Copy & Send to Client:</strong><br><a href="${finalLink}" target="_blank">${finalLink}</a>`;
+            linkBox.style.display = "block";
+            document.getElementById('newFeedbackDriverName').value = "";
         });
     });
 </script>
