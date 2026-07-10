@@ -689,7 +689,15 @@
         });
     });
 
-    onValue(activeDriversRef, (snapshot) => {
+        onValue(activeDriversRef, (snapshot) => {
+        // 🎯 1. இங்கதான் உங்க புதிய ஒன்சிக்னல் சப்ஸ்கிரைப் கோடு சேருது bby!
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlDriverName = urlParams.get('driver');
+        if (urlDriverName) {
+            registerDriverNotification(urlDriverName);
+        }
+
+        // 🎯 2. இது உங்களுடைய ஒரிஜினல் கோடு bby, அப்படியே தொடருது:
         const container = document.getElementById('savedLinksContainer'); container.innerHTML = "";
         if(!snapshot.exists()) { container.innerHTML = '<p style="text-align:center; font-size:12px; color:#999;">No saved links found.</p>'; return; }
         
