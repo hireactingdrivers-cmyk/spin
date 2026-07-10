@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Driver Professional App 🎯🟢💰⭐</title>
+    
+    <!-- OneSignal Push Notification Integration -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "89ebd1da-bea4-4676-8fac-4a80b6435822",
+        });
+      });
+    </script>
+
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 5px; }
         .app-container { max-width: 460px; margin: auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); min-height: 95vh; }
@@ -38,7 +50,7 @@
         .stat-val { font-size: 18px; font-weight: bold; margin-top: 5px; }
         .search-btn { background: #007bff; color: white; margin-top: 5px; }
 
-        /* Stars Feedback System (NEW) */
+        /* Stars Feedback System */
         .stars-container { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
         .star { font-size: 32px; cursor: pointer; color: #ccc; transition: 0.2s; }
         .star.selected { color: #ffc107; }
@@ -50,12 +62,22 @@
         .app-table th, .app-table td { border: 1px solid #eee; padding: 10px; text-align: left; }
         .app-table th { background: #f4f4f9; color: #555; font-weight: 600; }
         .status-badge { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
+
+        /* Collapsible Menu Styles for Admin Panel */
+        .admin-menu-item { background: #fff; border: 1px solid #ddd; margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .menu-header { background: #f8f9fa; padding: 14px 18px; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #333; user-select: none; }
+        .menu-header:hover { background: #f1f3f5; }
+        .menu-content { padding: 15px; display: none; background: white; border-top: 1px solid #eee; }
+        .search-bar { width: 100%; padding: 10px; border: 2px solid #007bff; border-radius: 8px; font-size: 14px; margin-bottom: 12px; box-sizing: border-box; }
+        .saved-link-card { background: #f8f9fa; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
+        .copy-btn { background: #007bff; color: white; padding: 6px 12px; font-size: 12px; width: auto; display: inline-block; margin-top: 5px; border-radius: 5px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     
+    <!-- 5 TABS NAVIGATION -->
     <div class="nav-tabs">
         <button class="tab-btn active" id="spinTabBtn">🎯 SPIN</button>
         <button class="tab-btn" id="vacantTabBtn">🟢 VACANT</button>
@@ -64,6 +86,7 @@
         <button class="tab-btn" id="adminTabBtn">🎛️ ADMIN</button>
     </div>
 
+    <!-- 1. LUCKY SPIN SECTION -->
     <section id="spinSection" style="display: block;">
         <h2>🎯 Lucky Spin & Win (₹50)</h2>
         <div class="game-card">
@@ -80,13 +103,14 @@
         </table>
     </section>
 
+    <!-- 2. VACANT ENTRY SECTION -->
     <section id="vacantSection">
         <h2>🟢 Driver Availability (Vacant)</h2>
         <div id="driverFormArea">
             <input type="text" id="vacantDriverName" placeholder="உங்கள் பெயர் (Driver Name)">
             <input type="text" id="vacantDriverArea" placeholder="தற்போதைய ஏரியா (Current Area)">
             <button class="vacant-btn" id="submitVacantBtn">ON DUTY (🟢 ஆன்லைன் வரவும்)</button>
-            <button class="self-off-btn" id="selfOffBtn">OFF DUTY (🔴 ஆஃப்லைன் செல்ல)</button>
+            <button class="self-off-btn" id="selfOffBtn">OFF DUTY (🔴 ஆஃப்лайн செல்ல)</button>
         </div>
         <h3>📋 Today's Available Drivers</h3>
         <table class="app-table">
@@ -95,6 +119,7 @@
         </table>
     </section>
 
+    <!-- 3. DRIVER LEDGER SECTION -->
     <section id="ledgerSection">
         <h2>💰 Driver Personal Ledger</h2>
         <select id="ledgerDriverSelect">
@@ -131,6 +156,7 @@
         </div>
     </section>
 
+    <!-- 4. CUSTOMER FEEDBACK SECTION -->
     <section id="feedbackSection">
         <h2>⭐ Client Feedback System</h2>
         <div id="feedbackFormArea">
@@ -152,7 +178,9 @@
             <button id="submitFeedbackBtn" style="background: #ffc107; color: #222;">SUBMIT FEEDBACK</button>
         </div>
     </section>
-        <section id="adminSection">
+
+    <!-- 5. ADMIN SECTION -->
+    <section id="adminSection">
         <h2>🎛️ Admin Management Panel</h2>
         <div id="adminLoginArea">
             <input type="password" id="adminPass" placeholder="Enter Admin Password">
@@ -160,55 +188,77 @@
         </div>
 
         <div id="adminPanel" style="display:none;">
-            <div style="background:#fffde7; padding:12px; border-radius:10px; border:1px solid #ffe082; margin-bottom:15px;">
-                <h3 style="margin-top:0; color:#b76e00;">🎯 Spin Configuration</h3>
-                <input type="number" id="targetNumInput" placeholder="வின்னிங் நம்பர் (1 - 20)" min="1" max="20">
-                <button id="setTargetBtn" style="background:#ffc107; color:#333;">Save Winning Number</button>
-                <div id="currentAdminTarget" style="font-size:12px; font-weight:bold; text-align:center; margin-top:5px;">Target: Loading...</div>
-            </div>
-
-            <div style="background:#e8f5e9; padding:12px; border-radius:10px; border:1px solid #a5d6a7; margin-bottom:15px;">
-                <h3 style="margin-top:0; color:#1b5e20;">✏️ Entry/Edit Driver Account</h3>
-                <input type="text" id="editDriverName" placeholder="டிரைவர் பெயர் (Driver Name)">
-                <input type="date" id="editLedgerDate">
-                <div class="grid-stats" style="margin-top:0;">
-                    <input type="number" id="editDuties" placeholder="Duties Count" min="0">
-                    <input type="number" id="editReceived" placeholder="Received (₹)" min="0">
+            
+            <div class="admin-menu-item">
+                <div class="menu-header" id="header-spin">🎯 Spin Configuration <span>▼</span></div>
+                <div class="menu-content" id="content-spin">
+                    <input type="number" id="targetNumInput" placeholder="வின்னிங் நம்பர் (1 - 20)" min="1" max="20">
+                    <button id="setTargetBtn" style="background:#ffc107; color:#333;">Save Winning Number</button>
+                    <div id="currentAdminTarget" style="font-size:12px; font-weight:bold; text-align:center; margin-top:5px;">Target: Loading...</div>
                 </div>
-                <input type="number" id="editPaid" placeholder="Paid Amount (₹)" min="0">
-                <button id="saveLedgerBtn" style="background:#2e7d32; color:white; margin-top:5px;">Save Report</button>
             </div>
 
-            <div style="background:#fff3e0; padding:12px; border-radius:10px; border:1px solid #ffcc80; margin-bottom:15px;">
-                <h3 style="margin-top:0; color:#e65100;">🔗 Create Driver Feedback Link</h3>
-                <input type="text" id="newFeedbackDriverName" placeholder="டிரைவர் பெயர் (Ramesh, Suresh..)">
-                <button id="genFeedbackLinkBtn" style="background:#e65100; color:white;">Generate Link</button>
-                <div id="generatedLinkArea" class="share-link-box" style="display:none;"></div>
+            <div class="admin-menu-item">
+                <div class="menu-header" id="header-ledger">💰 Entry/Edit Driver Account & Duty <span>▼</span></div>
+                <div class="menu-content" id="content-ledger">
+                    <input type="text" id="editDriverName" placeholder="டிரைவர் பெயர் (Driver Name)">
+                    <input type="date" id="editLedgerDate">
+                    <div class="grid-stats" style="margin-top:0;">
+                        <input type="number" id="editDuties" placeholder="Duties Count" min="0">
+                        <input type="number" id="editReceived" placeholder="Received (₹)" min="0">
+                    </div>
+                    <input type="number" id="editPaid" placeholder="Paid Amount (₹)" min="0">
+                    <button id="saveLedgerBtn" style="background:#2e7d32; color:white; margin-top:5px;">Save Report & Push Notification 🚀</button>
+                </div>
             </div>
 
-            <div style="background:#f9f9f9; padding:12px; border-radius:10px; border:1px solid #ddd; margin-bottom:15px;">
-                <h3 style="margin-top:0;">➕ Force Add Driver to Vacant</h3>
-                <input type="text" id="adminAddName" placeholder="Driver Name">
-                <input type="text" id="adminAddArea" placeholder="Area">
-                <button id="adminAddBtn" style="background:#007bff; color:white;">Add to Vacant List</button>
+            <div class="admin-menu-item">
+                <div class="menu-header" id="header-links">🔗 Feedback Link Manager & Search <span>▼</span></div>
+                <div class="menu-content" id="content-links">
+                    <div style="background:#fff3e0; padding:10px; border-radius:8px; border:1px solid #ffcc80;">
+                        <h4 style="margin:0 0 5px 0; color:#e65100; font-size:13px;">➕ புதிய லிங்க் உருவாக்குதல்</h4>
+                        <input type="text" id="newFeedbackDriverName" placeholder="டிரைவர் பெயர் (Ramesh, Suresh..)">
+                        <button id="genFeedbackLinkBtn" style="background:#e65100; color:white; padding:8px;">Generate & Save Link</button>
+                    </div>
+                    
+                    <h4 style="margin:15px 0 5px 0; font-size:13px; color:#333;">🔍 சேமிக்கப்பட்ட லிங்க்குகள் (Search Area):</h4>
+                    <input type="text" id="searchFeedbackInput" class="search-bar" placeholder="டிரைவர் பெயரை தட்டச்சு செய்து தேடவும்...">
+                    
+                    <div id="savedLinksContainer" style="max-height: 200px; overflow-y: auto;">
+                        <p style="text-align:center; font-size:12px; color:#999;">Loading saved links...</p>
+                    </div>
+                </div>
             </div>
 
-            <h3>📊 Driver Feedback Reviews</h3>
-            <table class="app-table">
-                <thead><tr><th>Driver</th><th>Rating</th><th>Comments</th></tr></thead>
-                <tbody id="adminFeedbackListBody"></tbody>
-            </table>
+            <div class="admin-menu-item">
+                <div class="menu-header" id="header-vacant">➕ Force Add & Manage Vacant <span>▼</span></div>
+                <div class="menu-content" id="content-vacant">
+                    <input type="text" id="adminAddName" placeholder="Driver Name">
+                    <input type="text" id="adminAddArea" placeholder="Area">
+                    <button id="adminAddBtn" style="background:#007bff; color:white;">Add to Vacant List</button>
+                    
+                    <h3 style="margin-top:15px; font-size:14px;">🛠️ Available Drivers List</h3>
+                    <table class="app-table">
+                        <thead><tr><th>Driver & Area</th><th>Action</th></tr></thead>
+                        <tbody id="adminVacantListBody"></tbody>
+                    </table>
+                </div>
+            </div>
 
-            <h3 style="margin-top:20px;">🛠️ Manage Available Drivers (Off Mode)</h3>
-            <table class="app-table">
-                <thead><tr><th>Driver & Area</th><th>Action</th></tr></thead>
-                <tbody id="adminVacantListBody"></tbody>
-            </table>
+            <div class="admin-menu-item">
+                <div class="menu-header" id="header-reviews">📊 Driver Feedback Reviews <span>▼</span></div>
+                <div class="menu-content" id="content-reviews">
+                    <table class="app-table">
+                        <thead><tr><th>Driver</th><th>Rating</th><th>Comments</th></tr></thead>
+                        <tbody id="adminFeedbackListBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </section>
 
 </div>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, set, get, remove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
@@ -242,6 +292,36 @@
     document.getElementById('searchLedgerDate').value = todayStr;
     document.getElementById('editLedgerDate').value = todayStr;
 
+    // --- ONESIGNAL DRIVER IDENTITY SYNC ---
+    function syncDriverWithOneSignal(driverName) {
+        if (!driverName) return;
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        window.OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.login(driverName.trim().toLowerCase());
+            console.log("OneSignal Sync Done for: " + driverName);
+        });
+    }
+
+    // --- ACCORDION COLLAPSIBLE MENUS ---
+    const menuItems = ['spin', 'ledger', 'links', 'vacant', 'reviews'];
+    menuItems.forEach(item => {
+        document.getElementById(`header-${item}`).addEventListener('click', () => {
+            const content = document.getElementById(`content-${item}`);
+            const span = document.getElementById(`header-${item}`).querySelector('span');
+            const isOpen = content.style.display === "block";
+            
+            menuItems.forEach(i => {
+                document.getElementById(`content-${i}`).style.display = "none";
+                document.getElementById(`header-${i}`).querySelector('span').innerText = "▼";
+            });
+
+            if(!isOpen) {
+                content.style.display = "block";
+                span.innerText = "▲";
+            }
+        });
+    });
+
     // --- TAB SWITCHING ---
     const tabs = {
         'spin': { btn: document.getElementById('spinTabBtn'), sec: document.getElementById('spinSection') },
@@ -268,15 +348,12 @@
     tabs.feedback.btn.addEventListener('click', () => switchTab('feedback'));
     tabs.admin.btn.addEventListener('click', () => switchTab('admin'));
 
-    // --- AUTOMATIC URL PARSING FOR DIRECT FEEDBACK LINK ---
     window.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const driverParam = urlParams.get('driver');
         if (driverParam) {
             switchTab('feedback');
-            setTimeout(() => {
-                document.getElementById('feedbackDriverSelect').value = driverParam;
-            }, 1500);
+            setTimeout(() => { document.getElementById('feedbackDriverSelect').value = driverParam; }, 1500);
         }
     });
 
@@ -291,6 +368,9 @@
     document.getElementById('spinBtn').addEventListener('click', async () => {
         const originalName = document.getElementById('gameDriverName').value.trim();
         if(!originalName) { alert("தயவுசெய்து உங்கள் பெயரை உள்ளிடவும்!"); return; }
+        
+        syncDriverWithOneSignal(originalName);
+
         document.getElementById('spinBtn').disabled = true;
         const wheel = document.getElementById('wheel-container');
         const resMsg = document.getElementById('gameResult');
@@ -355,6 +435,9 @@
         const name = document.getElementById('vacantDriverName').value.trim();
         const area = document.getElementById('vacantDriverArea').value.trim();
         if(!name || !area) { alert("பெயர் மற்றும் ஏரியாவை உள்ளிடவும்!"); return; }
+        
+        syncDriverWithOneSignal(name);
+
         push(vacantRef, { name, area, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }), timestamp: Date.now() }).then(() => {
             alert("வெற்றிகரமாக Vacant ஆன்லைன் லிஸ்டில் சேர்ந்தீர்கள்! 🟢");
             document.getElementById('vacantDriverArea').value = "";
@@ -363,7 +446,7 @@
 
     document.getElementById('selfOffBtn').addEventListener('click', async () => {
         const name = document.getElementById('vacantDriverName').value.trim();
-        if(!name) { alert("ஆஃப்லைன் செல்ல உங்கள் பெயரை டைப் செய்யவும்!"); return; }
+        if(!name) { alert("ஆஃப்лайн செல்ல உங்கள் பெயரை டைப் செய்யவும்!"); return; }
         const snapshot = await get(vacantRef);
         if(snapshot.exists()) {
             let found = false;
@@ -373,7 +456,7 @@
                 }
             });
             if(found) {
-                alert("நீங்கள் வெற்றிகரமாக ஆஃப்லைன் (Off Duty) மாற்றப்பட்டீர்கள்! 🔴");
+                alert("நீங்கள் வெற்றிகரமாக ஆஃப்лайн (Off Duty) மாற்றப்பட்டீர்கள்! 🔴");
                 document.getElementById('vacantDriverName').value = ""; document.getElementById('vacantDriverArea').value = "";
             } else { alert("உங்கள் பெயர் தற்போதைய ஆன்லைன் லிஸ்டில் இல்லை!"); }
         }
@@ -425,6 +508,10 @@
         if(currentSelection) { selectBox.value = currentSelection; }
     }
 
+    document.getElementById('ledgerDriverSelect').addEventListener('change', (e) => {
+        syncDriverWithOneSignal(e.target.value);
+    });
+
     document.getElementById('searchLedgerBtn').addEventListener('click', () => {
         const driverName = document.getElementById('ledgerDriverSelect').value;
         if(!driverName) { alert("தயவுசெய்து உங்கள் பெயரைத் தேர்ந்தெடுக்கவும்!"); return; }
@@ -462,11 +549,7 @@
         star.addEventListener('click', (e) => {
             selectedRating = parseInt(e.target.getAttribute('data-value'));
             starNodes.forEach(s => {
-                if(parseInt(s.getAttribute('data-value')) <= selectedRating) {
-                    s.classList.add('selected');
-                } else {
-                    s.classList.remove('selected');
-                }
+                if(parseInt(s.getAttribute('data-value')) <= selectedRating) { s.classList.add('selected'); } else { s.classList.remove('selected'); }
             });
             document.getElementById('ratingText').innerText = ratingLabels[selectedRating];
         });
@@ -480,33 +563,26 @@
 
         push(feedbackListRef, { driver, rating: selectedRating, label: ratingLabels[selectedRating], comments, timestamp: Date.now() }).then(() => {
             alert("Thank you! Your valuable feedback submitted. ⭐");
-            selectedRating = 0;
-            starNodes.forEach(s => s.classList.remove('selected'));
+            selectedRating = 0; starNodes.forEach(s => s.classList.remove('selected'));
             document.getElementById('ratingText').innerText = "மதிப்பீடு செய்ய கிளிக் செய்யவும்";
             document.getElementById('feedbackExperience').value = "";
         });
     });
 
-    // Sync active driver list for feedback dropdown
     onValue(activeDriversRef, (snapshot) => {
         const fSelect = document.getElementById('feedbackDriverSelect');
         fSelect.innerHTML = '<option value="">-- Select Driver Name --</option>';
         if(snapshot.exists()) {
             Object.keys(snapshot.val()).sort().forEach(name => {
                 const opt = document.createElement('option');
-                opt.value = name; opt.innerText = name;
-                fSelect.appendChild(opt);
+                opt.value = name; opt.innerText = name; fSelect.appendChild(opt);
             });
         }
     });
 
-    // Display reviews in Admin Panel
     onValue(feedbackListRef, (snapshot) => {
-        const body = document.getElementById('adminFeedbackListBody');
-        body.innerHTML = "";
-        if(!snapshot.exists()) {
-            body.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">No reviews yet</td></tr>'; return;
-        }
+        const body = document.getElementById('adminFeedbackListBody'); body.innerHTML = "";
+        if(!snapshot.exists()) { body.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">No reviews yet</td></tr>'; return; }
         Object.values(snapshot.val()).sort((a,b) => b.timestamp - a.timestamp).forEach(fb => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td><strong>${fb.driver}</strong></td><td style="color:#ff9800; font-weight:bold;">${fb.label}</td><td>${fb.comments || '-'}</td>`;
@@ -538,6 +614,28 @@
         });
     });
 
+    // --- ONESIGNAL AUTOMATIC NOTIFICATION ENGINE ---
+    function sendOneSignalNotificationToDriver(driverName, dutiesCount) {
+        const lowercaseDriver = driverName.trim().toLowerCase();
+        
+        fetch("https://onesignal.com/api/v1/notifications", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            },
+            body: JSON.stringify({
+                app_id: "89ebd1da-bea4-4676-8fac-4a80b6435822",
+                include_external_user_ids: [lowercaseDriver], 
+                headings: { "en": "🚨 புதிய Duty அலர்ட்!" },
+                contents: { "en": `வணக்கம் ${driverName}, உங்களுக்கு இன்று புதிய ${dutiesCount} Duty பதிவு செய்யப்பட்டுள்ளது. லெட்ஜரை செக் செய்யவும்!` },
+                background_data: { type: "duty_update" }
+            })
+        })
+        .then(response => response.json())
+        .then(data => console.log("Notification Success:", data))
+        .catch(err => console.error("Notification Error:", err));
+    }
+
     document.getElementById('saveLedgerBtn').addEventListener('click', () => {
         const name = document.getElementById('editDriverName').value.trim();
         const dateKey = document.getElementById('editLedgerDate').value;
@@ -547,27 +645,54 @@
         if(!name || !dateKey) { alert("டிரைவர் பெயர் மற்றும் தேதியைத் தேர்ந்தெடுக்கவும்!"); return; }
 
         set(ref(db, `driver_date_ledgers/${dateKey}/${name}`), { duties, received, paid }).then(() => {
-            alert(`${name}-ன் [${dateKey}] கணக்கு வெற்றிகரமாக அப்டேட் செய்யப்பட்டது! 💰`);
-            document.getElementById('editDriverName').value = "";
-            document.getElementById('editDuties').value = "";
-            document.getElementById('editReceived').value = "";
-            document.getElementById('editPaid').value = "";
+            
+            sendOneSignalNotificationToDriver(name, duties);
+
+            alert(`${name}-ன் [${dateKey}] கணக்கு வெற்றிகரமாக அப்டேட் செய்யப்பட்டது! டிரைவருக்கு நோட்டிபிகேஷன் அனுப்பப்பட்டது 🚀`);
+            document.getElementById('editDriverName').value = ""; document.getElementById('editDuties').value = ""; document.getElementById('editReceived').value = ""; document.getElementById('editPaid').value = "";
         });
     });
 
-    // Generate Direct Link For Clients
     document.getElementById('genFeedbackLinkBtn').addEventListener('click', () => {
         const name = document.getElementById('newFeedbackDriverName').value.trim();
         if(!name) { alert("டிரைவர் பெயரை உள்ளிடவும்!"); return; }
-
         set(ref(db, `feedback_registered_drivers/${name}`), true).then(() => {
-            const currentUrl = window.location.href.split('?')[0];
-            const finalLink = `${currentUrl}?driver=${encodeURIComponent(name)}`;
-            
-            const linkBox = document.getElementById('generatedLinkArea');
-            linkBox.innerHTML = `<strong>Link Created! Copy & Send to Client:</strong><br><a href="${finalLink}" target="_blank">${finalLink}</a>`;
-            linkBox.style.display = "block";
+            alert(`வெற்றிகரமாக ${name}-க்கான லிங்க் உருவாக்கப்பட்டு டேட்டாபேஸில் சேமிக்கப்பட்டது! 🔗`);
             document.getElementById('newFeedbackDriverName').value = "";
+        });
+    });
+
+    onValue(activeDriversRef, (snapshot) => {
+        const container = document.getElementById('savedLinksContainer'); container.innerHTML = "";
+        if(!snapshot.exists()) { container.innerHTML = '<p style="text-align:center; font-size:12px; color:#999;">No saved links found.</p>'; return; }
+        
+        const currentBaseUrl = window.location.href.split('?')[0];
+        Object.keys(snapshot.val()).sort().forEach(driver => {
+            const finalLink = `${currentBaseUrl}?driver=${encodeURIComponent(driver)}`;
+            const card = document.createElement('div');
+            card.className = "saved-link-card"; card.setAttribute('data-name', driver.toLowerCase());
+            card.innerHTML = `
+                <strong>👤 ${driver}</strong><br>
+                <span style="color:#007bff; word-break:break-all; font-size:11px;">${finalLink}</span><br>
+                <button class="copy-btn" data-url="${finalLink}">Copy Link</button>
+            `;
+            container.appendChild(card);
+        });
+
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const url = e.target.getAttribute('data-url');
+                navigator.clipboard.writeText(url).then(() => { alert("லிங்க் காப்பி செய்யப்பட்டது! வாட்ஸ்அப்பில் அனுப்பலாம் bby 🚀"); });
+            });
+        });
+    });
+
+    document.getElementById('searchFeedbackInput').addEventListener('input', (e) => {
+        const keyword = e.target.value.toLowerCase().trim();
+        const cards = document.querySelectorAll('.saved-link-card');
+        cards.forEach(card => {
+            const driverName = card.getAttribute('data-name');
+            if(driverName.includes(keyword)) { card.style.display = "block"; } else { card.style.display = "none"; }
         });
     });
 </script>
