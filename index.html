@@ -2,48 +2,49 @@
 <html lang="ta">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Driver Professional App 🎯🟢💰⭐</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Ledger</title>
+
+    <!-- மொபைலில் Console Log பார்க்க உதவும் எளிய டூல் bby -->
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+      
+    <!-- லேட்டஸ்ட் OneSignal SDK v16 Integration -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       
-          <!-- லேட்டஸ்ட் OneSignal SDK v16 Integration -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "a65e830a-35de-4f20-b0e2-7b7ddf67c581", // உங்க App ID
-      // 🎯 சப்-ஃபோல்டருக்கான (spin) சரியான புதிய பாதை bby!
-      serviceWorkerPath: "spin/OneSignalSDKWorker.js", 
-      serviceWorkerParam: { scope: "/spin/" },
-      notifyButton: {
-        enable: true, 
-      },
-      allowLocalhostAsSecureOrigin: true
-    });
-    console.log("OneSignal New v16 Init Completed with Subfolder!");
-  });
-
-  // டிரைவர் பெயரை ஒன்சிக்னல் லாகினுடன் இணைக்கும் ஃபங்க்ஷன்
-  function registerDriverNotification(driverName) {
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
       OneSignalDeferred.push(async function(OneSignal) {
-          if (OneSignal.User) {
-              try {
-                  let cleanName = driverName.trim().toLowerCase();
-                  await OneSignal.login(cleanName);
-                  console.log("Driver identity synchronized successfully:", cleanName);
-              } catch (e) {
-                  console.error("Error linking driver identity:", e);
-              }
-          }
+        await OneSignal.init({
+          appId: "a65e830a-35de-4f20-b0e2-7b7ddf67c581", // உங்க App ID
+          serviceWorkerPath: "spin/OneSignalSDKWorker.js", 
+          serviceWorkerParam: { scope: "/spin/" },
+          notifyButton: {
+            enable: true, 
+          },
+          allowLocalhostAsSecureOrigin: true
+        });
+        console.log("OneSignal New v16 Init Completed with Subfolder!");
       });
-  }
-</script>
+
+            // டிரைவர் பெயரை ஒன்சிக்னல் லாகினுடன் இணைக்கும் ஃபங்க்ஷன் - இப்போ சரியான இடத்துக்கு வந்துடுச்சு bby!
+      function registerDriverNotification(driverName) {
+          window.OneSignalDeferred = window.OneSignalDeferred || [];
+          OneSignalDeferred.push(async function(OneSignal) {
+              if (OneSignal.User) {
+                  try {
+                      let cleanName = driverName.trim().toLowerCase();
+                      await OneSignal.login(cleanName);
+                      console.log("Driver identity synchronized successfully:", cleanName);
+                  } catch (e) {
+                      console.error("Error linking driver identity:", e);
+                  }
+              }
+          });
+      }
+    </script>
+</head>
+<body> <!-- 🎯 எக்ஸ்ட்ரா </script> டேக் நீக்கப்பட்டு, பாடி டேக் ஓப்பன் செய்யப்பட்டுள்ளது bby! -->
 
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 5px; }
