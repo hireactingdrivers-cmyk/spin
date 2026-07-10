@@ -209,19 +209,19 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-        <script>
-        // 🎯 உங்களுடைய ஸ்பின் சைட்டோட ஒரிஜினல் Firebase Configuration bby!
+    <script>
+        // 🎯 உங்களுடைய புதிய ரியல்-டைம் Firebase Configuration bby!
         const firebaseConfig = {
-            apiKey: "AIzaSyAs-X01uYjRl... (உங்க பழைய கீ ஆட்டோமேட்டிக்கா வேலை செய்யும் bby)",
-            authDomain: "hireactingdrivers-cmyk.firebaseapp.com",
-            databaseURL: "https://hireactingdrivers-cmyk-default-rtdb.firebaseio.com/",
-            projectId: "hireactingdrivers-cmyk",
-            storageBucket: "hireactingdrivers-cmyk.appspot.com",
-            messagingSenderId: "1074558552341",
-            appId: "1:1074558552341:web:dd6f264871de993ca60ea4"
+            apiKey: "AIzaSyBf2I74LYfdifdJnpxy8m-xgwuhwpib3zo",
+            authDomain: "spin-ac065.firebaseapp.com",
+            databaseURL: "https://spin-ac065-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "spin-ac065",
+            storageBucket: "spin-ac065.firebasestorage.app",
+            messagingSenderId: "384657177346",
+            appId: "1:384657177346:web:75c90a2f22d532a5eb601b"
         };
         
-        // Firebase-ஐ இனிஷியலைஸ் செய்கிறோம்
+        // Firebase Initializing
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
@@ -236,7 +236,7 @@
             document.getElementById('adminBtn').className = isAdmin ? 'bg-red-500 px-3 py-1 rounded text-sm font-semibold text-white shadow' : 'bg-gray-500 px-3 py-1 rounded text-sm font-semibold text-white shadow';
             document.getElementById('adminBtn').innerHTML = isAdmin ? '<i class="fa-solid fa-user-shield"></i> Admin: ON' : '<i class="fa-solid fa-user"></i> Driver View';
             document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? '' : 'none');
-            renderAll(); // டாக்ள் செய்ததும் போன் நம்பர் பிரைவசி மாற உடனே ரீ-ரெண்டர் பண்றோம் bby
+            renderAll(); 
         }
 
         function showSection(secId) {
@@ -286,14 +286,14 @@
                 lmvExpiry: document.getElementById('d-lmv-expiry').value,
                 lmvTrExpiry: document.getElementById('d-lmv-tr').value
             });
-            alert('Driver Saved!');
+            alert('Driver Saved Successfully bby!');
         }
 
         function saveClient() {
             let name = document.getElementById('c-name').value.trim();
             if(!name) return;
             db.ref('clients').push({ name });
-            alert('Client Saved!');
+            alert('Client Saved Successfully bby!');
         }
 
         function saveRejectedClient() {
@@ -301,6 +301,7 @@
             let reason = document.getElementById('rc-reason').value;
             if(!client) return;
             db.ref('rejectedClients').push({ client, reason });
+            alert('Added to Rejected Clients List bby!');
         }
 
         function saveRejectedDriver() {
@@ -309,6 +310,7 @@
             let reason = document.getElementById('rd-reason').value;
             if(!client || !driver) return;
             db.ref('rejectedDrivers').push({ client, driver, reason });
+            alert('Added to Rejected Drivers List bby!');
         }
 
         function checkDutySafety() {
@@ -337,7 +339,7 @@
             let driver = document.getElementById('duty-driver').value;
             if(!date || !client || !driver) return alert('Fill fields bby');
             db.ref('duties').push({ date, time, client, driver });
-            alert('Duty Recorded!');
+            alert('Duty Recorded Successfully bby!');
         }
 
         function saveEarnings() {
@@ -348,7 +350,7 @@
             let balance = document.getElementById('earn-balance').value || 0;
             if(!date || !driver) return;
             db.ref('earnings').push({ date, driver, amount, paid, balance });
-            alert('Earnings Added!');
+            alert('Earnings Added bby!');
         }
 
         function setVacantStatus(status) {
@@ -361,7 +363,7 @@
             });
             if(!matched) return alert('Mobile number mismatch bby!');
             db.ref('vacant').child(driver).set({ name: driver, status: status, phone: phoneInput, timestamp: Date.now() });
-            alert(`Status updated successfully!`);
+            alert(`Duty status updated successfully bby!`);
         }
 
         function deleteItem(path, id) {
@@ -465,3 +467,4 @@
     </script>
 </body>
 </html>
+            
