@@ -5,45 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Driver Professional App 🎯🟢💰⭐</title>
     
-    <!-- லேட்டஸ்ட் OneSignal SDK v16 Integration -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
-      window.OneSignal = window.OneSignal || [];
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
       
-      // ஒன்சிக்னல் ஸ்டார்ட் செய்யும் சரியான புதிய முறை bby
-      async function initOneSignal() {
-        try {
-          await OneSignal.init({
-            appId: "89ebd1da-bea4-4676-8fac-4a80b6435822",
-            safari_web_id: "web.onesignal.auto.17646df7-5154-46bb-be11-891d4e08bfca",
-            notifyButton: {
-              enable: true, // போன் ஸ்கிரீன்ல ஒரு சின்ன பெல் ஐகான் காட்டும் bby
-            },
-            allowLocalhostAsSecureOrigin: true
-          });
-          console.log("OneSignal Auto Init Completed!");
-        } catch (error) {
-          console.error("OneSignal Init Error:", error);
-        }
-      }
-
-      window.addEventListener("load", () => {
-        initOneSignal();
+      // ஒன்சிக்னல் v16 ஸ்டார்ட் செய்யும் சரியான புதிய முறை bby
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "a65e830a-35de-4f20-b0e2-7b7ddf67c581", // உங்க புதிய App ID
+          notifyButton: {
+            enable: true, // போன் ஸ்கிரீன்ல பெல் ஐகான் காட்டும் bby
+          },
+          allowLocalhostAsSecureOrigin: true
+        });
+        console.log("OneSignal New v16 Init Completed!");
       });
 
-      // டிரைவர் பேரை லாகின் செய்ய நாம பயன்படுத்தும் சரியான புதிய ஃபங்க்ஷன்
-      async function registerDriverNotification(driverName) {
-          if (typeof OneSignal !== "undefined" && OneSignal.User) {
-              try {
-                  let cleanName = driverName.trim().toLowerCase();
-                  await OneSignal.login(cleanName);
-                  console.log("Driver identity synchronized successfully:", cleanName);
-              } catch (e) {
-                  console.error("Error linking driver identity:", e);
+      // டிரைவர் பேரை லாகின் செய்ய நாம பயன்படுத்துும் புதிய v16 ஃபங்க்ஷன்
+      function registerDriverNotification(driverName) {
+          window.OneSignalDeferred = window.OneSignalDeferred || [];
+          OneSignalDeferred.push(async function(OneSignal) {
+              if (OneSignal.User) {
+                  try {
+                      let cleanName = driverName.trim().toLowerCase();
+                      await OneSignal.login(cleanName);
+                      console.log("Driver identity synchronized successfully:", cleanName);
+                  } catch (e) {
+                      console.error("Error linking driver identity:", e);
+                  }
+              } else {
+                  console.error("OneSignal User module is not ready yet bby!");
               }
-          } else {
-              console.error("OneSignal is not loaded yet bby!");
-          }
+          });
       }
     </script>
 
@@ -102,7 +95,6 @@
 
 <div class="app-container">
     
-    <!-- 5 TABS NAVIGATION -->
     <div class="nav-tabs">
         <button class="tab-btn active" id="spinTabBtn">🎯 SPIN</button>
         <button class="tab-btn" id="vacantTabBtn">🟢 VACANT</button>
@@ -111,7 +103,6 @@
         <button class="tab-btn" id="adminTabBtn">🎛️ ADMIN</button>
     </div>
 
-    <!-- 1. LUCKY SPIN SECTION -->
     <section id="spinSection" style="display: block;">
         <h2>🎯 Lucky Spin & Win (₹50)</h2>
         <div class="game-card">
@@ -128,7 +119,6 @@
         </table>
     </section>
 
-    <!-- 2. VACANT ENTRY SECTION -->
     <section id="vacantSection">
         <h2>🟢 Driver Availability (Vacant)</h2>
         <div id="driverFormArea">
@@ -144,7 +134,6 @@
         </table>
     </section>
 
-    <!-- 3. DRIVER LEDGER SECTION -->
     <section id="ledgerSection">
         <h2>💰 Driver Personal Ledger</h2>
         <select id="ledgerDriverSelect">
@@ -181,7 +170,6 @@
         </div>
     </section>
 
-    <!-- 4. CUSTOMER FEEDBACK SECTION -->
     <section id="feedbackSection">
         <h2>⭐ Client Feedback System</h2>
         <div id="feedbackFormArea">
@@ -204,7 +192,6 @@
         </div>
     </section>
 
-    <!-- 5. ADMIN SECTION -->
     <section id="adminSection">
         <h2>🎛️ Admin Management Panel</h2>
         <div id="adminLoginArea">
@@ -284,6 +271,7 @@
     </section>
 
 </div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, set, get, remove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
@@ -310,6 +298,7 @@
 
     let currentTargetNum = 7;
     let allLedgerData = {};
+    let registeredDriversData = {};
     let selectedRating = 0;
     const ratingLabels = { 1: "1★ Worst 🔴", 2: "2★ OK 🟡", 3: "3★ Good 🟢", 4: "4★ Very Good 🔵", 5: "5★ Excellent 👑" };
 
@@ -384,7 +373,6 @@
         const originalName = document.getElementById('gameDriverName').value.trim();
         if(!originalName) { alert("தயவுசெய்து உங்கள் பெயரை உள்ளிடவும்!"); return; }
         
-        // சரிசெய்யப்பட்ட புதிய OneSignal Identity Sync சிஸ்டம் இங்க கூப்பிடப்படுது bby!
         if (typeof registerDriverNotification === "function") {
             registerDriverNotification(originalName);
         }
@@ -454,7 +442,6 @@
         const area = document.getElementById('vacantDriverArea').value.trim();
         if(!name || !area) { alert("பெயர் மற்றும் ஏரியாவை உள்ளிடவும்!"); return; }
         
-        // ஆன்லைன் வரும்போதும் OneSignal சிங்க் ஆகும் பாஸ்!
         if (typeof registerDriverNotification === "function") {
             registerDriverNotification(name);
         }
@@ -513,13 +500,29 @@
         updateDriverDropdown();
     });
 
+    onValue(activeDriversRef, (snapshot) => {
+        registeredDriversData = snapshot.val() || {};
+        updateDriverDropdown();
+        
+        const fSelect = document.getElementById('feedbackDriverSelect');
+        fSelect.innerHTML = '<option value="">-- Select Driver Name --</option>';
+        Object.keys(registeredDriversData).sort().forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name; opt.innerText = name; fSelect.appendChild(opt);
+        });
+    });
+
     function updateDriverDropdown() {
         const selectBox = document.getElementById('ledgerDriverSelect');
         const currentSelection = selectBox.value;
         let driverNames = new Set();
+        
         Object.values(allLedgerData).forEach(dateBlock => {
             Object.keys(dateBlock).forEach(name => driverNames.add(name));
         });
+        
+        Object.keys(registeredDriversData).forEach(name => driverNames.add(name));
+        
         selectBox.innerHTML = '<option value="">-- Select Your Name --</option>';
         Array.from(driverNames).sort().forEach(driverName => {
             const opt = document.createElement('option');
@@ -592,17 +595,6 @@
         });
     });
 
-    onValue(activeDriversRef, (snapshot) => {
-        const fSelect = document.getElementById('feedbackDriverSelect');
-        fSelect.innerHTML = '<option value="">-- Select Driver Name --</option>';
-        if(snapshot.exists()) {
-            Object.keys(snapshot.val()).sort().forEach(name => {
-                const opt = document.createElement('option');
-                opt.value = name; opt.innerText = name; fSelect.appendChild(opt);
-            });
-        }
-    });
-
     onValue(feedbackListRef, (snapshot) => {
         const body = document.getElementById('adminFeedbackListBody'); body.innerHTML = "";
         if(!snapshot.exists()) { body.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">No reviews yet</td></tr>'; return; }
@@ -644,10 +636,12 @@
         fetch("https://onesignal.com/api/v1/notifications", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json; charset=utf-8"
+                "Content-Type": "application/json; charset=utf-8",
+                // ⚠️ உங்களுடைய புதிய REST API Key வெற்றிகரமாக இங்கே இணைக்கப்பட்டுள்ளது bby!
+                "Authorization": "Basic os_v2_app_uzpigcrv3zhsbmhcpn656z6fqfn7c453plxu3q45vnk6vrmleavqfhj2uvpil6ovhiec23olvtvv3oyskasbckv3wwofv5hd2s5ignq"
             },
             body: JSON.stringify({
-                app_id: "89ebd1da-bea4-4676-8fac-4a80b6435822",
+                app_id: "a65e830a-35de-4f20-b0e2-7b7ddf67c581", // உங்க புதிய App ID
                 include_external_user_ids: [lowercaseDriver], 
                 headings: { "en": "🚨 புதிய Duty அலர்ட்!" },
                 contents: { "en": `வணக்கம் ${driverName}, உங்களுக்கு இன்று புதிய ${dutiesCount} Duty பதிவு செய்யப்பட்டுள்ளது. லெட்ஜரை செக் செய்யவும்!` },
@@ -668,10 +662,7 @@
         if(!name || !dateKey) { alert("டிரைவர் பெயர் மற்றும் தேதியைத் தேர்ந்தெடுக்கவும்!"); return; }
 
         set(ref(db, `driver_date_ledgers/${dateKey}/${name}`), { duties, received, paid }).then(() => {
-            
-            // நோட்டிபிகேஷன் அனுப்பும் பங்க்ஷன் bby!
             sendOneSignalNotificationToDriver(name, duties);
-
             alert(`${name}-ன் [${dateKey}] கணக்கு வெற்றிகரமாக அப்டேட் செய்யப்பட்டது! டிரைவருக்கு நோட்டிபிகேஷன் அனுப்பப்பட்டது 🚀`);
             document.getElementById('editDriverName').value = ""; document.getElementById('editDuties').value = ""; document.getElementById('editReceived').value = ""; document.getElementById('editPaid').value = "";
         });
