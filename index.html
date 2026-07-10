@@ -689,7 +689,7 @@
         });
     });
 
-                onValue(activeDriversRef, (snapshot) => {
+        onValue(activeDriversRef, (snapshot) => {
         const container = document.getElementById('savedLinksContainer'); container.innerHTML = "";
         
         // ... (உங்க பழைய கோடு) ...
@@ -705,9 +705,6 @@
                 console.log("Driver successfully logged in to OneSignal:", urlDriverName);
             });
         }
-        
-        // ... (மீதி கோடு) ...
-    });
             
         // 🎯 2. இது உங்களுடைய ஒரிஜினல் கோடு bby, அப்படியே தொடருது:
         const container = document.getElementById('savedLinksContainer'); container.innerHTML = "";
