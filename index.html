@@ -689,14 +689,22 @@
         });
     });
 
-        onValue(activeDriversRef, (snapshot) => {
-        // 🎯 1. இங்கதான் உங்க புதிய ஒன்சிக்னல் சப்ஸ்கிரைப் கோடு சேருது bby!
+            onValue(activeDriversRef, (snapshot) => {
+        const container = document.getElementById('savedLinksContainer'); container.innerHTML = "";
+        
+        // ... (உங்க பழைய கோடு) ...
+
+        // 🎯 ஒன்சிக்னல் SDK லோட் ஆன பிறகு மட்டும் இந்த வேலையைச் செய்யும் bby!
         const urlParams = new URLSearchParams(window.location.search);
         const urlDriverName = urlParams.get('driver');
+        
         if (urlDriverName) {
-            registerDriverNotification(urlDriverName);
-        }
-
+            window.OneSignalDeferred = window.OneSignalDeferred || [];
+            OneSignalDeferred.push(async function(OneSignal) {
+                await OneSignal.login(urlDriverName.trim().toLowerCase());
+                console.log("Driver successfully logged in to OneSignal:", urlDriverName);
+            });
+            
         // 🎯 2. இது உங்களுடைய ஒரிஜினல் கோடு bby, அப்படியே தொடருது:
         const container = document.getElementById('savedLinksContainer'); container.innerHTML = "";
         if(!snapshot.exists()) { container.innerHTML = '<p style="text-align:center; font-size:12px; color:#999;">No saved links found.</p>'; return; }
