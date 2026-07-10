@@ -629,7 +629,7 @@
         });
     });
 
-    // --- ONESIGNAL AUTOMATIC NOTIFICATION ENGINE ---
+        // --- ONESIGNAL AUTOMATIC NOTIFICATION ENGINE (UPDATED FOR v16) ---
     function sendOneSignalNotificationToDriver(driverName, dutiesCount) {
         const lowercaseDriver = driverName.trim().toLowerCase();
         
@@ -637,20 +637,27 @@
             method: "POST",
             headers: {
                 "Content-Type": "application/json; charset=utf-8",
-                // ⚠️ உங்களுடைய புதிய REST API Key வெற்றிகரமாக இங்கே இணைக்கப்பட்டுள்ளது bby!
                 "Authorization": "Basic os_v2_app_uzpigcrv3zhsbmhcpn656z6fqfn7c453plxu3q45vnk6vrmleavqfhj2uvpil6ovhiec23olvtvv3oyskasbckv3wwofv5hd2s5ignq"
             },
             body: JSON.stringify({
-                app_id: "a65e830a-35de-4f20-b0e2-7b7ddf67c581", // உங்க புதிய App ID
-                include_external_user_ids: [lowercaseDriver], 
+                app_id: "a65e830a-35de-4f20-b0e2-7b7ddf67c581", 
+                // 🎯 v16-க்கான புதிய சரியான முறை bby!
+                include_aliases: {
+                    external_id: [lowercaseDriver]
+                },
                 headings: { "en": "🚨 புதிய Duty அலர்ட்!" },
                 contents: { "en": `வணக்கம் ${driverName}, உங்களுக்கு இன்று புதிய ${dutiesCount} Duty பதிவு செய்யப்பட்டுள்ளது. லெட்ஜரை செக் செய்யவும்!` },
                 background_data: { type: "duty_update" }
             })
         })
         .then(response => response.json())
-        .then(data => console.log("Notification Success:", data))
-        .catch(err => console.error("Notification Error:", err));
+        .then(data => {
+            console.log("Notification Response Data:", data);
+            if(data.errors) {
+                console.error("OneSignal Server Error:", data.errors);
+            }
+        })
+        .catch(err => console.error("Notification Fetch Error:", err));
     }
 
     document.getElementById('saveLedgerBtn').addEventListener('click', () => {
