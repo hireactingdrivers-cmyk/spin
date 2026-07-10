@@ -10,38 +10,40 @@
       window.OneSignalDeferred = window.OneSignalDeferred || [];
       
           <!-- லேட்டஸ்ட் OneSignal SDK v16 Integration -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      
-      OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "a65e830a-35de-4f20-b0e2-7b7ddf67c581", // உங்க App ID
-          // 🎯 இந்த ஒரு வரியை முக்கியமாகச் சேர்க்கவும் bby!
-          serviceWorkerPath: "OneSignalSDKWorker.js", 
-          notifyButton: {
-            enable: true, 
-          },
-          allowLocalhostAsSecureOrigin: true
-        });
-        console.log("OneSignal New v16 Init Completed!");
-      });
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "a65e830a-35de-4f20-b0e2-7b7ddf67c581", // உங்க App ID
+      // 🎯 சப்-ஃபோல்டருக்கான (spin) சரியான புதிய பாதை bby!
+      serviceWorkerPath: "spin/OneSignalSDKWorker.js", 
+      serviceWorkerParam: { scope: "/spin/" },
+      notifyButton: {
+        enable: true, 
+      },
+      allowLocalhostAsSecureOrigin: true
+    });
+    console.log("OneSignal New v16 Init Completed with Subfolder!");
+  });
 
-      function registerDriverNotification(driverName) {
-          window.OneSignalDeferred = window.OneSignalDeferred || [];
-          OneSignalDeferred.push(async function(OneSignal) {
-              if (OneSignal.User) {
-                  try {
-                      let cleanName = driverName.trim().toLowerCase();
-                      await OneSignal.login(cleanName);
-                      console.log("Driver identity synchronized successfully:", cleanName);
-                  } catch (e) {
-                      console.error("Error linking driver identity:", e);
-                  }
+  // டிரைவர் பெயரை ஒன்சிக்னல் லாகினுடன் இணைக்கும் ஃபங்க்ஷன்
+  function registerDriverNotification(driverName) {
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+          if (OneSignal.User) {
+              try {
+                  let cleanName = driverName.trim().toLowerCase();
+                  await OneSignal.login(cleanName);
+                  console.log("Driver identity synchronized successfully:", cleanName);
+              } catch (e) {
+                  console.error("Error linking driver identity:", e);
               }
-          });
-      }
-    </script>
+          }
+      });
+  }
+</script>
 
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 5px; }
