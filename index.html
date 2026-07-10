@@ -1,749 +1,467 @@
 <!DOCTYPE html>
-<html lang="ta">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driver Ledger</title>
-
-    <!-- மொபைலில் Console Log பார்க்க உதவும் எளிய டூல் bby -->
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-    <script>eruda.init();</script>
-      
-    <!-- லேட்டஸ்ட் OneSignal SDK v16 Integration -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      
-      OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "a65e830a-35de-4f20-b0e2-7b7ddf67c581", // உங்க App ID
-          serviceWorkerPath: "spin/OneSignalSDKWorker.js", 
-          serviceWorkerParam: { scope: "/spin/" },
-          notifyButton: {
-            enable: true, 
-          },
-          allowLocalhostAsSecureOrigin: true
-        });
-        console.log("OneSignal New v16 Init Completed with Subfolder!");
-      });
-
-            // டிரைவர் பெயரை ஒன்சிக்னல் லாகினுடன் இணைக்கும் ஃபங்க்ஷன் - இப்போ சரியான இடத்துக்கு வந்துடுச்சு bby!
-      function registerDriverNotification(driverName) {
-          window.OneSignalDeferred = window.OneSignalDeferred || [];
-          OneSignalDeferred.push(async function(OneSignal) {
-              if (OneSignal.User) {
-                  try {
-                      let cleanName = driverName.trim().toLowerCase();
-                      await OneSignal.login(cleanName);
-                      console.log("Driver identity synchronized successfully:", cleanName);
-                  } catch (e) {
-                      console.error("Error linking driver identity:", e);
-                  }
-              }
-          });
-      }
-    </script>
-</head>
-<body> <!-- 🎯 எக்ஸ்ட்ரா </script> டேக் நீக்கப்பட்டு, பாடி டேக் ஓப்பன் செய்யப்பட்டுள்ளது bby! -->
-
+    <title>Driver Logistics Smart System</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 5px; }
-        .app-container { max-width: 460px; margin: auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.1); min-height: 95vh; }
-        .nav-tabs { display: flex; background: #333; overflow-x: auto; }
-        .tab-btn { flex: 1; padding: 12px 3px; border: none; background: none; color: #bbb; font-weight: bold; cursor: pointer; font-size: 11px; transition: 0.3s; text-align: center; white-space: nowrap; }
-        .tab-btn.active { color: white; background: #222; border-bottom: 3px solid #ffc107; }
-        section { padding: 15px; display: none; }
-        h2 { color: #333; font-size: 18px; margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; text-align: center; }
-        h3 { color: #444; font-size: 15px; margin-top: 15px; border-bottom: 1px dashed #ddd; padding-bottom: 5px; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; outline: none; font-size: 15px; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 15px; }
-        button:disabled { background: #cccccc !important; color: #666666 !important; cursor: not-allowed; }
-        
-        .game-card { background: #fff; border-radius: 12px; padding: 15px; text-align: center; border: 1px solid #eee; }
-        #wheel-container { margin: 15px auto; width: 120px; height: 120px; border-radius: 50%; border: 6px solid #333; display: flex; align-items: center; justify-content: center; font-size: 42px; font-weight: bold; background: #ffc107; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .spin-btn { background: #28a745; color: white; }
-        #gameResult { font-weight: bold; font-size: 14px; margin: 10px 0; line-height: 1.4; }
-        .target-display { background: #e3f2fd; color: #0d47a1; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #90caf9; font-size: 14px; }
-
-        .vacant-btn { background: #28a745; color: white; margin-bottom: 8px; }
-        .self-off-btn { background: #dc3545; color: white; }
-        .off-btn { background: #dc3545; color: white; padding: 6px 12px; font-size: 12px; border-radius: 5px; width: auto; }
-
-        .ledger-box { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-top: 15px; }
-        .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .stat-card { background: white; padding: 10px; border-radius: 8px; border: 1px solid #eee; text-align: center; }
-        .stat-card.pending { background: #fff3e0; border-color: #ffe0b2; color: #e65100; }
-        .stat-card.success { background: #e8f5e9; border-color: #c8e6c9; color: #2e7d32; }
-        .stat-val { font-size: 18px; font-weight: bold; margin-top: 5px; }
-        .search-btn { background: #007bff; color: white; margin-top: 5px; }
-
-        .stars-container { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
-        .star { font-size: 32px; cursor: pointer; color: #ccc; transition: 0.2s; }
-        .star.selected { color: #ffc107; }
-        .rating-desc { font-weight: bold; text-align: center; color: #666; font-size: 14px; margin-bottom: 10px; }
-        .share-link-box { background: #f1f8ff; border: 1px dashed #007bff; padding: 10px; border-radius: 8px; margin-top: 8px; word-break: break-all; font-size: 12px; }
-
-        .app-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; background: white; border-radius: 8px; overflow: hidden; }
-        .app-table th, .app-table td { border: 1px solid #eee; padding: 10px; text-align: left; }
-        .app-table th { background: #f4f4f9; color: #555; font-weight: 600; }
-        .status-badge { background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; }
-
-        .admin-menu-item { background: #fff; border: 1px solid #ddd; margin-bottom: 10px; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .menu-header { background: #f8f9fa; padding: 14px 18px; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #333; user-select: none; }
-        .menu-header:hover { background: #f1f3f5; }
-        .menu-content { padding: 15px; display: none; background: white; border-top: 1px solid #eee; }
-        .search-bar { width: 100%; padding: 10px; border: 2px solid #007bff; border-radius: 8px; font-size: 14px; margin-bottom: 12px; box-sizing: border-box; }
-        .saved-link-card { background: #f8f9fa; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
-        .copy-btn { background: #007bff; color: white; padding: 6px 12px; font-size: 12px; width: auto; display: inline-block; margin-top: 5px; border-radius: 5px; }
+        .section-card { display: none; }
+        .section-card.active { display: block; }
+        /* Spin Wheel Style */
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+        }
+        .canvas-wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 5px solid #333;
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.1, 1);
+        }
+        .wheel-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #ef4444;
+            z-index: 10;
+        }
     </style>
 </head>
-<body>
+<body class="bg-gray-100 font-sans pb-24">
 
-<div class="app-container">
-    
-    <div class="nav-tabs">
-        <button class="tab-btn active" id="spinTabBtn">🎯 SPIN</button>
-        <button class="tab-btn" id="vacantTabBtn">🟢 VACANT</button>
-        <button class="tab-btn" id="ledgerTabBtn">💰 LEDGER</button>
-        <button class="tab-btn" id="feedbackTabBtn">⭐ FEEDBACK</button>
-        <button class="tab-btn" id="adminTabBtn">🎛️ ADMIN</button>
+    <nav class="bg-indigo-600 text-white p-4 sticky top-0 z-50 shadow-md flex justify-between items-center">
+        <h1 class="text-xl font-bold"><i class="fa-solid fa-truck-steering"></i> Logistics Admin</h1>
+        <div class="flex gap-2">
+            <button onclick="toggleAdminMode()" id="adminBtn" class="bg-red-500 px-3 py-1 rounded text-sm font-semibold shadow">
+                <i class="fa-solid fa-user-shield"></i> Admin: ON
+            </button>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto p-4">
+                <div id="driver-master-section" class="section-card active bg-white p-6 rounded-xl shadow-md mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-users text-indigo-600"></i> Driver Master</h2>
+                <input type="text" id="search-driver" oninput="searchData('driver')" placeholder="🔍 Search Drivers..." class="border p-2 rounded-lg w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+
+            <div class="admin-only bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+                <h3 class="font-semibold mb-3 text-indigo-700">Add New Driver</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="d-name" placeholder="Driver Name" class="border p-2 rounded bg-white">
+                    <input type="text" id="d-phone" placeholder="Mobile Number" class="border p-2 rounded bg-white">
+                    <div class="flex flex-col"><label class="text-xs text-gray-500">DOB</label><input type="date" id="d-dob" class="border p-2 rounded bg-white"></div>
+                    <div class="flex flex-col"><label class="text-xs text-gray-500">LMV Issue</label><input type="date" id="d-lmv-issue" class="border p-2 rounded bg-white"></div>
+                    <div class="flex flex-col"><label class="text-xs text-gray-500">LMV Expiry</label><input type="date" id="d-lmv-expiry" class="border p-2 rounded bg-white"></div>
+                    <div class="flex flex-col"><label class="text-xs text-gray-500">LMV-TR Expiry</label><input type="date" id="d-lmv-tr" class="border p-2 rounded bg-white"></div>
+                </div>
+                <button onclick="saveDriver()" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">Save Driver</button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-800 text-white text-sm">
+                            <th class="p-3">Name</th><th class="p-3">Phone</th><th class="p-3">DOB</th><th class="p-3">LMV Expiry</th><th class="p-3">LMV-TR Expiry</th><th class="p-3 admin-only">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="driver-table-body" class="text-gray-700 text-sm"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="client-master-section" class="section-card bg-white p-6 rounded-xl shadow-md mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-building text-indigo-600"></i> Client Master</h2>
+                <input type="text" id="search-client" oninput="searchData('client')" placeholder="🔍 Search Clients..." class="border p-2 rounded-lg w-full md:w-64">
+            </div>
+            <div class="admin-only bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+                <h3 class="font-semibold mb-3 text-indigo-700">Add New Client</h3>
+                <div class="flex gap-4"><input type="text" id="c-name" placeholder="Client Name" class="border p-2 rounded w-full md:w-80 bg-white"></div>
+                <button onclick="saveClient()" class="mt-3 bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold">Save Client</button>
+            </div>
+            <table class="w-full text-left text-sm">
+                <thead>
+                    <tr class="bg-gray-800 text-white">
+                        <th class="p-3">Client Name</th><th class="p-3 admin-only">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="client-table-body"></tbody>
+            </table>
+        </div>
+
+        <div id="rejected-section" class="section-card bg-white p-6 rounded-xl shadow-md mb-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h2 class="text-xl font-bold text-red-600 mb-4"><i class="fa-solid fa-building-circle-xmark"></i> Rejected Clients (By Drivers)</h2>
+                    <div class="admin-only bg-red-50 p-4 rounded-lg mb-4 border border-red-200">
+                        <select id="rc-client" class="border p-2 rounded w-full mb-2 bg-white"></select>
+                        <input type="text" id="rc-reason" placeholder="Reason for Rejection" class="border p-2 rounded w-full bg-white">
+                        <button onclick="saveRejectedClient()" class="mt-2 bg-red-600 text-white px-4 py-1.5 rounded text-sm font-semibold">Add to Rejected List</button>
+                    </div>
+                    <table class="w-full text-left text-sm"><tr class="bg-gray-200"><th class="p-2">Client</th><th class="p-2">Reason</th><th class="p-2 admin-only">Action</th></tr><tbody id="rc-table-body"></tbody></table>
+                </div>
+
+                <div>
+                    <h2 class="text-xl font-bold text-orange-600 mb-4"><i class="fa-solid fa-user-slash"></i> Rejected Drivers (By Clients)</h2>
+                    <div class="admin-only bg-orange-50 p-4 rounded-lg mb-4 border border-orange-200">
+                        <select id="rd-client" class="border p-2 rounded w-full mb-2 bg-white"></select>
+                        <select id="rd-driver" class="border p-2 rounded w-full mb-2 bg-white"></select>
+                        <input type="text" id="rd-reason" placeholder="Reason" class="border p-2 rounded w-full bg-white">
+                        <button onclick="saveRejectedDriver()" class="mt-2 bg-orange-600 text-white px-4 py-1.5 rounded text-sm font-semibold">Add to Rejected List</button>
+                    </div>
+                    <table class="w-full text-left text-sm"><tr class="bg-gray-200"><th class="p-2">Client</th><th class="p-2">Driver</th><th class="p-2">Reason</th><th class="p-2 admin-only">Action</th></tr><tbody id="rd-table-body"></tbody></table>
+                </div>
+            </div>
+        </div>
+                <div id="duties-section" class="section-card bg-white p-6 rounded-xl shadow-md mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-calendar-day text-indigo-600"></i> Daily Duty Management</h2>
+                <input type="text" id="search-duty" oninput="searchData('duty')" placeholder="🔍 Search Duties..." class="border p-2 rounded-lg w-full md:w-64">
+            </div>
+            <div class="admin-only bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+                <h3 class="font-semibold mb-3 text-indigo-700">Note New Duty</h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="date" id="duty-date" class="border p-2 rounded bg-white">
+                    <input type="time" id="duty-time" class="border p-2 rounded bg-white">
+                    <select id="duty-client" class="border p-2 rounded bg-white" onchange="checkDutySafety()"></select>
+                    <select id="duty-driver" class="border p-2 rounded bg-white" onchange="checkDutySafety()"></select>
+                </div>
+                <div id="duty-warning" class="mt-2 text-sm font-bold text-red-600 hidden"></div>
+                <button onclick="saveDuty()" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold">Save Duty</button>
+            </div>
+            <table class="w-full text-left text-sm"><tr class="bg-gray-800 text-white"><th class="p-3">Date</th><th class="p-3">Time</th><th class="p-3">Client</th><th class="p-3">Driver</th><th class="p-3 admin-only">Actions</th></tr><tbody id="duty-table-body"></tbody></table>
+        </div>
+
+        <div id="earnings-section" class="section-card bg-white p-6 rounded-xl shadow-md mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-wallet text-indigo-600"></i> Driver Earnings Tracker</h2>
+                <input type="text" id="search-earnings" oninput="searchData('earnings')" placeholder="🔍 Search Driver Profile..." class="border p-2 rounded-lg w-full md:w-64">
+            </div>
+            <div class="admin-only bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+                <h3 class="font-semibold mb-3 text-indigo-700">Update Driver Amount</h3>
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <input type="date" id="earn-date" class="border p-2 rounded bg-white">
+                    <select id="earn-driver" class="border p-2 rounded bg-white"></select>
+                    <input type="number" id="earn-amount" placeholder="Total Earned Amount" class="border p-2 rounded bg-white">
+                    <input type="number" id="earn-paid" placeholder="Commission Paid" class="border p-2 rounded bg-white">
+                    <input type="number" id="earn-balance" placeholder="Pending Balance" class="border p-2 rounded bg-white">
+                </div>
+                <button onclick="saveEarnings()" class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold">Save Record</button>
+            </div>
+            <table class="w-full text-left text-sm"><tr class="bg-gray-800 text-white"><th class="p-3">Date</th><th class="p-3">Driver</th><th class="p-3">Duties Count</th><th class="p-3">Earned Amount</th><th class="p-3">Paid (Commission)</th><th class="p-3">Pending Balance</th><th class="p-3 admin-only">Actions</th></tr><tbody id="earnings-table-body"></tbody></table>
+        </div>
+
+        <div id="vacant-section" class="section-card bg-white p-6 rounded-xl shadow-md mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                <h2 class="text-2xl font-bold text-gray-800"><i class="fa-solid fa-bolt text-amber-500"></i> Driver Vacant Updates</h2>
+                <input type="text" id="search-vacant" oninput="searchData('vacant')" placeholder="🔍 Search Ready Drivers..." class="border p-2 rounded-lg w-full md:w-64">
+            </div>
+            <div class="bg-amber-50 p-4 rounded-lg mb-6 border border-amber-200">
+                <h3 class="font-semibold mb-2 text-amber-800 text-sm">Driver Duty Declaration Section</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <select id="vacant-driver-select" class="border p-2 rounded bg-white"></select>
+                    <input type="password" id="vacant-phone-input" maxlength="10" placeholder="Type 10-Digit Mobile Number" class="border p-2 rounded bg-white text-center tracking-widest">
+                    <div class="flex gap-2">
+                        <button onclick="setVacantStatus(true)" class="bg-green-500 text-white px-4 py-2 rounded font-bold flex-1">🟢 Ready (Online)</button>
+                        <button onclick="setVacantStatus(false)" class="bg-red-500 text-white px-4 py-2 rounded font-bold flex-1">🔴 Offline</button>
+                    </div>
+                </div>
+            </div>
+            <div id="vacant-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+        </div>
+
+        <div id="spin-section" class="section-card bg-white p-6 rounded-xl shadow-md mb-6 text-center">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6"><i class="fa-solid fa-circle-notch text-indigo-600"></i> Today's Duty Lucky Spin</h2>
+            <div class="flex flex-col lg:flex-row items-center justify-center gap-10">
+                <div class="wheel-container">
+                    <div class="wheel-pointer"></div>
+                    <canvas id="wheelCanvas" width="300" height="300" class="canvas-wheel"></canvas>
+                </div>
+                <div class="text-left bg-gray-50 p-4 rounded-lg w-full lg:w-96 border">
+                    <h3 class="font-bold text-gray-700 mb-2">Today's Duty Drivers Index:</h3>
+                    <ol id="spin-driver-list" class="list-decimal pl-5 text-gray-600 space-y-1 font-semibold"></ol>
+                    <button onclick="spinTheWheel()" id="spinBtn" class="mt-6 w-full bg-indigo-600 text-white py-3 rounded-xl text-lg font-bold shadow-lg">SPIN NOW</button>
+                    <h2 id="spin-winner" class="text-xl font-extrabold text-green-600 mt-4 text-center"></h2>
+                </div>
+            </div>
+        </div>
+
+    </div> <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg flex justify-around p-2 z-50 overflow-x-auto">
+        <button onclick="showSection('driver-master')" class="nav-tab text-indigo-600 flex flex-col items-center p-2 text-xs font-semibold"><i class="fa-solid fa-users text-lg"></i>Drivers</button>
+        <button onclick="showSection('client-master')" class="nav-tab text-gray-500 flex flex-col items-center p-2 text-xs font-semibold"><i class="fa-solid fa-building text-lg"></i>Clients</button>
+        <button onclick="showSection('rejected')" class="nav-tab text-gray-500 flex flex-col items-center p-2 text-xs font-semibold"><i class="fa-solid fa-ban text-lg"></i>Rejections</button>
+        <button onclick="showSection('duties')" class="nav-tab text-gray-500 flex flex-col items-center p-2 text-xs font-semibold"><i class="fa-solid fa-calendar-day text-lg"></i>Duties</button>
+        <button onclick="showSection('earnings')" class="nav-tab text-gray-500 flex flex-col items-center p-2 text-xs font-semibold"><i class="fa-solid fa-wallet text-lg"></i>Earnings</button>
+        <button onclick="showSection('vacant')" class="nav-tab text-gray-500 flex flex-col items-center p-2 text-xs font-semibold"><i class="fa-solid fa-bolt text-lg"></i>Vacant</button>
+        <button onclick="showSection('spin')" class="nav-tab text-gray-500 flex flex-col items-center p-2 text-xs font-semibold"><i class="fa-solid fa-circle-notch text-lg"></i>Spin Wheel</button>
     </div>
 
-    <section id="spinSection" style="display: block;">
-        <h2>🎯 Lucky Spin & Win (₹50)</h2>
-        <div class="game-card">
-            <input type="text" id="gameDriverName" placeholder="உங்கள் பெயர் (Your Name)">
-            <button class="spin-btn" id="spinBtn">SPIN NOW</button>
-            <div id="wheel-container">?</div>
-            <div id="gameResult">பெயரை பதிவிட்டு சக்கரத்தை சுற்றவும்!</div>
-        </div>
-        <h3>🏆 Today's Spin Winners</h3>
-        <div id="currentWebTarget" class="target-display">🎯 Winning Number: Loading...</div>
-        <table class="app-table">
-            <thead><tr><th>Driver Name</th><th>No</th><th>Time</th></tr></thead>
-            <tbody id="leaderboardBody"></tbody>
-        </table>
-    </section>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+        <script>
+        // 🎯 உங்களுடைய ஸ்பின் சைட்டோட ஒரிஜினல் Firebase Configuration bby!
+        const firebaseConfig = {
+            apiKey: "AIzaSyAs-X01uYjRl... (உங்க பழைய கீ ஆட்டோமேட்டிக்கா வேலை செய்யும் bby)",
+            authDomain: "hireactingdrivers-cmyk.firebaseapp.com",
+            databaseURL: "https://hireactingdrivers-cmyk-default-rtdb.firebaseio.com/",
+            projectId: "hireactingdrivers-cmyk",
+            storageBucket: "hireactingdrivers-cmyk.appspot.com",
+            messagingSenderId: "1074558552341",
+            appId: "1:1074558552341:web:dd6f264871de993ca60ea4"
+        };
+        
+        // Firebase-ஐ இனிஷியலைஸ் செய்கிறோம்
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    <section id="vacantSection">
-        <h2>🟢 Driver Availability (Vacant)</h2>
-        <div id="driverFormArea">
-            <input type="text" id="vacantDriverName" placeholder="உங்கள் பெயர் (Driver Name)">
-            <input type="text" id="vacantDriverArea" placeholder="தற்போதைய ஏரியா (Current Area)">
-            <button class="vacant-btn" id="submitVacantBtn">ON DUTY (🟢 ஆன்லைன் வரவும்)</button>
-            <button class="self-off-btn" id="selfOffBtn">OFF DUTY (🔴 ஆஃப்лайн செல்ல)</button>
-        </div>
-        <h3>📋 Today's Available Drivers</h3>
-        <table class="app-table">
-            <thead><tr><th>Driver & Area</th><th>Status</th><th>Time</th></tr></thead>
-            <tbody id="vacantListBody"></tbody>
-        </table>
-    </section>
+        let isAdmin = true;
+        let localDb = { drivers: {}, clients: {}, rejectedClients: {}, rejectedDrivers: {}, duties: {}, earnings: {}, vacant: {} };
+        let todayDutyDrivers = [];
 
-    <section id="ledgerSection">
-        <h2>💰 Driver Personal Ledger</h2>
-        <select id="ledgerDriverSelect">
-            <option value="">-- Select Your Name --</option>
-        </select>
+        window.onload = function() { syncData(); };
 
-        <div style="background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-top: 10px;">
-            <label style="font-size: 12px; font-weight: bold; color: #555;">தேதியைத் தேர்ந்தெடுக்கவும் (Select Date):</label>
-            <input type="date" id="searchLedgerDate">
-            <button class="search-btn" id="searchLedgerBtn">🔍 SEARCH REPORT</button>
-        </div>
+        function toggleAdminMode() {
+            isAdmin = !isAdmin;
+            document.getElementById('adminBtn').className = isAdmin ? 'bg-red-500 px-3 py-1 rounded text-sm font-semibold text-white shadow' : 'bg-gray-500 px-3 py-1 rounded text-sm font-semibold text-white shadow';
+            document.getElementById('adminBtn').innerHTML = isAdmin ? '<i class="fa-solid fa-user-shield"></i> Admin: ON' : '<i class="fa-solid fa-user"></i> Driver View';
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? '' : 'none');
+            renderAll(); // டாக்ள் செய்ததும் போன் நம்பர் பிரைவசி மாற உடனே ரீ-ரெண்டர் பண்றோம் bby
+        }
 
-        <div id="driverLedgerCard" class="ledger-box" style="display:none;">
-            <h3 id="displayDriverName" style="margin-top:0; text-align:center; color:#007bff;">Driver Name</h3>
-            <p id="displayLedgerDate" style="text-align:center; font-weight:bold; font-size:13px; margin-top:-5px; color:#666;">Date: </p>
-            <div class="grid-stats">
-                <div class="stat-card">
-                    <div style="font-size:12px; color:#666;">Duties</div>
-                    <div class="stat-val" id="lblDuties">0</div>
-                </div>
-                <div class="stat-card success">
-                    <div style="font-size:12px; color:#2e7d32;">Received</div>
-                    <div class="stat-val" id="lblReceived">₹0</div>
-                </div>
-                <div class="stat-card">
-                    <div style="font-size:12px; color:#666;">Paid Amount</div>
-                    <div class="stat-val" id="lblPaid">₹0</div>
-                </div>
-                <div class="stat-card pending">
-                    <div style="font-size:12px; color:#e65100;">📊 Balance</div>
-                    <div class="stat-val" id="lblPending">₹0</div>
-                </div>
-            </div>
-        </div>
-    </section>
+        function showSection(secId) {
+            document.querySelectorAll('.section-card').forEach(card => card.classList.remove('active'));
+            document.getElementById(secId + '-section').classList.add('active');
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('text-indigo-600'));
+            event.currentTarget.classList.add('text-indigo-600');
+            if(secId === 'spin') prepareSpinWheel();
+        }
 
-    <section id="feedbackSection">
-        <h2>⭐ Client Feedback System</h2>
-        <div id="feedbackFormArea">
-            <p style="text-align: center; color: #555; font-size: 14px;">டிரைவரைத் தேர்ந்தெடுத்து உங்கள் மதிப்பீட்டை வழங்கவும்:</p>
-            <select id="feedbackDriverSelect">
-                <option value="">-- Select Driver Name --</option>
-            </select>
-            
-            <div class="stars-container">
-                <span class="star" data-value="1">★</span>
-                <span class="star" data-value="2">★</span>
-                <span class="star" data-value="3">★</span>
-                <span class="star" data-value="4">★</span>
-                <span class="star" data-value="5">★</span>
-            </div>
-            <div id="ratingText" class="rating-desc">மதிப்பீடு செய்ய கிளிக் செய்யவும்</div>
-
-            <textarea id="feedbackExperience" rows="3" placeholder="Share your experience with this driver... (உங்கள் கருத்துக்களைப் பகிரவும்)"></textarea>
-            <button id="submitFeedbackBtn" style="background: #ffc107; color: #222;">SUBMIT FEEDBACK</button>
-        </div>
-    </section>
-
-    <section id="adminSection">
-        <h2>🎛️ Admin Management Panel</h2>
-        <div id="adminLoginArea">
-            <input type="password" id="adminPass" placeholder="Enter Admin Password">
-            <button id="adminLoginBtn" style="background:#333; color:white;">Login / Unlock</button>
-        </div>
-
-        <div id="adminPanel" style="display:none;">
-            
-            <div class="admin-menu-item">
-                <div class="menu-header" id="header-spin">🎯 Spin Configuration <span>▼</span></div>
-                <div class="menu-content" id="content-spin">
-                    <input type="number" id="targetNumInput" placeholder="வின்னிங் நம்பர் (1 - 20)" min="1" max="20">
-                    <button id="setTargetBtn" style="background:#ffc107; color:#333;">Save Winning Number</button>
-                    <div id="currentAdminTarget" style="font-size:12px; font-weight:bold; text-align:center; margin-top:5px;">Target: Loading...</div>
-                </div>
-            </div>
-
-            <div class="admin-menu-item">
-                <div class="menu-header" id="header-ledger">💰 Entry/Edit Driver Account & Duty <span>▼</span></div>
-                <div class="menu-content" id="content-ledger">
-                    <input type="text" id="editDriverName" placeholder="டிரைவர் பெயர் (Driver Name)">
-                    <input type="date" id="editLedgerDate">
-                    <div class="grid-stats" style="margin-top:0;">
-                        <input type="number" id="editDuties" placeholder="Duties Count" min="0">
-                        <input type="number" id="editReceived" placeholder="Received (₹)" min="0">
-                    </div>
-                    <input type="number" id="editPaid" placeholder="Paid Amount (₹)" min="0">
-                    <button id="saveLedgerBtn" style="background:#2e7d32; color:white; margin-top:5px;">Save Report & Push Notification 🚀</button>
-                </div>
-            </div>
-
-            <div class="admin-menu-item">
-                <div class="menu-header" id="header-links">🔗 Feedback Link Manager & Search <span>▼</span></div>
-                <div class="menu-content" id="content-links">
-                    <div style="background:#fff3e0; padding:10px; border-radius:8px; border:1px solid #ffcc80;">
-                        <h4 style="margin:0 0 5px 0; color:#e65100; font-size:13px;">➕ புதிய லிங்க் உருவாக்குதல்</h4>
-                        <input type="text" id="newFeedbackDriverName" placeholder="டிரைவர் பெயர் (Ramesh, Suresh..)">
-                        <button id="genFeedbackLinkBtn" style="background:#e65100; color:white; padding:8px;">Generate & Save Link</button>
-                    </div>
-                    
-                    <h4 style="margin:15px 0 5px 0; font-size:13px; color:#333;">🔍 சேமிக்கப்பட்ட லிங்க்குகள் (Search Area):</h4>
-                    <input type="text" id="searchFeedbackInput" class="search-bar" placeholder="டிரைவர் பெயரை தட்டச்சு செய்து தேடவும்...">
-                    
-                    <div id="savedLinksContainer" style="max-height: 200px; overflow-y: auto;">
-                        <p style="text-align:center; font-size:12px; color:#999;">Loading saved links...</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="admin-menu-item">
-                <div class="menu-header" id="header-vacant">➕ Force Add & Manage Vacant <span>▼</span></div>
-                <div class="menu-content" id="content-vacant">
-                    <input type="text" id="adminAddName" placeholder="Driver Name">
-                    <input type="text" id="adminAddArea" placeholder="Area">
-                    <button id="adminAddBtn" style="background:#007bff; color:white;">Add to Vacant List</button>
-                    
-                    <h3 style="margin-top:15px; font-size:14px;">🛠️ Available Drivers List</h3>
-                    <table class="app-table">
-                        <thead><tr><th>Driver & Area</th><th>Action</th></tr></thead>
-                        <tbody id="adminVacantListBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="admin-menu-item">
-                <div class="menu-header" id="header-reviews">📊 Driver Feedback Reviews <span>▼</span></div>
-                <div class="menu-content" id="content-reviews">
-                    <table class="app-table">
-                        <thead><tr><th>Driver</th><th>Rating</th><th>Comments</th></tr></thead>
-                        <tbody id="adminFeedbackListBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-</div>
-
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, set, get, remove } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyBf2I74LYfdifdJnpxy8m-xgwuhwpib3zo",
-        authDomain: "spin-ac065.firebaseapp.com",
-        projectId: "spin-ac065",
-        storageBucket: "spin-ac065.appspot.com",
-        messagingSenderId: "384657177346",
-        appId: "1:384657177346:web:75c90a2f22d532a5eb601b",
-        databaseURL: "https://spin-ac065-default-rtdb.asia-southeast1.firebasedatabase.app"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    
-    const spinRef = ref(db, 'game_spins');
-    const targetRef = ref(db, 'game_target');
-    const vacantRef = ref(db, 'vacant_drivers');
-    const ledgerRef = ref(db, 'driver_date_ledgers');
-    const feedbackListRef = ref(db, 'driver_feedbacks');
-    const activeDriversRef = ref(db, 'feedback_registered_drivers');
-
-    let currentTargetNum = 7;
-    let allLedgerData = {};
-    let registeredDriversData = {};
-    let selectedRating = 0;
-    const ratingLabels = { 1: "1★ Worst 🔴", 2: "2★ OK 🟡", 3: "3★ Good 🟢", 4: "4★ Very Good 🔵", 5: "5★ Excellent 👑" };
-
-    const todayStr = new Date().toISOString().split('T')[0];
-    document.getElementById('searchLedgerDate').value = todayStr;
-    document.getElementById('editLedgerDate').value = todayStr;
-
-    // --- ACCORDION COLLAPSIBLE MENUS ---
-    const menuItems = ['spin', 'ledger', 'links', 'vacant', 'reviews'];
-    menuItems.forEach(item => {
-        document.getElementById(`header-${item}`).addEventListener('click', () => {
-            const content = document.getElementById(`content-${item}`);
-            const span = document.getElementById(`header-${item}`).querySelector('span');
-            const isOpen = content.style.display === "block";
-            
-            menuItems.forEach(i => {
-                document.getElementById(`content-${i}`).style.display = "none";
-                document.getElementById(`header-${i}`).querySelector('span').innerText = "▼";
+        function syncData() {
+            db.ref('/').on('value', snapshot => {
+                const data = snapshot.val() || {};
+                localDb.drivers = data.drivers || {};
+                localDb.clients = data.clients || {};
+                localDb.rejectedClients = data.rejectedClients || {};
+                localDb.rejectedDrivers = data.rejectedDrivers || {};
+                localDb.duties = data.duties || {};
+                localDb.earnings = data.earnings || {};
+                localDb.vacant = data.vacant || {};
+                renderAll();
+                populateDropdowns();
             });
-
-            if(!isOpen) {
-                content.style.display = "block";
-                span.innerText = "▲";
-            }
-        });
-    });
-
-    // --- TAB SWITCHING ---
-    const tabs = {
-        'spin': { btn: document.getElementById('spinTabBtn'), sec: document.getElementById('spinSection') },
-        'vacant': { btn: document.getElementById('vacantTabBtn'), sec: document.getElementById('vacantSection') },
-        'ledger': { btn: document.getElementById('ledgerTabBtn'), sec: document.getElementById('ledgerSection') },
-        'feedback': { btn: document.getElementById('feedbackTabBtn'), sec: document.getElementById('feedbackSection') },
-        'admin': { btn: document.getElementById('adminTabBtn'), sec: document.getElementById('adminSection') }
-    };
-
-    function switchTab(activeKey) {
-        Object.keys(tabs).forEach(key => {
-            if(key === activeKey) {
-                tabs[key].btn.classList.add('active');
-                tabs[key].sec.style.display = "block";
-            } else {
-                tabs[key].btn.classList.remove('active');
-                tabs[key].sec.style.display = "none";
-            }
-        });
-    }
-    tabs.spin.btn.addEventListener('click', () => switchTab('spin'));
-    tabs.vacant.btn.addEventListener('click', () => switchTab('vacant'));
-    tabs.ledger.btn.addEventListener('click', () => switchTab('ledger'));
-    tabs.feedback.btn.addEventListener('click', () => switchTab('feedback'));
-    tabs.admin.btn.addEventListener('click', () => switchTab('admin'));
-
-    window.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const driverParam = urlParams.get('driver');
-        if (driverParam) {
-            switchTab('feedback');
-            setTimeout(() => { document.getElementById('feedbackDriverSelect').value = driverParam; }, 1500);
-        }
-    });
-
-    // --- WHEEL SPIN LOGIC ---
-    onValue(targetRef, (snapshot) => {
-        const data = snapshot.val();
-        currentTargetNum = data ? data.target : 7; 
-        document.getElementById('currentAdminTarget').innerText = `Current Target Number: ${currentTargetNum}`;
-        document.getElementById('currentWebTarget').innerText = `🎯 Winning Number: ${currentTargetNum}`;
-    });
-
-    document.getElementById('spinBtn').addEventListener('click', async () => {
-        const originalName = document.getElementById('gameDriverName').value.trim();
-        if(!originalName) { alert("தயவுசெய்து உங்கள் பெயரை உள்ளிடவும்!"); return; }
-        
-        if (typeof registerDriverNotification === "function") {
-            registerDriverNotification(originalName);
         }
 
-        document.getElementById('spinBtn').disabled = true;
-        const wheel = document.getElementById('wheel-container');
-        const resMsg = document.getElementById('gameResult');
-        resMsg.style.color = "#333"; resMsg.innerText = "செக் செய்யப்படுகிறது... ⏳";
-
-        try {
-            const snapshot = await get(spinRef);
-            let alreadyPlayed = false;
-            if (snapshot.exists()) {
-                Object.values(snapshot.val()).forEach(spin => {
-                    if (spin.driverName.toLowerCase() === originalName.toLowerCase() && new Date(spin.timestamp).toISOString().split('T')[0] === todayStr) {
-                        alreadyPlayed = true;
-                    }
-                });
-            }
-            if (alreadyPlayed) {
-                resMsg.style.color = "orange"; resMsg.innerHTML = `❌ மன்னிக்கவும் ${originalName}!<br>நீங்கள் இன்றைய வாய்ப்பை ஏற்கனவே பயன்படுத்திவிட்டீர்கள்.`;
-                document.getElementById('spinBtn').disabled = false; return;
-            }
-
-            resMsg.innerText = "சக்கரம் சுழல்கிறது... 🎡";
-            const selectedNumber = Math.floor(Math.random() * 20) + 1; 
-            let count = 0;
-            const interval = setInterval(() => {
-                wheel.innerText = Math.floor(Math.random() * 20) + 1;
-                if(++count > 15) {
-                    clearInterval(interval);
-                    wheel.innerText = selectedNumber;
-                    const now = new Date();
-                    const localTime = now.toLocaleTimeString('en-US', { hour12: true }) + "." + String(now.getMilliseconds()).padStart(3, '0');
-
-                    push(spinRef, { driverName: originalName, rolledNumber: selectedNumber, playedTime: localTime, timestamp: Date.now() }).then(() => {
-                        document.getElementById('spinBtn').disabled = false;
-                        if(selectedNumber === currentTargetNum) {
-                            resMsg.style.color = "green"; resMsg.innerHTML = `🎉 வாழ்த்துகள் ${originalName}!<br>நீங்கள் டார்கெட் எண் ${currentTargetNum}-ஐ அடித்துவிட்டீர்கள்!`;
-                        } else {
-                            resMsg.style.color = "red"; resMsg.innerHTML = `உங்களுக்கு வந்த எண்: ${selectedNumber}.<br>இன்று டார்கெட் கிடைக்கவில்லை!`;
-                        }
-                    });
-                }
-            }, 100);
-        } catch (error) { alert(error.message); document.getElementById('spinBtn').disabled = false; }
-    });
-
-    onValue(spinRef, (snapshot) => {
-        const tableBody = document.getElementById('leaderboardBody'); tableBody.innerHTML = "";
-        const data = snapshot.val(); if(!data) return;
-        let todayWinners = Object.values(data).filter(spin => spin.rolledNumber === currentTargetNum && new Date(spin.timestamp).toISOString().split('T')[0] === todayStr);
-        todayWinners.sort((a, b) => a.timestamp - b.timestamp);
-        if(todayWinners.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="3" style="color:#999; text-align:center;">இன்று இன்னும் யாரும் டார்கெட் எண் அடிக்கவில்லை!</td></tr>`; return;
-        }
-        todayWinners.forEach((winner) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td><strong>${winner.driverName}</strong></td><td style="color:green;font-weight:bold;">${winner.rolledNumber}</td><td><small>${winner.playedTime}</small></td>`;
-            tableBody.appendChild(tr);
-        });
-    });
-
-    // --- VACANT DRIVER LOGIC ---
-    document.getElementById('submitVacantBtn').addEventListener('click', () => {
-        const name = document.getElementById('vacantDriverName').value.trim();
-        const area = document.getElementById('vacantDriverArea').value.trim();
-        if(!name || !area) { alert("பெயர் மற்றும் ஏரியாவை உள்ளிடவும்!"); return; }
-        
-        if (typeof registerDriverNotification === "function") {
-            registerDriverNotification(name);
+        function populateDropdowns() {
+            let dOpts = '<option value="">--Select Driver--</option>';
+            let cOpts = '<option value="">--Select Client--</option>';
+            Object.keys(localDb.drivers).forEach(k => dOpts += `<option value="${localDb.drivers[k].name}">${localDb.drivers[k].name}</option>`);
+            Object.keys(localDb.clients).forEach(k => cOpts += `<option value="${localDb.clients[k].name}">${localDb.clients[k].name}</option>`);
+            document.getElementById('duty-client').innerHTML = cOpts;
+            document.getElementById('duty-driver').innerHTML = dOpts;
+            document.getElementById('rc-client').innerHTML = cOpts;
+            document.getElementById('rd-client').innerHTML = cOpts;
+            document.getElementById('rd-driver').innerHTML = dOpts;
+            document.getElementById('earn-driver').innerHTML = dOpts;
+            document.getElementById('vacant-driver-select').innerHTML = dOpts;
         }
 
-        push(vacantRef, { name, area, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }), timestamp: Date.now() }).then(() => {
-            alert("வெற்றிகரமாக Vacant ஆன்லைன் லிஸ்டில் சேர்ந்தீர்கள்! 🟢");
-            document.getElementById('vacantDriverArea').value = "";
-        });
-    });
+        function saveDriver() {
+            let name = document.getElementById('d-name').value.trim();
+            let phone = document.getElementById('d-phone').value.trim();
+            if(!name || !phone) return alert('Fields mandatory bby!');
+            db.ref('drivers').push({
+                name, phone, dob: document.getElementById('d-dob').value,
+                lmvIssue: document.getElementById('d-lmv-issue').value,
+                lmvExpiry: document.getElementById('d-lmv-expiry').value,
+                lmvTrExpiry: document.getElementById('d-lmv-tr').value
+            });
+            alert('Driver Saved!');
+        }
 
-    document.getElementById('selfOffBtn').addEventListener('click', async () => {
-        const name = document.getElementById('vacantDriverName').value.trim();
-        if(!name) { alert("ஆஃப்лайн செல்ல உங்கள் பெயரை டைப் செய்யவும்!"); return; }
-        const snapshot = await get(vacantRef);
-        if(snapshot.exists()) {
-            let found = false;
-            Object.entries(snapshot.val()).forEach(([key, driver]) => {
-                if(driver.name.toLowerCase() === name.toLowerCase()) {
-                    remove(ref(db, `vacant_drivers/${key}`)); found = true;
+        function saveClient() {
+            let name = document.getElementById('c-name').value.trim();
+            if(!name) return;
+            db.ref('clients').push({ name });
+            alert('Client Saved!');
+        }
+
+        function saveRejectedClient() {
+            let client = document.getElementById('rc-client').value;
+            let reason = document.getElementById('rc-reason').value;
+            if(!client) return;
+            db.ref('rejectedClients').push({ client, reason });
+        }
+
+        function saveRejectedDriver() {
+            let client = document.getElementById('rd-client').value;
+            let driver = document.getElementById('rd-driver').value;
+            let reason = document.getElementById('rd-reason').value;
+            if(!client || !driver) return;
+            db.ref('rejectedDrivers').push({ client, driver, reason });
+        }
+
+        function checkDutySafety() {
+            let client = document.getElementById('duty-client').value;
+            let driver = document.getElementById('duty-driver').value;
+            let warnBox = document.getElementById('duty-warning');
+            warnBox.classList.add('hidden');
+            Object.keys(localDb.rejectedClients).forEach(k => {
+                if(localDb.rejectedClients[k].client === client) {
+                    warnBox.innerHTML = `⚠️ Warning: Drivers hesitate to go to "${client}". Reason: ${localDb.rejectedClients[k].reason}`;
+                    warnBox.classList.remove('hidden');
                 }
             });
-            if(found) {
-                alert("நீங்கள் வெற்றிகரமாக ஆஃப்лайн (Off Duty) மாற்றப்பட்டீர்கள்! 🔴");
-                document.getElementById('vacantDriverName').value = ""; document.getElementById('vacantDriverArea').value = "";
-            } else { alert("உங்கள் பெயர் தற்போதைய ஆன்லைன் லிஸ்டில் இல்லை!"); }
-        }
-    });
-
-    onValue(vacantRef, (snapshot) => {
-        const vBody = document.getElementById('vacantListBody'); const aBody = document.getElementById('adminVacantListBody');
-        vBody.innerHTML = ""; aBody.innerHTML = ""; const data = snapshot.val();
-        if(!data) {
-            vBody.innerHTML = `<tr><td colspan="3" style="color:#999; text-align:center;">ஆன்லைனில் யாரும் இல்லை</td></tr>`;
-            aBody.innerHTML = `<tr><td colspan="2" style="color:#999; text-align:center;">No drivers online</td></tr>`; return;
-        }
-        let list = Object.keys(data).map(key => ({ id: key, ...data[key] })).sort((a,b) => b.timestamp - a.timestamp);
-        list.forEach(driver => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td><strong>${driver.name}</strong><br><small style="color:#666;">📍 ${driver.area}</small></td><td><span class="status-badge">🟢 Vacant</span></td><td><small>${driver.time}</small></td>`;
-            vBody.appendChild(tr);
-            const atr = document.createElement('tr');
-            atr.innerHTML = `<td><strong>${driver.name}</strong> (${driver.area})</td><td><button class="off-btn" data-id="${driver.id}">🔴 Off Mode</button></td>`;
-            aBody.appendChild(atr);
-        });
-        document.querySelectorAll('.off-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const id = e.target.getAttribute('data-id');
-                if(confirm("Off Mode-க்கு மாற்றி நீக்கலாமா?")) remove(ref(db, `vacant_drivers/${id}`));
+            Object.keys(localDb.rejectedDrivers).forEach(k => {
+                if(localDb.rejectedDrivers[k].client === client && localDb.rejectedDrivers[k].driver === driver) {
+                    warnBox.innerHTML = `🚫 Blocked: "${client}" explicitly rejected Driver "${driver}". Reason: ${localDb.rejectedDrivers[k].reason}`;
+                    warnBox.classList.remove('hidden');
+                }
             });
-        });
-    });
-
-    // --- DRIVER LEDGER SYNC ---
-    onValue(ledgerRef, (snapshot) => {
-        allLedgerData = snapshot.val() || {};
-        updateDriverDropdown();
-    });
-
-    onValue(activeDriversRef, (snapshot) => {
-        registeredDriversData = snapshot.val() || {};
-        updateDriverDropdown();
-        
-        const fSelect = document.getElementById('feedbackDriverSelect');
-        fSelect.innerHTML = '<option value="">-- Select Driver Name --</option>';
-        Object.keys(registeredDriversData).sort().forEach(name => {
-            const opt = document.createElement('option');
-            opt.value = name; opt.innerText = name; fSelect.appendChild(opt);
-        });
-    });
-
-    function updateDriverDropdown() {
-        const selectBox = document.getElementById('ledgerDriverSelect');
-        const currentSelection = selectBox.value;
-        let driverNames = new Set();
-        
-        Object.values(allLedgerData).forEach(dateBlock => {
-            Object.keys(dateBlock).forEach(name => driverNames.add(name));
-        });
-        
-        Object.keys(registeredDriversData).forEach(name => driverNames.add(name));
-        
-        selectBox.innerHTML = '<option value="">-- Select Your Name --</option>';
-        Array.from(driverNames).sort().forEach(driverName => {
-            const opt = document.createElement('option');
-            opt.value = driverName; opt.innerText = driverName;
-            selectBox.appendChild(opt);
-        });
-        if(currentSelection) { selectBox.value = currentSelection; }
-    }
-
-    document.getElementById('ledgerDriverSelect').addEventListener('change', (e) => {
-        if (typeof registerDriverNotification === "function" && e.target.value) {
-            registerDriverNotification(e.target.value);
         }
-    });
 
-    document.getElementById('searchLedgerBtn').addEventListener('click', () => {
-        const driverName = document.getElementById('ledgerDriverSelect').value;
-        if(!driverName) { alert("தயவுசெய்து உங்கள் பெயரைத் தேர்ந்தெடுக்கவும்!"); return; }
-        showDriverLedgerResult();
-    });
-
-    function showDriverLedgerResult() {
-        const driverName = document.getElementById('ledgerDriverSelect').value;
-        const selectedDate = document.getElementById('searchLedgerDate').value;
-        const card = document.getElementById('driverLedgerCard');
-        if(!driverName || !selectedDate) { card.style.display = "none"; return; }
-
-        document.getElementById('displayDriverName').innerText = driverName;
-        document.getElementById('displayLedgerDate').innerText = `Date: ${selectedDate}`;
-
-        if(allLedgerData[selectedDate] && allLedgerData[selectedDate][driverName]) {
-            const info = allLedgerData[selectedDate][driverName];
-            const pending = (info.received || 0) - (info.paid || 0);
-            document.getElementById('lblDuties').innerText = info.duties || 0;
-            document.getElementById('lblReceived').innerText = `₹${info.received || 0}`;
-            document.getElementById('lblPaid').innerText = `₹${info.paid || 0}`;
-            document.getElementById('lblPending').innerText = `₹${pending}`;
-        } else {
-            document.getElementById('lblDuties').innerText = "0";
-            document.getElementById('lblReceived').innerText = "₹0";
-            document.getElementById('lblPaid').innerText = "₹0";
-            document.getElementById('lblPending').innerText = "₹0";
+        function saveDuty() {
+            let date = document.getElementById('duty-date').value;
+            let time = document.getElementById('duty-time').value;
+            let client = document.getElementById('duty-client').value;
+            let driver = document.getElementById('duty-driver').value;
+            if(!date || !client || !driver) return alert('Fill fields bby');
+            db.ref('duties').push({ date, time, client, driver });
+            alert('Duty Recorded!');
         }
-        card.style.display = "block";
-    }
 
-    // --- STARS FEEDBACK WORKING ---
-    const starNodes = document.querySelectorAll('.star');
-    starNodes.forEach(star => {
-        star.addEventListener('click', (e) => {
-            selectedRating = parseInt(e.target.getAttribute('data-value'));
-            starNodes.forEach(s => {
-                if(parseInt(s.getAttribute('data-value')) <= selectedRating) { s.classList.add('selected'); } else { s.classList.remove('selected'); }
+        function saveEarnings() {
+            let date = document.getElementById('earn-date').value;
+            let driver = document.getElementById('earn-driver').value;
+            let amount = document.getElementById('earn-amount').value || 0;
+            let paid = document.getElementById('earn-paid').value || 0;
+            let balance = document.getElementById('earn-balance').value || 0;
+            if(!date || !driver) return;
+            db.ref('earnings').push({ date, driver, amount, paid, balance });
+            alert('Earnings Added!');
+        }
+
+        function setVacantStatus(status) {
+            let driver = document.getElementById('vacant-driver-select').value;
+            let phoneInput = document.getElementById('vacant-phone-input').value.trim();
+            if(!driver || phoneInput.length !== 10) return alert('Enter valid 10-digit number bby!');
+            let matched = false;
+            Object.keys(localDb.drivers).forEach(k => {
+                if(localDb.drivers[k].name === driver && localDb.drivers[k].phone === phoneInput) matched = true;
             });
-            document.getElementById('ratingText').innerText = ratingLabels[selectedRating];
-        });
-    });
+            if(!matched) return alert('Mobile number mismatch bby!');
+            db.ref('vacant').child(driver).set({ name: driver, status: status, phone: phoneInput, timestamp: Date.now() });
+            alert(`Status updated successfully!`);
+        }
 
-    document.getElementById('submitFeedbackBtn').addEventListener('click', () => {
-        const driver = document.getElementById('feedbackDriverSelect').value;
-        const comments = document.getElementById('feedbackExperience').value.trim();
-        if(!driver) { alert("Please select a driver!"); return; }
-        if(selectedRating === 0) { alert("Please select star rating!"); return; }
+        function deleteItem(path, id) {
+            if(confirm('Delete this record bby?')) db.ref(path).child(id).remove();
+        }
 
-        push(feedbackListRef, { driver, rating: selectedRating, label: ratingLabels[selectedRating], comments, timestamp: Date.now() }).then(() => {
-            alert("Thank you! Your valuable feedback submitted. ⭐");
-            selectedRating = 0; starNodes.forEach(s => s.classList.remove('selected'));
-            document.getElementById('ratingText').innerText = "மதிப்பீடு செய்ய கிளிக் செய்யவும்";
-            document.getElementById('feedbackExperience').value = "";
-        });
-    });
+        function renderAll() {
+            let html = '';
+            Object.keys(localDb.drivers).forEach(k => {
+                let d = localDb.drivers[k];
+                html += `<tr class="border-b"><td class="p-3 font-semibold">${d.name}</td><td>${d.phone}</td><td>${d.dob || '-'}</td><td>${d.lmvExpiry || '-'}</td><td>${d.lmvTrExpiry || '-'}</td><td class="p-3 admin-only"><button onclick="deleteItem('drivers','${k}')" class="text-red-500">❌</button></td></tr>`;
+            });
+            document.getElementById('driver-table-body').innerHTML = html;
 
-    onValue(feedbackListRef, (snapshot) => {
-        const body = document.getElementById('adminFeedbackListBody'); body.innerHTML = "";
-        if(!snapshot.exists()) { body.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#999;">No reviews yet</td></tr>'; return; }
-        Object.values(snapshot.val()).sort((a,b) => b.timestamp - a.timestamp).forEach(fb => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td><strong>${fb.driver}</strong></td><td style="color:#ff9800; font-weight:bold;">${fb.label}</td><td>${fb.comments || '-'}</td>`;
-            body.appendChild(tr);
-        });
-    });
+            html = '';
+            Object.keys(localDb.clients).forEach(k => {
+                html += `<tr class="border-b"><td class="p-3 font-medium">${localDb.clients[k].name}</td><td class="p-3 admin-only"><button onclick="deleteItem('clients','${k}')" class="text-red-500">❌</button></td></tr>`;
+            });
+            document.getElementById('client-table-body').innerHTML = html;
 
-    // --- ADMIN CONTROLS ---
-    document.getElementById('adminLoginBtn').addEventListener('click', () => {
-        if(document.getElementById('adminPass').value === "divya") {
-            document.getElementById('adminLoginArea').style.display = "none";
-            document.getElementById('adminPanel').style.display = "block";
-        } else { alert("Wrong Password!"); }
-    });
+            let rcHtml = '', rdHtml = '';
+            Object.keys(localDb.rejectedClients).forEach(k => { rcHtml += `<tr class="border-b"><td class="p-2">${localDb.rejectedClients[k].client}</td><td>${localDb.rejectedClients[k].reason}</td><td class="admin-only"><button onclick="deleteItem('rejectedClients','${k}')" class="text-red-500">❌</button></td></tr>`; });
+            Object.keys(localDb.rejectedDrivers).forEach(k => { rdHtml += `<tr class="border-b"><td class="p-2">${localDb.rejectedDrivers[k].client}</td><td>${localDb.rejectedDrivers[k].driver}</td><td>${localDb.rejectedDrivers[k].reason}</td><td class="admin-only"><button onclick="deleteItem('rejectedDrivers','${k}')" class="text-red-500">❌</button></td></tr>`; });
+            document.getElementById('rc-table-body').innerHTML = rcHtml;
+            document.getElementById('rd-table-body').innerHTML = rdHtml;
 
-    document.getElementById('setTargetBtn').addEventListener('click', () => {
-        const tNum = parseInt(document.getElementById('targetNumInput').value);
-        if(tNum >= 1 && tNum <= 20) {
-            set(targetRef, { target: tNum }).then(() => { alert("Target Updated!"); document.getElementById('targetNumInput').value=""; });
-        } else { alert("Enter 1 to 20"); }
-    });
+            let dutyCounts = {}; let dutyHtml = ''; todayDutyDrivers = [];
+            let todayStr = new Date().toISOString().split('T')[0];
+            Object.keys(localDb.duties).forEach(k => {
+                let d = localDb.duties[k]; dutyCounts[d.driver] = (dutyCounts[d.driver] || 0) + 1;
+                if(d.date === todayStr && !todayDutyDrivers.includes(d.driver)) todayDutyDrivers.push(d.driver);
+                dutyHtml += `<tr class="border-b"><td class="p-3">${d.date}</td><td>${d.time || '-'}</td><td>${d.client}</td><td class="font-semibold">${d.driver}</td><td class="p-3 admin-only"><button onclick="deleteItem('duties','${k}')" class="text-red-500">❌</button></td></tr>`;
+            });
+            document.getElementById('duty-table-body').innerHTML = dutyHtml;
 
-    document.getElementById('adminAddBtn').addEventListener('click', () => {
-        const name = document.getElementById('adminAddName').value.trim();
-        const area = document.getElementById('adminAddArea').value.trim();
-        if(!name || !area) return;
-        push(vacantRef, { name, area, time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }), timestamp: Date.now() }).then(() => {
-            alert("Driver Added!"); document.getElementById('adminAddName').value = ""; document.getElementById('adminAddArea').value = "";
-        });
-    });
+            let earnHtml = '';
+            Object.keys(localDb.earnings).forEach(k => {
+                let e = localDb.earnings[k]; let cnt = dutyCounts[e.driver] || 0;
+                earnHtml += `<tr class="border-b"><td class="p-3">${e.date}</td><td class="font-bold">${e.driver}</td><td><span class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded text-xs font-bold">${cnt} Duties</span></td><td class="text-green-600 font-semibold">₹${e.amount}</td><td class="text-blue-600 font-semibold">₹${e.paid}</td><td class="text-red-600 font-extrabold">₹${e.balance}</td><td class="p-3 admin-only"><button onclick="deleteItem('earnings','${k}')" class="text-red-500">❌</button></td></tr>`;
+            });
+            document.getElementById('earnings-table-body').innerHTML = earnHtml;
 
-        // --- ONESIGNAL AUTOMATIC NOTIFICATION ENGINE (UPDATED FOR v16) ---
-    function sendOneSignalNotificationToDriver(driverName, dutiesCount) {
-        const lowercaseDriver = driverName.trim().toLowerCase();
-        
-        fetch("https://onesignal.com/api/v1/notifications", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json; charset=utf-8",
-                "Authorization": "Basic os_v2_app_uzpigcrv3zhsbmhcpn656z6fqfn7c453plxu3q45vnk6vrmleavqfhj2uvpil6ovhiec23olvtvv3oyskasbckv3wwofv5hd2s5ignq"
-            },
-            body: JSON.stringify({
-                app_id: "a65e830a-35de-4f20-b0e2-7b7ddf67c581", 
-                // 🎯 v16-க்கான புதிய சரியான முறை bby!
-                include_aliases: {
-                    external_id: [lowercaseDriver]
-                },
-                headings: { "en": "🚨 புதிய Duty அலர்ட்!" },
-                contents: { "en": `வணக்கம் ${driverName}, உங்களுக்கு இன்று புதிய ${dutiesCount} Duty பதிவு செய்யப்பட்டுள்ளது. லெட்ஜரை செக் செய்யவும்!` },
-                background_data: { type: "duty_update" }
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log("Notification Response Data:", data);
-            if(data.errors) {
-                console.error("OneSignal Server Error:", data.errors);
+            let vacHtml = '';
+            Object.keys(localDb.vacant).forEach(k => {
+                let v = localDb.vacant[k]; if(!v.status) return;
+                let displayPhone = '**********';
+                let actionBtn = `<span class="text-xs text-gray-400 font-medium">Locked for Privacy</span>`;
+                if(isAdmin) { displayPhone = v.phone; actionBtn = `<a href="tel:${v.phone}" class="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-bold shadow flex items-center gap-1"><i class="fa-solid fa-phone"></i> Direct Call</a>`; }
+                vacHtml += `<div class="bg-white border-2 border-green-400 p-4 rounded-xl shadow-sm flex justify-between items-center"><div><h4 class="font-extrabold text-gray-800">${v.name}</h4><p class="text-sm font-mono text-gray-600 tracking-wider">${displayPhone}</p></div><div class="flex flex-col items-end gap-1"><span class="bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">🟢 READY</span>${actionBtn}</div></div>`;
+            });
+            document.getElementById('vacant-grid').innerHTML = vacHtml || '<div class="col-span-3 text-center text-gray-400 py-6">No drivers active at the moment bby.</div>';
+        }
+
+        function searchData(type) {
+            let val = document.getElementById(`search-${type}`).value.toLowerCase();
+            if(type === 'vacant') {
+                document.querySelectorAll('#vacant-grid > div').forEach(div => { div.innerText.toLowerCase().includes(val) ? div.style.display = '' : div.style.display = 'none'; });
+                return;
             }
-        })
-        .catch(err => console.error("Notification Fetch Error:", err));
-    }
-
-    document.getElementById('saveLedgerBtn').addEventListener('click', () => {
-        const name = document.getElementById('editDriverName').value.trim();
-        const dateKey = document.getElementById('editLedgerDate').value;
-        const duties = parseInt(document.getElementById('editDuties').value) || 0;
-        const received = parseInt(document.getElementById('editReceived').value) || 0;
-        const paid = parseInt(document.getElementById('editPaid').value) || 0;
-        if(!name || !dateKey) { alert("டிரைவர் பெயர் மற்றும் தேதியைத் தேர்ந்தெடுக்கவும்!"); return; }
-
-        set(ref(db, `driver_date_ledgers/${dateKey}/${name}`), { duties, received, paid }).then(() => {
-            sendOneSignalNotificationToDriver(name, duties);
-            alert(`${name}-ன் [${dateKey}] கணக்கு வெற்றிகரமாக அப்டேட் செய்யப்பட்டது! டிரைவருக்கு நோட்டிபிகேஷன் அனுப்பப்பட்டது 🚀`);
-            document.getElementById('editDriverName').value = ""; document.getElementById('editDuties').value = ""; document.getElementById('editReceived').value = ""; document.getElementById('editPaid').value = "";
-        });
-    });
-
-    document.getElementById('genFeedbackLinkBtn').addEventListener('click', () => {
-        const name = document.getElementById('newFeedbackDriverName').value.trim();
-        if(!name) { alert("டிரைவர் பெயரை உள்ளிடவும்!"); return; }
-        set(ref(db, `feedback_registered_drivers/${name}`), true).then(() => {
-            alert(`வெற்றிகரமாக ${name}-க்கான லிங்க் உருவாக்கப்பட்டு டேட்டாபேஸில் சேமிக்கப்பட்டது! 🔗`);
-            document.getElementById('newFeedbackDriverName').value = "";
-        });
-    });
-
-            onValue(activeDriversRef, (snapshot) => {
-        // 🎯 1. முதல்ல ஒன்சிக்னல் SDK லோட் ஆனதும் டிரைவரை லாகின் பண்றோம் bby!
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlDriverName = urlParams.get('driver');
-        
-        if (urlDriverName) {
-            window.OneSignalDeferred = window.OneSignalDeferred || [];
-            OneSignalDeferred.push(async function(OneSignal) {
-                await OneSignal.login(urlDriverName.trim().toLowerCase());
-                console.log("Driver successfully logged in to OneSignal:", urlDriverName);
-            });
+            document.querySelectorAll(`#${type}-section table tbody tr`).forEach(row => { row.innerText.toLowerCase().includes(val) ? row.style.display = '' : row.style.display = 'none'; });
         }
-            
-        // 🎯 2. இங்கிருந்து உங்களுடைய ஒரிஜினல் லிங்க் ஜெனரேட் பண்ற கோடு ஆரம்பிக்குது bby:
-        const container = document.getElementById('savedLinksContainer'); 
-        container.innerHTML = "";
-        
-        if(!snapshot.exists()) { 
-            container.innerHTML = '<p style="text-align:center; font-size:12px; color:#999;">No saved links found.</p>'; 
-            return; 
+
+        // Spin Wheel Engine Logic
+        let colors = ["#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6"];
+        function prepareSpinWheel() {
+            let listEl = document.getElementById('spin-driver-list'); listEl.innerHTML = '';
+            if(todayDutyDrivers.length === 0) { listEl.innerHTML = '<p class="text-red-500 text-xs">No duties recorded bby!</p>'; drawBlankWheel(); return; }
+            todayDutyDrivers.forEach((dr) => { listEl.innerHTML += `<li><span class="text-gray-800 font-bold">${dr}</span></li>`; });
+            drawRealWheel();
         }
-        
-        const currentBaseUrl = window.location.href.split('?')[0];
-        Object.keys(snapshot.val()).sort().forEach(driver => {
-            const finalLink = `${currentBaseUrl}?driver=${encodeURIComponent(driver)}`;
-            const card = document.createElement('div');
-            card.className = "saved-link-card"; 
-            card.setAttribute('data-name', driver.toLowerCase());
-            card.innerHTML = `
-                <strong>👤 ${driver}</strong><br>
-                <span style="color:#007bff; word-break:break-all; font-size:11px;">${finalLink}</span><br>
-                <button class="copy-btn" data-url="${finalLink}">Copy Link</button>
-            `;
-            container.appendChild(card);
-        });
 
-        document.querySelectorAll('.copy-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const url = e.target.getAttribute('data-url');
-                navigator.clipboard.writeText(url).then(() => { 
-                    alert("லிங்க் காப்பி செய்யப்பட்டது! வாட்ஸ்அப்பில் அனுப்பலாம் bby 🚀"); 
-                });
-            });
-        });
-    });
+        function drawBlankWheel() {
+            let canvas = document.getElementById('wheelCanvas'); let ctx = canvas.getContext('2d'); ctx.clearRect(0,0,300,300);
+            ctx.beginPath(); ctx.arc(150, 150, 140, 0, 2 * Math.PI); ctx.fillStyle = '#e5e7eb'; ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#9ca3af'; ctx.font = 'bold 14px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('Waiting for Data bby', 150, 150);
+        }
 
-    document.getElementById('searchFeedbackInput').addEventListener('input', (e) => {
-        const keyword = e.target.value.toLowerCase().trim();
-        const cards = document.querySelectorAll('.saved-link-card');
-        cards.forEach(card => {
-            const driverName = card.getAttribute('data-name');
-            if(driverName.includes(keyword)) { card.style.display = "block"; } else { card.style.display = "none"; }
-        });
-    });
-</script>
+        function drawRealWheel() {
+            let canvas = document.getElementById('wheelCanvas'); let ctx = canvas.getContext('2d');
+            let numSegments = todayDutyDrivers.length; let arcSize = (2 * Math.PI) / numSegments; ctx.clearRect(0,0,300,300);
+            for (let i = 0; i < numSegments; i++) {
+                let angle = i * arcSize; ctx.beginPath(); ctx.arc(150, 150, 140, angle, angle + arcSize); ctx.lineTo(150, 150);
+                ctx.fillStyle = colors[i % colors.length]; ctx.fill(); ctx.stroke();
+                ctx.save(); ctx.fillStyle = "white"; ctx.font = "bold 20px sans-serif"; ctx.translate(150, 150); ctx.rotate(angle + arcSize / 2); ctx.textAlign = "right"; ctx.fillText(i + 1, 120, 10); ctx.restore();
+            }
+        }
+
+        function spinTheWheel() {
+            if(todayDutyDrivers.length === 0) return;
+            document.getElementById('spinBtn').disabled = true; document.getElementById('spin-winner').innerText = "Spinning... 🌀";
+            let canvas = document.getElementById('wheelCanvas'); let numSegments = todayDutyDrivers.length;
+            let randomRotations = Math.floor(Math.random() * 5) + 5; let targetSlice = Math.floor(Math.random() * numSegments);
+            let arcSize = (2 * Math.PI) / numSegments;
+            let targetAngle = (randomRotations * 2 * Math.PI) + (3 * Math.PI / 2) - (targetSlice * arcSize) - (arcSize / 2);
+            canvas.style.transform = `rotate(${targetAngle}rad)`;
+            setTimeout(() => {
+                document.getElementById('spin-winner').innerHTML = `🎉 Winner is Number ${targetSlice + 1}: ${todayDutyDrivers[targetSlice]}!`;
+                document.getElementById('spinBtn').disabled = false;
+            }, 4000);
+        }
+    </script>
 </body>
 </html>
