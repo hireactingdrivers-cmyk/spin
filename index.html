@@ -814,31 +814,43 @@ const urlParams = new URLSearchParams(window.location.search);
 const isDriverView = urlParams.get('view') === 'driver';
 
 if (isDriverView) {
-    // 2. நம்ம மெயின் ஃபார்மை மட்டும் டார்கெட் பண்றோம்
-    const targetForm = document.getElementById('dutyForm');
+    // பொதுவான ஹெட்டிங், நேவிகேஷன் பார் எல்லாத்தையும் ஃபர்ஸ்ட் மறைக்கிறோம்
+    document.querySelectorAll('header, nav, .stats-card, h1, h2').forEach(el => el.style.display = 'none');
+
+    // 2. உங்க ஆப்-ல இருக்குற எல்லா மெயின் பாக்ஸ்/செக்ஷன்களையும் ஸ்கேன் பண்றோம்
+    const allBlocks = document.querySelectorAll('section, .bg-white, main > div, body > div');
     
-    if (targetForm) {
-        // ஃபார்ம் இருக்குற மெயின் ஒயிட் கார்டு பாக்ஸ்
-        const formCard = targetForm.closest('.bg-white') || targetForm.parentElement;
+    allBlocks.forEach(block => {
+        const text = block.innerText || '';
+        
+        // நீங்க சொன்ன 6 செக்ஷன்களை உள்ள இருக்குற டெக்ஸ்ட் வச்சு துல்லியமா கண்டுபிடிக்கிறோம்
+        const isDutyLogger     = text.includes('Duty Logger') || text.includes('Add Duty') || text.includes('Assign Duty');
+        const isAddDriverClient = text.includes('Add Driver') || text.includes('Add Client') || text.includes('Driver Registration');
+        const isRestrictions    = text.includes('Restriction') || text.includes('Block');
+        const isDriversList     = text.includes('Drivers List') || text.includes('All Drivers') || block.querySelector('#allDriversTableBody');
+        const isClientsList     = text.includes('Clients List') || text.includes('All Clients') || block.querySelector('#allClientsTableBody');
+        const isDutyHistory     = text.includes('Duty History') || text.includes('All Duties') || block.querySelector('#dutiesTableBody');
 
-        // 3. மேஜிக் லைன்: பேஜ்ல இருக்குற மத்த எல்லா மெயின் செக்ஷன், டேபிள்கள், ஹெட்டிங்ஸ் எல்லாத்தையும் லூப் பண்றோம்
-        document.querySelectorAll('body > *, main > *, header, nav, section, table, .stats-card, h1, h2, h3').forEach(el => {
-            // அந்த பாக்ஸ்க்குள்ள நம்ம ஃபார்ம் "இல்லைனா" மட்டும் அதை அப்படியே மொத்தமா மறைச்சிருமோம்!
-            if (!el.contains(targetForm)) {
-                el.style.display = 'none';
-            }
-        });
-
-        // 4. இப்போ மறைக்காம விட்ட அந்த ஃபார்ம் கார்டை மட்டும் ஸ்கிரீன்ல அழகா சென்டரா காட்டுறோம்
-        if (formCard) {
-            formCard.style.display = 'block';
-            formCard.style.margin = '40px auto';
-            formCard.style.maxWidth = '600px';
-            formCard.style.padding = '25px';
-            formCard.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
+        // 🛑 இந்த 6 செக்ஷன்ல எதுவாக இருந்தாலும் அதை டோட்டலா HIDE பண்றோம்!
+        if (isDutyLogger || isAddDriverClient || isRestrictions || isDriversList || isClientsList || isDutyHistory) {
+            block.style.display = 'none';
         }
-    }
+        
+        // 🟢 'Vacant Logger' செக்ஷனை மட்டும் தனியா கண்டுபிடிச்சு அதை மட்டும் SHOW பண்றோம்!
+        const isVacantLogger = text.includes('Vacant Logger') || text.includes('Vacant Log') || text.includes('Driver Vacant');
+        if (isVacantLogger && !isDutyLogger && !isDriversList) {
+            block.style.display = 'block';
+            
+            // டிரைவர் போன்ல பார்க்க ஃபார்ம் மட்டும் சென்டரா அழகா தெரிய டிசைன் அட்ஜஸ்ட்மென்ட்
+            block.style.margin = '40px auto';
+            block.style.maxWidth = '600px';
+            block.style.padding = '25px';
+        }
+    });
 }
 
 // இதுக்கு கீழ தான் உங்க பழைய மெயின் லைன் அப்படியே இருக்கணும்:
 initializeSystem();
+    </script>
+</body>
+</html>
