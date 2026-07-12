@@ -814,39 +814,37 @@ const urlParams = new URLSearchParams(window.location.search);
 const isDriverView = urlParams.get('view') === 'driver';
 
 if (isDriverView) {
-    // பொதுவான ஹெட்டிங், நேவிகேஷன் பார் எல்லாத்தையும் ஃபர்ஸ்ட் மறைக்கிறோம்
-    document.querySelectorAll('header, nav, .stats-card, h1, h2').forEach(el => el.style.display = 'none');
+    let vacantCard = null;
 
-    // 2. உங்க ஆப்-ல இருக்குற எல்லா மெயின் பாக்ஸ்/செக்ஷன்களையும் ஸ்கேன் பண்றோம்
-    const allBlocks = document.querySelectorAll('section, .bg-white, main > div, body > div');
-    
-    allBlocks.forEach(block => {
-        const text = block.innerText || '';
-        
-        // நீங்க சொன்ன 6 செக்ஷன்களை உள்ள இருக்குற டெக்ஸ்ட் வச்சு துல்லியமா கண்டுபிடிக்கிறோம்
-        const isDutyLogger     = text.includes('Duty Logger') || text.includes('Add Duty') || text.includes('Assign Duty');
-        const isAddDriverClient = text.includes('Add Driver') || text.includes('Add Client') || text.includes('Driver Registration');
-        const isRestrictions    = text.includes('Restriction') || text.includes('Block');
-        const isDriversList     = text.includes('Drivers List') || text.includes('All Drivers') || block.querySelector('#allDriversTableBody');
-        const isClientsList     = text.includes('Clients List') || text.includes('All Clients') || block.querySelector('#allClientsTableBody');
-        const isDutyHistory     = text.includes('Duty History') || text.includes('All Duties') || block.querySelector('#dutiesTableBody');
-
-        // 🛑 இந்த 6 செக்ஷன்ல எதுவாக இருந்தாலும் அதை டோட்டலா HIDE பண்றோம்!
-        if (isDutyLogger || isAddDriverClient || isRestrictions || isDriversList || isClientsList || isDutyHistory) {
-            block.style.display = 'none';
-        }
-        
-        // 🟢 'Vacant Logger' செக்ஷனை மட்டும் தனியா கண்டுபிடிச்சு அதை மட்டும் SHOW பண்றோம்!
-        const isVacantLogger = text.includes('Vacant Logger') || text.includes('Vacant Log') || text.includes('Driver Vacant');
-        if (isVacantLogger && !isDutyLogger && !isDriversList) {
-            block.style.display = 'block';
-            
-            // டிரைவர் போன்ல பார்க்க ஃபார்ம் மட்டும் சென்டரா அழகா தெரிய டிசைன் அட்ஜஸ்ட்மென்ட்
-            block.style.margin = '40px auto';
-            block.style.maxWidth = '600px';
-            block.style.padding = '25px';
+    // 2. ஹெட்டிங்ல (Heading) 'vacant' இருக்குற அந்த ஒரு செக்ஷனை மட்டும் தனியா தேடி கண்டுபிடிக்கிறோம்
+    document.querySelectorAll('h1, h2, h3, h4').forEach(el => {
+        if (el.innerText.toLowerCase().includes('vacant') && !vacantCard) {
+            vacantCard = el.closest('.bg-white') || el.closest('section') || el.parentElement;
         }
     });
+
+    // 3. வேக்கண்ட் கார்டு கிடைச்சதும், அதை தவிர மத்த எல்லா 6 செக்ஷனையும், ஹெட்டிங்கையும் மொத்தமா மறைக்கிறோம்
+    if (vacantCard) {
+        document.querySelectorAll('body > *, main > *, section, .bg-white, header, nav, .stats-card').forEach(el => {
+            // இந்த பாக்ஸ்க்குள்ள நம்ம வேக்கண்ட் ஃபார்ம் "இல்லைனா" அதை அப்படியே காலி (Hide) பண்றோம்!
+            if (!el.contains(vacantCard) && el !== vacantCard) {
+                el.style.display = 'none';
+            }
+        });
+
+        // வேக்கண்ட் ஃபார்ம் கார்டு மட்டும் ஸ்கிரீன்ல தெரியுறதை உறுதி பண்றோம்
+        let current = vacantCard;
+        while (current && current !== document.body) {
+            current.style.display = 'block';
+            current = current.parentElement;
+        }
+
+        // டிரைவர் மொபைல்ல பார்க்க ஃபார்ம் மட்டும் சென்டரா அழகா தெரிய சின்ன டிசைன் அட்ஜஸ்ட்மென்ட்
+        vacantCard.style.margin = '40px auto';
+        vacantCard.style.maxWidth = '600px';
+        vacantCard.style.padding = '25px';
+        vacantCard.style.display = 'block';
+    }
 }
 
 // இதுக்கு கீழ தான் உங்க பழைய மெயின் லைன் அப்படியே இருக்கணும்:
