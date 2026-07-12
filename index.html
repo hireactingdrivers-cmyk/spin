@@ -833,27 +833,30 @@
             }
         }
 
-        // Driver Portal Isolated View Control
-const urlParams = new URLSearchParams(window.location.search);
-const isDriverView = urlParams.get('view') === 'driver';
+        // டிரைவர் லோஜிக் (நீங்கள் கேட்டது)
+        else if (viewMode === 'driver') {
+            const navBar = document.querySelector('.sticky.top-0');
+            if (navBar) navBar.style.display = 'none';
 
-if (isDriverView) {
-    // 1. நேவிகேஷன் பார்-ஐ முழுமையாக மறைக்க
-    const navBar = document.querySelector('.sticky.top-0');
-    if (navBar) navBar.style.display = 'none';
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.style.display = 'none';
+            });
 
-    // 2. எல்லா செக்ஷன்களையும் மறைக்க
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.style.display = 'none';
-    });
-
-    // 3. Vacant Logger செக்ஷனை மட்டும் காட்ட
-    const vacantSection = document.getElementById('vacant-section');
-    if (vacantSection) {
-        vacantSection.style.display = 'block'; // இது மட்டும் தெரியும்
-        vacantSection.classList.remove('hidden'); // hidden class இருந்தாலும் நீக்கப்படும்
+            const vacantSection = document.getElementById('vacant-section');
+            if (vacantSection) {
+                vacantSection.style.display = 'block';
+                vacantSection.classList.remove('hidden');
+            }
+        }
     }
-}
+
+    // பக்கத்தை லோட் செய்யும்போது இதை இயக்கவும்
+    checkAccess();
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+        document.getElementById(tabId).classList.remove('hidden');
+    }
         
         // Start initialization engine
         initializeSystem();
