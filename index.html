@@ -809,30 +809,38 @@ window.editDuty = function(id, currentDriver, currentClient) {
     }
 }
 
-// 1. URL-ல view=driver-னு இருக்கான்னு செக் பண்றோம்
+// 1. URL-ல view=driver-nu இருக்கான்னு செக் பண்றோம்
 const urlParams = new URLSearchParams(window.location.search);
 const isDriverView = urlParams.get('view') === 'driver';
 
-// 2. டிரைவர் பார்க்குற லிங்க்-ஆ இருந்தா, டேபிள்களை மறைச்சுட்டு ஃபார்மை மட்டும் காட்டுறோம்
+// 2. டிரைவர் பார்க்குற லிங்க்-ஆ இருந்தா, ஃபார்மை தவிர மத்த எல்லா செக்ஷனையும் மொத்தமா மறைக்கிறோம்
 if (isDriverView) {
-    // டியூட்டி ஹிஸ்டரி டேபிளை மறைக்கிறோம்
-    const dutyTableSection = document.getElementById('dutiesTableBody') ? document.getElementById('dutiesTableBody').closest('.bg-white') || document.getElementById('dutiesTableBody').parentElement : null;
-    if (dutyTableSection) dutyTableSection.style.display = 'none';
-
-    // டிரைவர்ஸ் லிஸ்ட் டேபிளை மறைக்கிறோம்
-    const driverTableSection = document.getElementById('allDriversTableBody') ? document.getElementById('allDriversTableBody').closest('.bg-white') || document.getElementById('allDriversTableBody').parentElement : null;
-    if (driverTableSection) driverTableSection.style.display = 'none';
-
-    // கிளைன்ட் லிஸ்ட் டேபிளை மறைக்கிறோம்
-    const clientTableSection = document.getElementById('allClientsTableBody') ? document.getElementById('allClientsTableBody').closest('.bg-white') || document.getElementById('allClientsTableBody').parentElement : null;
-    if (clientTableSection) clientTableSection.style.display = 'none';
-
-    // ஃபார்மை மட்டும் தனியா காட்டுகிறோம்
-    const mainForm = document.getElementById('dutyForm') ? document.getElementById('dutyForm').closest('.bg-white') || document.getElementById('dutyForm') : null;
-    if (mainForm) mainForm.style.display = 'block';
+    // ஸ்கிரீன்ல இருக்குற ஹெட்டிங், டைட்டில், நேவிகேஷன் பார் எல்லாத்தையும் மறைக்கிறோம்
+    document.querySelectorAll('header, nav, h1, h2, h3, h4, .stats-card').forEach(el => {
+        el.style.display = 'none';
+    });
+    
+    // பேஜ்ல இருக்குற எல்லா டிவிஷன் (div) மற்றும் செக்ஷன்களையும் லூப் பண்றோம்
+    document.querySelectorAll('div, section, main').forEach(el => {
+        const formEl = document.getElementById('dutyForm');
+        
+        // ஒருவேளை அந்த பாக்ஸ்/கார்டுக்குள்ள நம்ம 'dutyForm' இல்லைனா... அதை மொத்தமா ஹைட் பண்றோம்!
+        if (formEl && !el.contains(formEl)) {
+            el.style.display = 'none';
+        }
+    });
+    
+    // 3. இப்போ வேக்கண்ட் ஃபார்ம் கார்டை மட்டும் ஸ்கிரீன்ல அழகா சென்டரா தனியா காட்டுறோம்
+    const mainForm = document.getElementById('dutyForm');
+    if (mainForm) {
+        const formCard = mainForm.closest('.bg-white') || mainForm;
+        formCard.style.display = 'block';
+        formCard.style.margin = '40px auto'; // மேலேயும் கீழேயும் கேப் வர்றதுக்கு
+        formCard.style.maxWidth = '600px';   // ஃபார்ம் பாக்க நீட்டா இருக்க ஒரு அளவு
+    }
 }
 
-// 3. சிஸ்டத்தை ரன் செய்யும் மெயின் லைன்
+// இதுக்கு கீழ தான் உங்க பழைய மெயின் லைன் அப்படியே இருக்கணும்:
 initializeSystem();
     </script>
 </body>
