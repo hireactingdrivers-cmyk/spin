@@ -404,16 +404,23 @@
                         ` : '<span class="text-gray-400 italic">N/A</span>'}
                     </td>
                     
-                    <td class="p-3">${d.dob || 'N/A'}</td>
+                    <td class="p-3">${d.dob || 'N/A'} (${calculateExactAge(d.dob)})</td>
+                    
                     <td class="p-3">${d.lmvIssue || 'N/A'}</td>
                     <td class="p-3 font-medium">${d.lmvExpiry || 'N/A'}</td>
                     <td class="p-3 font-medium">${d.lmvTrExpiry || 'N/A'}</td>
                     <td class="p-3">${getExpiryStatus(d.lmvExpiry, d.lmvTrExpiry)}</td>
+                    
+                    <td class="p-3 flex gap-2">
+                        <button onclick="editDriver('${id}', '${d.name}', '${d.mobile || ''}')" class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded">✏️ Edit</button>
+                        <button onclick="deleteDriver('${id}', '${d.name}')" class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded">🗑️ Del</button>
+                    </td>
                 `;
                 tbody.appendChild(row);
             }
         } else {
-            tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-gray-400">No driver profiles recorded.</td></tr>';
+            // புதுசா ஒரு காலம் சேர்ந்ததாலcolspan 7-ல இருந்து 8-ஆ மாத்தியாச்சு
+            tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400">No driver profiles recorded.</td></tr>';
         }
     });
 }
@@ -543,26 +550,40 @@ document.getElementById('searchDriversInput').addEventListener('input', (e) => {
         }
 
         function renderDutiesTable(filterDateStr = '') {
-            const tbody = document.getElementById('dutiesTableBody');
-            tbody.innerHTML = '';
-            let recordFound = false;
+    const tbody = document.getElementById('dutiesTableBody');
+    tbody.innerHTML = '';
+    let recordFound = false;
+    
+    for (let id in dutiesDataMap) {
+        const duty = dutiesDataMap[id];
+        if (filterDateStr && duty.date !== filterDateStr) continue;
+        recordFound = true;
+        
+        // 1. டைம் ஃபார்மேட் மாற்றம் ( : குறியீட்டை . ஆக மாற்றும் )
+        const formattedTime = duty.time ? duty.time.replace(':', '.') : 'N/A';
+        
+        const row = document.createElement('tr');
+        row.className = "border-b hover:bg-orange-50/50 transition";
+        row.innerHTML = `
+            <td class="p-3 font-semibold text-gray-700">${duty.date}</td>
             
-            for (let id in dutiesDataMap) {
-                const duty = dutiesDataMap[id];
-                if (filterDateStr && duty.date !== filterDateStr) continue;
-                recordFound = true;
-                const row = document.createElement('tr');
-                row.className = "border-b hover:bg-orange-50/50 transition";
-                row.innerHTML = `
-                    <td class="p-3 font-semibold text-gray-700">${duty.date}</td>
-                    <td class="p-3">${duty.time}</td>
-                    <td class="p-3 font-medium text-gray-800">${duty.driver}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">${duty.client}</span></td>
-                `;
-                tbody.appendChild(row);
-            }
-            if(!recordFound) tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-400">No scheduled duties found.</td></tr>';
-        }
+            <!-- இங்க duty.time-க்கு பதிலா formattedTime குடுத்துட்டோம் -->
+            <td class="p-3">${formattedTime}</td> 
+            
+            <td class="p-3 font-medium text-gray-800">${duty.driver}</td>
+            <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">${duty.client}</span></td>
+            
+            <!-- 2. அட்மின் எடிட் & டெலிட் பட்டன்கள் இங்க ஆட் பண்ணியாச்சு -->
+            <td class="p-3 flex gap-2">
+                <button onclick="editDuty('${id}', '${duty.driver}', '${duty.client}')" class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded">✏️ Edit</button>
+                <button onclick="deleteDuty('${id}')" class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded">🗑️ Del</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    }
+    // புதுசா ஒரு காலம் (Column) சேர்ந்ததால இங்க 4-க்கு பதிலா 5-னு மாத்திருக்கோம்
+    if(!recordFound) tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">No scheduled duties found.</td></tr>';
+}
 
         function listenToVacantData() {
             onValue(ref(db, 'vacancies'), (snapshot) => {
@@ -734,7 +755,85 @@ document.getElementById('searchRestrictionsInput').addEventListener('input', (e)
     });
 });
 
-        initializeSystem();
+// 1. துல்லியமான வயதைக் கணக்கிடும் ஃபங்ஷன் (Keep only this full version)
+function calculateExactAge(dobString) {
+    if (!dobString || dobString === 'N/A') return 'N/A';
+    
+    const birthDate = new Date(dobString);
+    const today = new Date();
+    
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age > 0 ? `${age} Yrs` : 'N/A';
+}
+
+// 2. மாஸ்டர் CRUD அட்மின் ஃபங்ஷன்ஸ் (Edit / Modify / Delete)
+window.deleteDriver = function(id, name) {
+    if (confirm(`Are you sure you want to delete driver: ${name}?`)) {
+        remove(ref(db, `drivers/${id}`)).then(() => alert('🗑️ Driver deleted!'));
+    }
+}
+
+window.editDriver = function(id, currentName, currentMobile) {
+    const newName = prompt("Enter new Driver Name:", currentName);
+    const newMobile = prompt("Enter new Mobile Number:", currentMobile);
+    if (newName && newMobile) {
+        update(ref(db, `drivers/${id}`), { name: newName.trim(), mobile: newMobile.trim() });
+    }
+}
+
+window.deleteClient = function(id, name) {
+    if (confirm(`Are you sure you want to delete client: ${name}?`)) {
+        remove(ref(db, `clients/${id}`)).then(() => alert('🗑️ Client deleted!'));
+    }
+}
+
+window.editClient = function(id, currentName) {
+    const newName = prompt("Enter new Client Name:", currentName);
+    if (newName) update(ref(db, `clients/${id}`), { name: newName.trim() });
+}
+
+window.deleteDuty = function(id) {
+    if (confirm("Are you sure?")) remove(ref(db, `duties/${id}`));
+}
+
+window.editDuty = function(id, currentDriver, currentClient) {
+    const newDriver = prompt("Change Driver Name:", currentDriver);
+    const newClient = prompt("Change Client Name:", currentClient);
+    if (newDriver && newClient) {
+        update(ref(db, `duties/${id}`), { driverName: newDriver.trim(), clientName: newClient.trim() });
+    }
+}
+
+// 1. URL-ல view=driver-னு இருக்கான்னு செக் பண்றோம்
+const urlParams = new URLSearchParams(window.location.search);
+const isDriverView = urlParams.get('view') === 'driver';
+
+// 2. டிரைவர் பார்க்குற லிங்க்-ஆ இருந்தா, டேபிள்களை மறைச்சுட்டு ஃபார்மை மட்டும் காட்டுறோம்
+if (isDriverView) {
+    // டியூட்டி ஹிஸ்டரி டேபிளை மறைக்கிறோம்
+    const dutyTableSection = document.getElementById('dutiesTableBody') ? document.getElementById('dutiesTableBody').closest('.bg-white') || document.getElementById('dutiesTableBody').parentElement : null;
+    if (dutyTableSection) dutyTableSection.style.display = 'none';
+
+    // டிரைவர்ஸ் லிஸ்ட் டேபிளை மறைக்கிறோம்
+    const driverTableSection = document.getElementById('allDriversTableBody') ? document.getElementById('allDriversTableBody').closest('.bg-white') || document.getElementById('allDriversTableBody').parentElement : null;
+    if (driverTableSection) driverTableSection.style.display = 'none';
+
+    // கிளைன்ட் லிஸ்ட் டேபிளை மறைக்கிறோம்
+    const clientTableSection = document.getElementById('allClientsTableBody') ? document.getElementById('allClientsTableBody').closest('.bg-white') || document.getElementById('allClientsTableBody').parentElement : null;
+    if (clientTableSection) clientTableSection.style.display = 'none';
+
+    // ஃபார்மை மட்டும் தனியா காட்டுகிறோம்
+    const mainForm = document.getElementById('dutyForm') ? document.getElementById('dutyForm').closest('.bg-white') || document.getElementById('dutyForm') : null;
+    if (mainForm) mainForm.style.display = 'block';
+}
+
+// 3. சிஸ்டத்தை ரன் செய்யும் மெயின் லைன்
+initializeSystem();
     </script>
 </body>
 </html>
