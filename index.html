@@ -41,11 +41,6 @@
         </div>
 
         <div id="duty-section" class="tab-content bg-white p-6 rounded-lg shadow-md border-t-4 border-yellow-500">
-
-            <button id="notifyBtn" class="bg-blue-600 text-white px-4 py-2 rounded shadow font-bold text-sm mb-4">
-    🔔 Enable Notifications
-</button>
-            
             <h2 class="text-2xl font-bold mb-4 text-yellow-600 border-b pb-2">📝 Daily Duty Logger</h2>
             <form id="dutyForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
                 <div class="relative">
@@ -267,11 +262,10 @@
         }
     </script>
 
-         <script type="module">
-    // 1. எல்லாவற்றையும் ஒரே இடத்தில் இம்போர்ட் செய்யுங்கள்
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getDatabase, ref, push, set, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        // 🌟 FIXED: Added 'update' to imports!
+        import { getDatabase, ref, push, set, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyBf2I74LYfdifdJnpxy8m-xgwuhwpib3zo",
@@ -285,7 +279,6 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const messaging = getMessaging(app); // FCM Initialize
 
         // 🌟 GLOBAL DATA STORES FOR LIVE COMPUTATION SYNC
         let driversDataMap = {};
@@ -295,38 +288,12 @@
         let driversArray = [];
         let clientsArray = [];
 
-                function initializeSystem() {
-    listenToClientsData();
-    listenToDriversData();
-    listenToDutiesData();
-    listenToVacantData();
-    listenToRestrictions();
-    // இங்க இருந்த பழைய Notification கோடை நான் நீக்கிட்டேன்.
-}
-
-// 🔔 புதிய பட்டன் பங்க்ஷன் (இதை initializeSystem-க்கு வெளியில போடுங்க)
-window.requestPermission = async function() {
-    try {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-            const token = await getToken(messaging, { 
-                vapidKey: 'BJiuCAnldXk3Vj1L4oBn7seX7n8DmQNp3zUkdIXPuK38ZGDfdP-YLo23-NgPOi-7cZhM2pkJzMPk-mIo3Wcuj7I' 
-            });
-            console.log("Token:", token);
-            alert("Success! Token: " + token);
-        } else {
-            alert("Permission denied!");
-        }
-    } catch (err) {
-        console.error("Error:", err);
-        alert("Error: " + err.message);
-    }
-};
-
-            onMessage(messaging, (payload) => {
-                console.log("Notification received:", payload);
-                alert("New Alert: " + payload.notification.title);
-            });
+        function initializeSystem() {
+            listenToClientsData();
+            listenToDriversData();
+            listenToDutiesData();
+            listenToVacantData();
+            listenToRestrictions(); 
         }
 
         function getExpiryStatus(lmvStr, trStr) {
@@ -412,32 +379,13 @@ window.requestPermission = async function() {
         }
         
         // --- 2. RESTRICTIONS SYSTEM ---
-function listenToRestrictions() {
-    onValue(ref(db, 'restrictions'), (snapshot) => {
-        restrictionsDataMap = snapshot.exists() ? snapshot.val() : {};
-        renderRestrictionsTable();
-        renderDriversTable(); 
-    });
-}
-
-// 🔔 புதிய நோட்டிபிகேஷன் சிஸ்டம் (இதை இங்கே சேர்த்துடுங்க)
-onValue(ref(db, 'notifications'), (snapshot) => {
-    if (snapshot.exists()) {
-        // சத்தம் வர
-        const audio = document.getElementById('alertSound');
-        if (audio) {
-            audio.play().catch(e => console.log("Sound locked!"));
-        }
-
-        // பிரவுசர் நோட்டிபிகேஷன் காட்ட
-        if (Notification.permission === 'granted') {
-            new Notification("புதிய Duty வந்துள்ளது!", {
-                body: "அட்மின் புதிய Duty ஒன்றை பதிவிட்டுள்ளார். உடனே கவனிக்கவும்.",
-                icon: 'https://cdn-icons-png.flaticon.com/512/684/684908.png'
+        function listenToRestrictions() {
+            onValue(ref(db, 'restrictions'), (snapshot) => {
+                restrictionsDataMap = snapshot.exists() ? snapshot.val() : {};
+                renderRestrictionsTable();
+                renderDriversTable(); // 🌟 Sync rules live into driver data table display instantly
             });
         }
-    }
-});
 
         function renderRestrictionsTable() {
             const tbody = document.getElementById('restrictionsTableBody');
@@ -884,80 +832,6 @@ onValue(ref(db, 'notifications'), (snapshot) => {
                 .then(() => alert('✏️ Duty updated successfully!'));
             }
         }
-
-        // Driver Portal Isolated View Control
-        const urlParams = new URLSearchParams(window.location.search);
-        const isDriverView = urlParams.get('view') === 'driver';
-
-        if (isDriverView) {
-            setTimeout(() => {
-                switchTab('duty-section');
-                const navBar = document.querySelector('.sticky.top-0');
-                if (navBar) navBar.style.display = 'none';
-                document.querySelectorAll('.tab-content').forEach(tab => {
-                    if (tab.id !== 'duty-section') tab.style.display = 'none';
-                });
-            }, 100);
-        }
-
-        // ... (உங்க பழைய டெலிட்/எடிட் பங்ஷன்கள் எல்லாம் இங்க இருக்கும்) ...
-
-        window.editDuty = function(id, currentDriver, currentClient) {
-            const newDriver = prompt("Change Driver Name:", currentDriver);
-            const newClient = prompt("Change Client Name:", currentClient);
-            if (newDriver && newClient) {
-                update(ref(db, `duties/${id}`), { driver: newDriver.trim(), client: newClient.trim() })
-                .then(() => alert('✏️ Duty updated successfully!'));
-            }
-        }
-
-        // ==============================================================
-        // 🌟 இந்த இடத்துல தான் புது FCM கோடை அப்படியே பேஸ்ட் பண்ணனும்! 🌟
-        // ==============================================================
-        
-        // 1. Module இம்போர்ட் லைன் மேல டாப்-ல போடுறதுக்கு பதிலா, இங்கேயே நேரடியா இம்போர்ட் பண்ணிக்கலாம்:
-        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
-        
-        const messaging = getMessaging(app);
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/firebase-messaging-sw.js')
-            .then((registration) => {
-                console.log('Service Worker registered successfully:', registration.scope);
-            }).catch((err) => {
-                console.log('Service Worker registration failed:', err);
-            });
-        }
-
-        onMessage(messaging, (payload) => {
-            console.log('Message received in foreground: ', payload);
-            const notificationTitle = payload.notification.title;
-            const notificationOptions = {
-                body: payload.notification.body,
-                icon: '/firebase-logo.png' 
-            };
-            new Notification(notificationTitle, notificationOptions);
-        });
-
-        window.requestNotificationPermission = function(driverName) {
-            Notification.requestPermission().then((permission) => {
-                if (permission === 'granted') {
-                    // ⚠️ உங்க VAPID KEY-யை மறக்காம இங்க மாத்துங்க பாஸ்!
-                    getToken(messaging, { vapidKey: 'BJiuCAnldXk3Vj1L4oBn7seX7n8DmQNp3zUkdIXPuK38ZGDfdP-YLo23-NgPOi-7cZhM2pkJzMPk-mIo3Wcuj7I' })
-                    .then((currentToken) => {
-                        if (currentToken) {
-                            for (let id in driversDataMap) {
-                                if (driversDataMap[id].name === driverName) {
-                                    update(ref(db, `drivers/${id}`), { fcmToken: currentToken });
-                                    console.log("FCM Token saved for " + driverName);
-                                }
-                            }
-                        }
-                    }).catch((err) => console.log('Token error: ', err));
-                }
-            });
-        }
-        // ==============================================================
 
         // Driver Portal Isolated View Control
         const urlParams = new URLSearchParams(window.location.search);
