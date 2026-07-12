@@ -412,13 +412,32 @@ window.requestPermission = async function() {
         }
         
         // --- 2. RESTRICTIONS SYSTEM ---
-        function listenToRestrictions() {
-            onValue(ref(db, 'restrictions'), (snapshot) => {
-                restrictionsDataMap = snapshot.exists() ? snapshot.val() : {};
-                renderRestrictionsTable();
-                renderDriversTable(); // 🌟 Sync rules live into driver data table display instantly
+function listenToRestrictions() {
+    onValue(ref(db, 'restrictions'), (snapshot) => {
+        restrictionsDataMap = snapshot.exists() ? snapshot.val() : {};
+        renderRestrictionsTable();
+        renderDriversTable(); 
+    });
+}
+
+// 🔔 புதிய நோட்டிபிகேஷன் சிஸ்டம் (இதை இங்கே சேர்த்துடுங்க)
+onValue(ref(db, 'notifications'), (snapshot) => {
+    if (snapshot.exists()) {
+        // சத்தம் வர
+        const audio = document.getElementById('alertSound');
+        if (audio) {
+            audio.play().catch(e => console.log("Sound locked!"));
+        }
+
+        // பிரவுசர் நோட்டிபிகேஷன் காட்ட
+        if (Notification.permission === 'granted') {
+            new Notification("புதிய Duty வந்துள்ளது!", {
+                body: "அட்மின் புதிய Duty ஒன்றை பதிவிட்டுள்ளார். உடனே கவனிக்கவும்.",
+                icon: 'https://cdn-icons-png.flaticon.com/512/684/684908.png'
             });
         }
+    }
+});
 
         function renderRestrictionsTable() {
             const tbody = document.getElementById('restrictionsTableBody');
