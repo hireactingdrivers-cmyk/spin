@@ -262,12 +262,11 @@
         }
     </script>
 
-        <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, set, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        
-        // 🌟 FCM Notification Imports
-        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
+         <script type="module">
+    // 1. எல்லாவற்றையும் ஒரே இடத்தில் இம்போர்ட் செய்யுங்கள்
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push, set, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyBf2I74LYfdifdJnpxy8m-xgwuhwpib3zo",
@@ -918,7 +917,7 @@ Notification.requestPermission().then((permission) => {
             Notification.requestPermission().then((permission) => {
                 if (permission === 'granted') {
                     // ⚠️ உங்க VAPID KEY-யை மறக்காம இங்க மாத்துங்க பாஸ்!
-                    getToken(messaging, { vapidKey: 'YOUR_PUBLIC_VAPID_KEY_HERE' })
+                    getToken(messaging, { vapidKey: 'BJiuCAnldXk3Vj1L4oBn7seX7n8DmQNp3zUkdIXPuK38ZGDfdP-YLo23-NgPOi-7cZhM2pkJzMPk-mIo3Wcuj7I' })
                     .then((currentToken) => {
                         if (currentToken) {
                             for (let id in driversDataMap) {
