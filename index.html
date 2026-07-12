@@ -833,6 +833,21 @@
             }
         }
 
+        // 1. URL பாராமீட்டர்களைப் பெறவும்
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewMode = urlParams.get('view');
+    const adminPassword = "divya"; // இங்கே உங்கள் பாஸ்வேர்டை மாற்றிக்கொள்ளுங்கள்
+
+    function checkAccess() {
+        // அட்மின் லோஜிக்
+        if (viewMode === 'admin') {
+            const enteredPass = prompt("Admin பாஸ்வேர்டை உள்ளிடவும்:");
+            if (enteredPass !== adminPassword) {
+                alert("தவறான பாஸ்வேர்டு!");
+                window.location.href = "about:blank"; 
+            }
+        } 
+        
         // டிரைவர் லோஜிக் (நீங்கள் கேட்டது)
         else if (viewMode === 'driver') {
             const navBar = document.querySelector('.sticky.top-0');
