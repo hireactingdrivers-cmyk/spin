@@ -14,7 +14,6 @@
 
     <div class="max-w-6xl mx-auto space-y-6">
         
-        <!-- Navigation Bar Sticky -->
         <div class="bg-white p-3 rounded-lg shadow-md flex flex-wrap justify-between items-center gap-3 sticky top-0 z-50 border border-gray-200">
             <div class="flex flex-wrap gap-2 justify-center w-full md:w-auto">
                 <button onclick="switchTab('duty-section')" id="btn-duty-section" class="tab-btn bg-yellow-500 text-white font-bold px-4 py-2 rounded shadow flex items-center gap-2 transition text-sm">
@@ -41,7 +40,6 @@
             </div>
         </div>
 
-        <!-- 1. Duty Section (Visible by Default) -->
         <div id="duty-section" class="tab-content bg-white p-6 rounded-lg shadow-md border-t-4 border-yellow-500">
             <h2 class="text-2xl font-bold mb-4 text-yellow-600 border-b pb-2">📝 Daily Duty Logger</h2>
             <form id="dutyForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
@@ -69,7 +67,6 @@
             </form>
         </div>
 
-        <!-- 2. Vacant Section (Hidden initially) -->
         <div id="vacant-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-red-500">
             <h2 class="text-2xl font-bold mb-4 text-red-600 border-b pb-2">🚗 Driver Vacant / Leave Logger</h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -104,44 +101,42 @@
             </div>
         </div>
 
-        <!-- 3. Drivers List Section (Updated with Search Bar) -->
-<div id="drivers-list-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-purple-600">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b pb-2 gap-4">
-        <h2 class="text-2xl font-bold text-purple-700">📋 ALL DRIVERS LIST</h2>
-        <input type="text" id="searchDriversInput" placeholder="🔍 Search Driver by name or mobile..." class="p-2 border border-gray-300 rounded text-sm w-full md:w-72 focus:ring-2 focus:ring-purple-500 outline-none">
-    </div>
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border border-gray-200 rounded-lg">
-            <thead>
-                <tr class="bg-gray-100 text-gray-700 text-left text-sm uppercase font-bold border-b border-gray-200">
-                    <th class="p-3">Driver Name</th>
-                    <th class="p-3">Mobile Number</th>
-                    <th class="p-3">DOB</th>
-                    <th class="p-3">LMV Issue</th>
-                    <th class="p-3">LMV Expiry</th>
-                    <th class="p-3">LMV-TR Expiry</th>
-                    <th class="p-3">Status</th>
-                </tr>
-            </thead>
-            <tbody id="allDriversTableBody" class="text-gray-600 text-sm">
-                <tr><td colspan="7" class="p-4 text-center italic text-gray-400">Fetching drivers profiles...</td></tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+        <div id="drivers-list-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-purple-600">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b pb-2 gap-4">
+                <h2 class="text-2xl font-bold text-purple-700">📋 ALL DRIVERS LIST</h2>
+                <input type="text" id="searchDriversInput" placeholder="🔍 Search Driver by name or mobile..." class="p-2 border border-gray-300 rounded text-sm w-full md:w-72 focus:ring-2 focus:ring-purple-500 outline-none">
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-200 rounded-lg">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-700 text-left text-sm uppercase font-bold border-b border-gray-200">
+                            <th class="p-3">Driver Name</th>
+                            <th class="p-3">Mobile Number</th>
+                            <th class="p-3">DOB</th>
+                            <th class="p-3">LMV Issue</th>
+                            <th class="p-3">LMV Expiry</th>
+                            <th class="p-3">LMV-TR Expiry</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allDriversTableBody" class="text-gray-600 text-sm">
+                        <tr><td colspan="8" class="p-4 text-center italic text-gray-400">Fetching drivers profiles...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        <!-- 4. Clients List Section (Updated with Search Bar) -->
-<div id="clients-list-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-green-600">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b pb-2 gap-4">
-        <h2 class="text-2xl font-bold text-green-700">🏢 ALL CLIENTS LIST</h2>
-        <input type="text" id="searchClientsInput" placeholder="🔍 Search Client name..." class="p-2 border border-gray-300 rounded text-sm w-full md:w-72 focus:ring-2 focus:ring-green-500 outline-none">
-    </div>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="clientList">
-        <p class="text-gray-400 italic col-span-4 text-center">Fetching clients roster...</p>
-    </div>
-</div>
+        <div id="clients-list-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-green-600">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b pb-2 gap-4">
+                <h2 class="text-2xl font-bold text-green-700">🏢 ALL CLIENTS LIST</h2>
+                <input type="text" id="searchClientsInput" placeholder="🔍 Search Client name..." class="p-2 border border-gray-300 rounded text-sm w-full md:w-72 focus:ring-2 focus:ring-green-500 outline-none">
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="clientList">
+                <p class="text-gray-400 italic col-span-4 text-center">Fetching clients roster...</p>
+            </div>
+        </div>
 
-        <!-- 5. Add Data Section (Hidden initially) -->
         <div id="add-data-section" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 lg:col-span-2">
                 <h2 class="text-xl font-bold mb-4 text-indigo-600 border-b pb-2">➕ Add New Driver Form</h2>
@@ -189,34 +184,32 @@
             </div>
         </div>
 
-        <!-- 6. Restrictions Section (Updated with Search Bar) -->
-<div id="restrictions-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-red-600">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b pb-2 gap-4">
-        <h2 class="text-2xl font-bold text-red-600">🚫 Manage Driver/Client Restrictions</h2>
-        <input type="text" id="searchRestrictionsInput" placeholder="🔍 Filter list by Driver or Client name..." class="p-2 border border-gray-300 rounded text-sm w-full md:w-72 focus:ring-2 focus:ring-red-500 outline-none">
-    </div>
-    <form id="addRestrictionForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <input type="text" id="resDriver" placeholder="Driver Name" required class="p-2 border rounded text-sm">
-        <input type="text" id="resClient" placeholder="Client Name" required class="p-2 border rounded text-sm">
-        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded text-sm font-bold hover:bg-red-700">Save Restriction</button>
-    </form>
-    <div class="overflow-x-auto border border-gray-200 rounded">
-        <table class="min-w-full text-sm">
-            <thead>
-                <tr class="bg-gray-50 text-gray-600 text-left">
-                    <th class="p-3">Driver</th>
-                    <th class="p-3">Client</th>
-                    <th class="p-3">Action</th>
-                </tr>
-            </thead>
-            <tbody id="restrictionsTableBody">
-                <tr><td colspan="3" class="p-4 text-center italic text-gray-400">Loading restrictions...</td></tr>
-            </tbody>
-        </table>
-    </div>
-</div>
+        <div id="restrictions-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-red-600">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b pb-2 gap-4">
+                <h2 class="text-2xl font-bold text-red-600">🚫 Manage Driver/Client Restrictions</h2>
+                <input type="text" id="searchRestrictionsInput" placeholder="🔍 Filter list by Driver or Client name..." class="p-2 border border-gray-300 rounded text-sm w-full md:w-72 focus:ring-2 focus:ring-red-500 outline-none">
+            </div>
+            <form id="addRestrictionForm" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <input type="text" id="resDriver" placeholder="Driver Name" required class="p-2 border rounded text-sm">
+                <input type="text" id="resClient" placeholder="Client Name" required class="p-2 border rounded text-sm">
+                <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded text-sm font-bold hover:bg-red-700">Save Restriction</button>
+            </form>
+            <div class="overflow-x-auto border border-gray-200 rounded">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-600 text-left">
+                            <th class="p-3">Driver</th>
+                            <th class="p-3">Client</th>
+                            <th class="p-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="restrictionsTableBody">
+                        <tr><td colspan="3" class="p-4 text-center italic text-gray-400">Loading restrictions...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        <!-- 7. History Section (Hidden initially) -->
         <div id="history-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-orange-500">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b pb-2 gap-4">
                 <h2 class="text-2xl font-bold text-orange-600">📅 Duties History Logs</h2>
@@ -233,10 +226,11 @@
                             <th class="p-3">Time</th>
                             <th class="p-3">Driver Name</th>
                             <th class="p-3">Client Assigned</th>
+                            <th class="p-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="dutiesTableBody" class="text-gray-600 text-sm">
-                        <tr><td colspan="4" class="p-4 text-center italic text-gray-400">Loading sheets...</td></tr>
+                        <tr><td colspan="5" class="p-4 text-center italic text-gray-400">Loading sheets...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -244,40 +238,36 @@
 
     </div>
 
-    <!-- UI Interaction Scripts -->
     <script>
         function switchTab(tabId) {
-            // Hide all tab containers using Tailwind hidden utility class safely
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-
-            // Show the target active tab
             document.getElementById(tabId).classList.remove('hidden');
 
-            // Reset navigation button color designs
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.classList.remove('bg-yellow-500', 'bg-red-500', 'bg-red-600', 'bg-purple-600', 'bg-green-600', 'bg-indigo-600', 'bg-orange-500', 'text-white');
                 btn.classList.add('bg-gray-200', 'text-gray-700');
             });
 
-            // Set active design to the chosen tab navigation button
             const activeBtn = document.getElementById('btn-' + tabId);
-            activeBtn.classList.remove('bg-gray-200', 'text-gray-700');
-            
-            if(tabId === 'duty-section') activeBtn.classList.add('bg-yellow-500', 'text-white');
-            if(tabId === 'vacant-section') activeBtn.classList.add('bg-red-500', 'text-white');
-            if(tabId === 'drivers-list-section') activeBtn.classList.add('bg-purple-600', 'text-white');
-            if(tabId === 'clients-list-section') activeBtn.classList.add('bg-green-600', 'text-white');
-            if(tabId === 'add-data-section') activeBtn.classList.add('bg-indigo-600', 'text-white');
-            if(tabId === 'restrictions-section') activeBtn.classList.add('bg-red-600', 'text-white');
-            if(tabId === 'history-section') activeBtn.classList.add('bg-orange-500', 'text-white');
+            if(activeBtn) {
+                activeBtn.classList.remove('bg-gray-200', 'text-gray-700');
+                if(tabId === 'duty-section') activeBtn.classList.add('bg-yellow-500', 'text-white');
+                if(tabId === 'vacant-section') activeBtn.classList.add('bg-red-500', 'text-white');
+                if(tabId === 'drivers-list-section') activeBtn.classList.add('bg-purple-600', 'text-white');
+                if(tabId === 'clients-list-section') activeBtn.classList.add('bg-green-600', 'text-white');
+                if(tabId === 'add-data-section') activeBtn.classList.add('bg-indigo-600', 'text-white');
+                if(tabId === 'restrictions-section') activeBtn.classList.add('bg-red-600', 'text-white');
+                if(tabId === 'history-section') activeBtn.classList.add('bg-orange-500', 'text-white');
+            }
         }
-
     </script>
 
-    <!-- Firebase System Logic Engine Modules -->
-    <script type="module">
+        <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, set, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, set, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        
+        // 🌟 FCM Notification Imports
+        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyBf2I74LYfdifdJnpxy8m-xgwuhwpib3zo",
@@ -291,17 +281,46 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+        const messaging = getMessaging(app); // FCM Initialize
 
+        // 🌟 GLOBAL DATA STORES FOR LIVE COMPUTATION SYNC
+        let driversDataMap = {};
+        let clientsDataMap = {};
+        let dutiesDataMap = {}; 
+        let restrictionsDataMap = {};
         let driversArray = [];
         let clientsArray = [];
-        let dutiesDataMap = {}; // Global memory space to run filters in real time
 
-        function initializeSystem() {
+                function initializeSystem() {
             listenToClientsData();
             listenToDriversData();
             listenToDutiesData();
             listenToVacantData();
             listenToRestrictions(); 
+            
+            // 🔔 FCM Setup
+Notification.requestPermission().then((permission) => {
+    if (permission === 'granted') {
+        // VAPID Key மற்றும் Alert இங்கே அப்டேட் பண்ணியாச்சு
+        getToken(messaging, { vapidKey: 'BJiuCAnldXk3Vj1L4oBn7seX7n8DmQNp3zUkdIXPuK38ZGDfdP-YLo23-NgPOi-7cZhM2pkJzMPk-mIo3Wcuj7I' })
+        .then((currentToken) => {
+            console.log("FCM Token:", currentToken);
+            // டேப்லெட் ஸ்கிரீன்ல டோக்கனை பார்க்க அலர்ட் கொடுக்கிறோம்
+            alert("FCM Token: " + currentToken);
+        })
+        .catch((err) => {
+            console.log("Token error: ", err);
+            alert("Token error: " + err);
+        });
+    } else {
+        alert("Notification permission denied!");
+    }
+});
+
+            onMessage(messaging, (payload) => {
+                console.log("Notification received:", payload);
+                alert("New Alert: " + payload.notification.title);
+            });
         }
 
         function getExpiryStatus(lmvStr, trStr) {
@@ -324,49 +343,96 @@
             return statusHTML;
         }
 
+        // --- 1. CLIENTS SYSTEM ---
         function listenToClientsData() {
             onValue(ref(db, 'clients'), (snapshot) => {
-                const listContainer = document.getElementById('clientList');
-                listContainer.innerHTML = ''; 
+                clientsDataMap = snapshot.exists() ? snapshot.val() : {};
                 clientsArray = [];
-                
-                if (snapshot.exists()) {
-                    const clients = snapshot.val();
-                    for (let id in clients) {
-                        const name = clients[id].name || 'Unknown';
-                        clientsArray.push(name);
-                        
-                        const card = document.createElement('div');
-                        card.className = "p-3 bg-green-50 border border-green-200 text-sm font-semibold text-center rounded shadow-sm text-gray-700";
-                        card.innerText = name;
-                        listContainer.appendChild(card);
-                    }
-                } else {
-                    listContainer.innerHTML = '<p class="text-sm text-gray-400 italic col-span-4 text-center">No clients inside database.</p>';
+                for (let id in clientsDataMap) {
+                    if (clientsDataMap[id].name) clientsArray.push(clientsDataMap[id].name.trim());
                 }
+                renderClientsData();
             });
         }
+
+        function renderClientsData() {
+            const listContainer = document.getElementById('clientList');
+            if(!listContainer) return;
+            listContainer.innerHTML = ''; 
+            
+            let hasClients = false;
+            for (let id in clientsDataMap) {
+                hasClients = true;
+                const name = clientsDataMap[id].name || 'Unknown';
+                
+                let bookingCount = 0;
+                let lastDriver = 'None';
+                let lastDate = '';
+                let lastTime = '';
+
+                for (let dId in dutiesDataMap) {
+                    if (dutiesDataMap[dId].client === name) {
+                        bookingCount++;
+                        lastDriver = dutiesDataMap[dId].driver || 'Vacant';
+                        lastDate = dutiesDataMap[dId].date || '';
+                        lastTime = dutiesDataMap[dId].time || '';
+                    }
+                }
+                
+                const card = document.createElement('div');
+                card.className = "p-3 bg-green-50 border border-green-200 text-sm rounded shadow-sm text-gray-700 flex flex-col justify-between text-left";
+                card.innerHTML = `
+                    <div class="font-bold text-base text-gray-800">${name}</div>
+                    <div class="text-xs text-green-700 font-bold mt-1 bg-green-100 px-1.5 py-0.5 rounded w-max">
+                        📈 ${bookingCount} Times Booked
+                    </div>
+                    ${bookingCount > 0 ? `
+                        <div class="text-[11px] text-gray-500 mt-2 border-t border-green-200/50 pt-1.5">
+                            <span class="font-semibold text-gray-700">Last Booking:</span><br>
+                            📅 ${lastDate} | 🕒 ${lastTime.replace(':', '.')}<br>
+                            👤 Driver: <span class="text-purple-600 font-bold">${lastDriver}</span>
+                        </div>
+                    ` : `
+                        <div class="text-[11px] text-gray-400 italic mt-2 border-t border-green-200/50 pt-1.5">
+                            No bookings recorded yet
+                        </div>
+                    `}
+                `;
+                listContainer.appendChild(card);
+            }
+            if (!hasClients) {
+                listContainer.innerHTML = '<p class="text-sm text-gray-400 italic col-span-4 text-center">No clients inside database.</p>';
+            }
+        }
         
+        // --- 2. RESTRICTIONS SYSTEM ---
         function listenToRestrictions() {
             onValue(ref(db, 'restrictions'), (snapshot) => {
-                const tbody = document.getElementById('restrictionsTableBody');
-                tbody.innerHTML = '';
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    for (let id in data) {
-                        const row = document.createElement('tr');
-                        row.className = "border-b border-gray-100 hover:bg-gray-50 transition";
-                        row.innerHTML = `
-                            <td class="p-3 font-semibold text-gray-800">${data[id].driver}</td>
-                            <td class="p-3 font-semibold text-gray-800">${data[id].client}</td>
-                            <td class="p-3"><button onclick="deleteRestriction('${id}')" class="text-red-500 font-bold hover:text-red-700 px-2 py-1 rounded border border-red-200 hover:bg-red-50 transition">Remove</button></td>
-                        `;
-                        tbody.appendChild(row);
-                    }
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">No restrictions currently set.</td></tr>';
-                }
+                restrictionsDataMap = snapshot.exists() ? snapshot.val() : {};
+                renderRestrictionsTable();
+                renderDriversTable(); // 🌟 Sync rules live into driver data table display instantly
             });
+        }
+
+        function renderRestrictionsTable() {
+            const tbody = document.getElementById('restrictionsTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            let hasRules = false;
+            for (let id in restrictionsDataMap) {
+                hasRules = true;
+                const row = document.createElement('tr');
+                row.className = "border-b border-gray-100 hover:bg-gray-50 transition";
+                row.innerHTML = `
+                    <td class="p-3 font-semibold text-gray-800">${restrictionsDataMap[id].driver}</td>
+                    <td class="p-3 font-semibold text-gray-800">${restrictionsDataMap[id].client}</td>
+                    <td class="p-3"><button onclick="deleteRestriction('${id}')" class="text-red-500 font-bold hover:text-red-700 px-2 py-1 rounded border border-red-200 hover:bg-red-50 transition">Remove</button></td>
+                `;
+                tbody.appendChild(row);
+            }
+            if(!hasRules) {
+                tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">No restrictions currently set.</td></tr>';
+            }
         }
 
         window.deleteRestriction = function(id) {
@@ -379,23 +445,52 @@
             }
         };
 
+        // --- 3. DRIVERS SYSTEM ---
         function listenToDriversData() {
-    onValue(ref(db, 'drivers'), (snapshot) => {
-        const tbody = document.getElementById('allDriversTableBody');
-        tbody.innerHTML = ''; 
-        driversArray = []; 
-        
-        if (snapshot.exists()) {
-            const drivers = snapshot.val();
-            for (let id in drivers) {
-                const d = drivers[id];
-                if (d.name) driversArray.push(d.name.trim()); 
+            onValue(ref(db, 'drivers'), (snapshot) => {
+                driversDataMap = snapshot.exists() ? snapshot.val() : {};
+                driversArray = [];
+                for (let id in driversDataMap) {
+                    if (driversDataMap[id].name) driversArray.push(driversDataMap[id].name.trim());
+                }
+                renderDriversTable();
+            });
+        }
+
+        function renderDriversTable() {
+            const tbody = document.getElementById('allDriversTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = ''; 
+            
+            let hasDrivers = false;
+            for (let id in driversDataMap) {
+                hasDrivers = true;
+                const d = driversDataMap[id];
+                
+                let dutyCount = 0;
+                for (let dId in dutiesDataMap) {
+                    if (dutiesDataMap[dId].driver === d.name) {
+                        dutyCount++;
+                    }
+                }
+
+                let avoidedClients = [];
+                for (let rId in restrictionsDataMap) {
+                    if (restrictionsDataMap[rId].driver === d.name) {
+                        avoidedClients.push(restrictionsDataMap[rId].client);
+                    }
+                }
+                const avoidText = avoidedClients.length > 0 ? avoidedClients.join(', ') : 'None';
                 
                 const row = document.createElement('tr');
                 row.className = "border-b border-gray-100 hover:bg-gray-50 transition";
                 row.innerHTML = `
-                    <td class="p-3 font-semibold text-gray-800">${d.name || 'N/A'}</td>
-                    
+                    <td class="p-3 text-gray-800">
+                        <div class="font-semibold">${d.name || 'N/A'}</div>
+                        <div class="text-[11px] text-purple-600 font-bold mt-0.5 bg-purple-50 px-1.5 py-0.5 rounded w-max">
+                            🔥 ${dutyCount} Duties
+                        </div>
+                    </td>
                     <td class="p-3">
                         ${d.mobile ? `
                             <a href="tel:${d.mobile}" class="text-purple-600 hover:underline font-semibold inline-flex items-center gap-1">
@@ -403,14 +498,16 @@
                             </a>
                         ` : '<span class="text-gray-400 italic">N/A</span>'}
                     </td>
-                    
-                    <td class="p-3">${d.dob || 'N/A'} (${calculateExactAge(d.dob)})</td>
-                    
+                    <td class="p-3 text-gray-800">
+                        <div>${d.dob || 'N/A'} (${calculateExactAge(d.dob)})</div>
+                        <div class="text-[11px] font-medium mt-1 ${avoidedClients.length > 0 ? 'text-red-500 bg-red-50/50' : 'text-gray-400'} px-1 py-0.5 rounded w-max">
+                            ⚠️ Avoid: ${avoidText}
+                        </div>
+                    </td>
                     <td class="p-3">${d.lmvIssue || 'N/A'}</td>
                     <td class="p-3 font-medium">${d.lmvExpiry || 'N/A'}</td>
                     <td class="p-3 font-medium">${d.lmvTrExpiry || 'N/A'}</td>
                     <td class="p-3">${getExpiryStatus(d.lmvExpiry, d.lmvTrExpiry)}</td>
-                    
                     <td class="p-3 flex gap-2">
                         <button onclick="editDriver('${id}', '${d.name}', '${d.mobile || ''}')" class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded">✏️ Edit</button>
                         <button onclick="deleteDriver('${id}', '${d.name}')" class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded">🗑️ Del</button>
@@ -418,14 +515,12 @@
                 `;
                 tbody.appendChild(row);
             }
-        } else {
-            // புதுசா ஒரு காலம் சேர்ந்ததாலcolspan 7-ல இருந்து 8-ஆ மாத்தியாச்சு
-            tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400">No driver profiles recorded.</td></tr>';
+            if (!hasDrivers) {
+                tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400">No driver profiles recorded.</td></tr>';
+            }
         }
-    });
-}
 
-        // Search Autocomplete Systems
+        // Search Autocomplete Core Controls
         const driverInput = document.getElementById('dutyDriverInput');
         const driverSugBox = document.getElementById('driverSuggestions');
 
@@ -516,78 +611,58 @@
             }
         });
 
-        // ====== UNGA OLD CODE (Click pannale boxes hide aagura logic) ======
-document.addEventListener('click', (e) => {
-    if (e.target !== driverInput) driverSugBox.classList.add('hidden');
-    if (e.target !== vacantDriverInput) vacantDriverSugBox.classList.add('hidden');
-    if (e.target !== clientInput) clientSugBox.classList.add('hidden');
-});
+        document.addEventListener('click', (e) => {
+            if (e.target !== driverInput) driverSugBox.classList.add('hidden');
+            if (e.target !== vacantDriverInput) vacantDriverSugBox.classList.add('hidden');
+            if (e.target !== clientInput) clientSugBox.classList.add('hidden');
+        });
 
-
-// ====== PUDHU SEARCH CODE (Idhuku keela thaniya ipdi add pannunga) ======
-document.getElementById('searchDriversInput').addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
-    const rows = document.querySelectorAll('#allDriversTableBody tr');
-    
-    rows.forEach(row => {
-        // Safe check: Fetching... loading row-ah hide panna koodadhu
-        if (row.cells.length === 1) return; 
-        
-        const textContent = row.innerText.toLowerCase();
-        if (textContent.includes(query)) {
-            row.classList.remove('hidden'); // Match aana show pannu
-        } else {
-            row.classList.add('hidden');    // Match aagalana hide pannu
-        }
-    });
-});
-
+        // --- 4. DUTIES HISTORY SYSTEM (🌟 LIVE COUNTS TRIGGER LINK) ---
         function listenToDutiesData() {
             onValue(ref(db, 'duties'), (snapshot) => {
                 dutiesDataMap = snapshot.exists() ? snapshot.val() : {};
                 renderDutiesTable(document.getElementById('dutyFilterDate').value);
+                // 🌟 MAGIC FIX: Trigger computations across layout engine maps instantly when a duty updates!
+                renderDriversTable(); 
+                renderClientsData();
             });
         }
 
         function renderDutiesTable(filterDateStr = '') {
-    const tbody = document.getElementById('dutiesTableBody');
-    tbody.innerHTML = '';
-    let recordFound = false;
-    
-    for (let id in dutiesDataMap) {
-        const duty = dutiesDataMap[id];
-        if (filterDateStr && duty.date !== filterDateStr) continue;
-        recordFound = true;
-        
-        // 1. டைம் ஃபார்மேட் மாற்றம் ( : குறியீட்டை . ஆக மாற்றும் )
-        const formattedTime = duty.time ? duty.time.replace(':', '.') : 'N/A';
-        
-        const row = document.createElement('tr');
-        row.className = "border-b hover:bg-orange-50/50 transition";
-        row.innerHTML = `
-            <td class="p-3 font-semibold text-gray-700">${duty.date}</td>
+            const tbody = document.getElementById('dutiesTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            let recordFound = false;
             
-            <!-- இங்க duty.time-க்கு பதிலா formattedTime குடுத்துட்டோம் -->
-            <td class="p-3">${formattedTime}</td> 
-            
-            <td class="p-3 font-medium text-gray-800">${duty.driver}</td>
-            <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">${duty.client}</span></td>
-            
-            <!-- 2. அட்மின் எடிட் & டெலிட் பட்டன்கள் இங்க ஆட் பண்ணியாச்சு -->
-            <td class="p-3 flex gap-2">
-                <button onclick="editDuty('${id}', '${duty.driver}', '${duty.client}')" class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded">✏️ Edit</button>
-                <button onclick="deleteDuty('${id}')" class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded">🗑️ Del</button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    }
-    // புதுசா ஒரு காலம் (Column) சேர்ந்ததால இங்க 4-க்கு பதிலா 5-னு மாத்திருக்கோம்
-    if(!recordFound) tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">No scheduled duties found.</td></tr>';
-}
+            for (let id in dutiesDataMap) {
+                const duty = dutiesDataMap[id];
+                if (filterDateStr && duty.date !== filterDateStr) continue;
+                recordFound = true;
+                
+                const formattedTime = duty.time ? duty.time.replace(':', '.') : 'N/A';
+                
+                const row = document.createElement('tr');
+                row.className = "border-b hover:bg-orange-50/50 transition";
+                row.innerHTML = `
+                    <td class="p-3 font-semibold text-gray-700">${duty.date}</td>
+                    <td class="p-3">${formattedTime}</td> 
+                    <td class="p-3 font-medium text-gray-800">${duty.driver}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">${duty.client}</span></td>
+                    <td class="p-3 flex gap-2">
+                        <button onclick="editDuty('${id}', '${duty.driver}', '${duty.client}')" class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded">✏️ Edit</button>
+                        <button onclick="deleteDuty('${id}')" class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded">🗑️ Del</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+            if(!recordFound) tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">No scheduled duties found.</td></tr>';
+        }
 
+        // --- 5. VACANT DATA SYSTEM ---
         function listenToVacantData() {
             onValue(ref(db, 'vacancies'), (snapshot) => {
                 const tbody = document.getElementById('vacantTableBody');
+                if(!tbody) return;
                 tbody.innerHTML = '';
                 if (snapshot.exists()) {
                     const vacancies = snapshot.val();
@@ -607,7 +682,7 @@ document.getElementById('searchDriversInput').addEventListener('input', (e) => {
             });
         }
 
-        // Submissions & Data Validation Engines
+        // Submissions & Data Validation Guards
         document.getElementById('dutyForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const drName = driverInput.value.trim();
@@ -619,35 +694,31 @@ document.getElementById('searchDriversInput').addEventListener('input', (e) => {
                 return; 
             }
 
-            // Check dynamic live restrictions validation cache safely
-            const restrictionsRef = ref(db, 'restrictions');
-            onValue(restrictionsRef, (snapshot) => {
-                let isForbidden = false;
-                if (snapshot.exists()) {
-                    const rules = snapshot.val();
-                    isForbidden = Object.values(rules).some(r => 
-                        r.driver.toLowerCase() === drName.toLowerCase() && 
-                        r.client.toLowerCase() === clName.toLowerCase()
-                    );
+            let isForbidden = false;
+            for (let rId in restrictionsDataMap) {
+                if (restrictionsDataMap[rId].driver.toLowerCase().trim() === matchDriver.toLowerCase().trim() && 
+                    restrictionsDataMap[rId].client.toLowerCase().trim() === clName.toLowerCase().trim()) {
+                    isForbidden = true;
+                    break;
                 }
+            }
 
-                if (isForbidden) {
-                    alert("🛑 STOP: This driver is restricted and not allowed to work for this client!");
-                } else {
-                    const newDutyRef = push(ref(db, 'duties'));
-                    set(newDutyRef, {
-                        driver: matchDriver, 
-                        client: clName,
-                        date: document.getElementById('dutyDate').value,
-                        time: document.getElementById('dutyTime').value
-                    }).then(() => {
-                        alert('📝 Duty assigned successfully!');
-                        document.getElementById('dutyForm').reset();
-                    }).catch((error) => {
-                        alert('Error logging duty: ' + error);
-                    });
-                }
-            }, { onlyOnce: true });
+            if (isForbidden) {
+                alert(`❌ போட முடியாது பாஸ்! டிரைவர் [${matchDriver}] இந்த கிளைன்ட்டை [${clName}] அவாய்ட் பண்றாரு!`);
+            } else {
+                const newDutyRef = push(ref(db, 'duties'));
+                set(newDutyRef, {
+                    driver: matchDriver, 
+                    client: clName,
+                    date: document.getElementById('dutyDate').value,
+                    time: document.getElementById('dutyTime').value
+                }).then(() => {
+                    alert('📝 Duty assigned successfully!');
+                    document.getElementById('dutyForm').reset();
+                }).catch((error) => {
+                    alert('Error logging duty: ' + error);
+                });
+            }
         });
 
         document.getElementById('vacantForm').addEventListener('submit', (e) => {
@@ -707,148 +778,179 @@ document.getElementById('searchDriversInput').addEventListener('input', (e) => {
             renderDutiesTable();
         });
 
-// Dynamic Client-Side Live Filters Engine
-document.getElementById('searchDriversInput').addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
-    const rows = document.querySelectorAll('#allDriversTableBody tr');
-    
-    rows.forEach(row => {
-        // If it's a fallback placeholder row, don't hide it
-        if (row.cells.length === 1) return; 
-        
-        const textContent = row.innerText.toLowerCase();
-        if (textContent.includes(query)) {
-            row.classList.remove('hidden');
-        } else {
-            row.classList.add('hidden');
-        }
-    });
-});
-
-document.getElementById('searchClientsInput').addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
-    const cards = document.querySelectorAll('#clientList > div');
-    
-    cards.forEach(card => {
-        const clientName = card.innerText.toLowerCase();
-        if (clientName.includes(query)) {
-            card.classList.remove('hidden');
-        } else {
-            card.classList.add('hidden');
-        }
-    });
-});
-
-document.getElementById('searchRestrictionsInput').addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
-    const rows = document.querySelectorAll('#restrictionsTableBody tr');
-    
-    rows.forEach(row => {
-        if (row.cells.length === 1) return;
-        
-        const textContent = row.innerText.toLowerCase();
-        if (textContent.includes(query)) {
-            row.classList.remove('hidden');
-        } else {
-            row.classList.add('hidden');
-        }
-    });
-});
-
-// 1. துல்லியமான வயதைக் கணக்கிடும் ஃபங்ஷன் (Keep only this full version)
-function calculateExactAge(dobString) {
-    if (!dobString || dobString === 'N/A') return 'N/A';
-    
-    const birthDate = new Date(dobString);
-    const today = new Date();
-    
-    let age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-    }
-    return age > 0 ? `${age} Yrs` : 'N/A';
-}
-
-// 2. மாஸ்டர் CRUD அட்மின் ஃபங்ஷன்ஸ் (Edit / Modify / Delete)
-window.deleteDriver = function(id, name) {
-    if (confirm(`Are you sure you want to delete driver: ${name}?`)) {
-        remove(ref(db, `drivers/${id}`)).then(() => alert('🗑️ Driver deleted!'));
-    }
-}
-
-window.editDriver = function(id, currentName, currentMobile) {
-    const newName = prompt("Enter new Driver Name:", currentName);
-    const newMobile = prompt("Enter new Mobile Number:", currentMobile);
-    if (newName && newMobile) {
-        update(ref(db, `drivers/${id}`), { name: newName.trim(), mobile: newMobile.trim() });
-    }
-}
-
-window.deleteClient = function(id, name) {
-    if (confirm(`Are you sure you want to delete client: ${name}?`)) {
-        remove(ref(db, `clients/${id}`)).then(() => alert('🗑️ Client deleted!'));
-    }
-}
-
-window.editClient = function(id, currentName) {
-    const newName = prompt("Enter new Client Name:", currentName);
-    if (newName) update(ref(db, `clients/${id}`), { name: newName.trim() });
-}
-
-window.deleteDuty = function(id) {
-    if (confirm("Are you sure?")) remove(ref(db, `duties/${id}`));
-}
-
-window.editDuty = function(id, currentDriver, currentClient) {
-    const newDriver = prompt("Change Driver Name:", currentDriver);
-    const newClient = prompt("Change Client Name:", currentClient);
-    if (newDriver && newClient) {
-        update(ref(db, `duties/${id}`), { driverName: newDriver.trim(), clientName: newClient.trim() });
-    }
-}
-
-// 1. URL-ல view=driver-nu இருக்கான்னு செக் பண்றோம்
-const urlParams = new URLSearchParams(window.location.search);
-const isDriverView = urlParams.get('view') === 'driver';
-
-if (isDriverView) {
-    let vacantCard = null;
-
-    // 2. ஹெட்டிங்ல (Heading) 'vacant' இருக்குற அந்த ஒரு செக்ஷனை மட்டும் தனியா தேடி கண்டுபிடிக்கிறோம்
-    document.querySelectorAll('h1, h2, h3, h4').forEach(el => {
-        if (el.innerText.toLowerCase().includes('vacant') && !vacantCard) {
-            vacantCard = el.closest('.bg-white') || el.closest('section') || el.parentElement;
-        }
-    });
-
-    // 3. வேக்கண்ட் கார்டு கிடைச்சதும், அதை தவிர மத்த எல்லா 6 செக்ஷனையும், ஹெட்டிங்கையும் மொத்தமா மறைக்கிறோம்
-    if (vacantCard) {
-        document.querySelectorAll('body > *, main > *, section, .bg-white, header, nav, .stats-card').forEach(el => {
-            // இந்த பாக்ஸ்க்குள்ள நம்ம வேக்கண்ட் ஃபார்ம் "இல்லைனா" அதை அப்படியே காலி (Hide) பண்றோம்!
-            if (!el.contains(vacantCard) && el !== vacantCard) {
-                el.style.display = 'none';
-            }
+        // Dynamic Client-Side Text Filters Engine
+        document.getElementById('searchDriversInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#allDriversTableBody tr');
+            rows.forEach(row => {
+                if (row.cells.length === 1) return; 
+                const textContent = row.innerText.toLowerCase();
+                row.classList.toggle('hidden', !textContent.includes(query));
+            });
         });
 
-        // வேக்கண்ட் ஃபார்ம் கார்டு மட்டும் ஸ்கிரீன்ல தெரியுறதை உறுதி பண்றோம்
-        let current = vacantCard;
-        while (current && current !== document.body) {
-            current.style.display = 'block';
-            current = current.parentElement;
+        document.getElementById('searchClientsInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('#clientList > div');
+            cards.forEach(card => {
+                const clientName = card.innerText.toLowerCase();
+                card.classList.toggle('hidden', !clientName.includes(query));
+            });
+        });
+
+        document.getElementById('searchRestrictionsInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#restrictionsTableBody tr');
+            rows.forEach(row => {
+                if (row.cells.length === 1) return;
+                const textContent = row.innerText.toLowerCase();
+                row.classList.toggle('hidden', !textContent.includes(query));
+            });
+        });
+
+        function calculateExactAge(dobString) {
+            if (!dobString || dobString === 'N/A') return 'N/A';
+            const birthDate = new Date(dobString);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age > 0 ? `${age} Yrs` : 'N/A';
         }
 
-        // டிரைவர் மொபைல்ல பார்க்க ஃபார்ம் மட்டும் சென்டரா அழகா தெரிய சின்ன டிசைன் அட்ஜஸ்ட்மென்ட்
-        vacantCard.style.margin = '40px auto';
-        vacantCard.style.maxWidth = '600px';
-        vacantCard.style.padding = '25px';
-        vacantCard.style.display = 'block';
-    }
-}
+        // ====== CRUD FUNCTIONS WITH FIXES ======
+        window.deleteDriver = function(id, name) {
+            if (confirm(`Are you sure you want to delete driver: ${name}?`)) {
+                remove(ref(db, `drivers/${id}`)).then(() => alert('🗑️ Driver deleted!'));
+            }
+        }
 
-// இதுக்கு கீழ தான் உங்க பழைய மெயின் லைன் அப்படியே இருக்கணும்:
-initializeSystem();
+        window.editDriver = function(id, currentName, currentMobile) {
+            const newName = prompt("Enter new Driver Name:", currentName);
+            const newMobile = prompt("Enter new Mobile Number:", currentMobile);
+            if (newName && newMobile) {
+                update(ref(db, `drivers/${id}`), { name: newName.trim(), mobile: newMobile.trim() });
+            }
+        }
+
+        window.deleteClient = function(id, name) {
+            if (confirm(`Are you sure you want to delete client: ${name}?`)) {
+                remove(ref(db, `clients/${id}`)).then(() => alert('🗑️ Client deleted!'));
+            }
+        }
+
+        window.editClient = function(id, currentName) {
+            const newName = prompt("Enter new Client Name:", currentName);
+            if (newName) update(ref(db, `clients/${id}`), { name: newName.trim() });
+        }
+
+        window.deleteDuty = function(id) {
+            if (confirm("Are you sure?")) remove(ref(db, `duties/${id}`));
+        }
+
+        window.editDuty = function(id, currentDriver, currentClient) {
+            const newDriver = prompt("Change Driver Name:", currentDriver);
+            const newClient = prompt("Change Client Name:", currentClient);
+            // 🌟 FIXED: Changed keys from driverName/clientName to driver/client to match database rules!
+            if (newDriver && newClient) {
+                update(ref(db, `duties/${id}`), { driver: newDriver.trim(), client: newClient.trim() })
+                .then(() => alert('✏️ Duty updated successfully!'));
+            }
+        }
+
+        // Driver Portal Isolated View Control
+        const urlParams = new URLSearchParams(window.location.search);
+        const isDriverView = urlParams.get('view') === 'driver';
+
+        if (isDriverView) {
+            setTimeout(() => {
+                switchTab('duty-section');
+                const navBar = document.querySelector('.sticky.top-0');
+                if (navBar) navBar.style.display = 'none';
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    if (tab.id !== 'duty-section') tab.style.display = 'none';
+                });
+            }, 100);
+        }
+
+        // ... (உங்க பழைய டெலிட்/எடிட் பங்ஷன்கள் எல்லாம் இங்க இருக்கும்) ...
+
+        window.editDuty = function(id, currentDriver, currentClient) {
+            const newDriver = prompt("Change Driver Name:", currentDriver);
+            const newClient = prompt("Change Client Name:", currentClient);
+            if (newDriver && newClient) {
+                update(ref(db, `duties/${id}`), { driver: newDriver.trim(), client: newClient.trim() })
+                .then(() => alert('✏️ Duty updated successfully!'));
+            }
+        }
+
+        // ==============================================================
+        // 🌟 இந்த இடத்துல தான் புது FCM கோடை அப்படியே பேஸ்ட் பண்ணனும்! 🌟
+        // ==============================================================
+        
+        // 1. Module இம்போர்ட் லைன் மேல டாப்-ல போடுறதுக்கு பதிலா, இங்கேயே நேரடியா இம்போர்ட் பண்ணிக்கலாம்:
+        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
+        
+        const messaging = getMessaging(app);
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/firebase-messaging-sw.js')
+            .then((registration) => {
+                console.log('Service Worker registered successfully:', registration.scope);
+            }).catch((err) => {
+                console.log('Service Worker registration failed:', err);
+            });
+        }
+
+        onMessage(messaging, (payload) => {
+            console.log('Message received in foreground: ', payload);
+            const notificationTitle = payload.notification.title;
+            const notificationOptions = {
+                body: payload.notification.body,
+                icon: '/firebase-logo.png' 
+            };
+            new Notification(notificationTitle, notificationOptions);
+        });
+
+        window.requestNotificationPermission = function(driverName) {
+            Notification.requestPermission().then((permission) => {
+                if (permission === 'granted') {
+                    // ⚠️ உங்க VAPID KEY-யை மறக்காம இங்க மாத்துங்க பாஸ்!
+                    getToken(messaging, { vapidKey: 'YOUR_PUBLIC_VAPID_KEY_HERE' })
+                    .then((currentToken) => {
+                        if (currentToken) {
+                            for (let id in driversDataMap) {
+                                if (driversDataMap[id].name === driverName) {
+                                    update(ref(db, `drivers/${id}`), { fcmToken: currentToken });
+                                    console.log("FCM Token saved for " + driverName);
+                                }
+                            }
+                        }
+                    }).catch((err) => console.log('Token error: ', err));
+                }
+            });
+        }
+        // ==============================================================
+
+        // Driver Portal Isolated View Control
+        const urlParams = new URLSearchParams(window.location.search);
+        const isDriverView = urlParams.get('view') === 'driver';
+
+        if (isDriverView) {
+            setTimeout(() => {
+                switchTab('duty-section');
+                const navBar = document.querySelector('.sticky.top-0');
+                if (navBar) navBar.style.display = 'none';
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    if (tab.id !== 'duty-section') tab.style.display = 'none';
+                });
+            }, 100);
+        }
+
+        // Start initialization engine
+        initializeSystem();
     </script>
 </body>
 </html>
