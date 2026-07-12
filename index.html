@@ -41,6 +41,11 @@
         </div>
 
         <div id="duty-section" class="tab-content bg-white p-6 rounded-lg shadow-md border-t-4 border-yellow-500">
+
+            <button onclick="requestPermission()" class="bg-blue-600 text-white px-4 py-2 rounded shadow font-bold text-sm mb-4">
+    🔔 Enable Notifications
+            </button>
+            
             <h2 class="text-2xl font-bold mb-4 text-yellow-600 border-b pb-2">📝 Daily Duty Logger</h2>
             <form id="dutyForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
                 <div class="relative">
@@ -291,30 +296,32 @@
         let clientsArray = [];
 
                 function initializeSystem() {
-            listenToClientsData();
-            listenToDriversData();
-            listenToDutiesData();
-            listenToVacantData();
-            listenToRestrictions(); 
-            
-            // 🔔 FCM Setup
-Notification.requestPermission().then((permission) => {
-    if (permission === 'granted') {
-        // VAPID Key மற்றும் Alert இங்கே அப்டேட் பண்ணியாச்சு
-        getToken(messaging, { vapidKey: 'BJiuCAnldXk3Vj1L4oBn7seX7n8DmQNp3zUkdIXPuK38ZGDfdP-YLo23-NgPOi-7cZhM2pkJzMPk-mIo3Wcuj7I' })
-        .then((currentToken) => {
-            console.log("FCM Token:", currentToken);
-            // டேப்லெட் ஸ்கிரீன்ல டோக்கனை பார்க்க அலர்ட் கொடுக்கிறோம்
-            alert("FCM Token: " + currentToken);
-        })
-        .catch((err) => {
-            console.log("Token error: ", err);
-            alert("Token error: " + err);
-        });
-    } else {
-        alert("Notification permission denied!");
+    listenToClientsData();
+    listenToDriversData();
+    listenToDutiesData();
+    listenToVacantData();
+    listenToRestrictions();
+    // இங்க இருந்த பழைய Notification கோடை நான் நீக்கிட்டேன்.
+}
+
+// 🔔 புதிய பட்டன் பங்க்ஷன் (இதை initializeSystem-க்கு வெளியில போடுங்க)
+window.requestPermission = async function() {
+    try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            const token = await getToken(messaging, { 
+                vapidKey: 'BJiuCAnldXk3Vj1L4oBn7seX7n8DmQNp3zUkdIXPuK38ZGDfdP-YLo23-NgPOi-7cZhM2pkJzMPk-mIo3Wcuj7I' 
+            });
+            console.log("Token:", token);
+            alert("Success! Token: " + token);
+        } else {
+            alert("Permission denied!");
+        }
+    } catch (err) {
+        console.error("Error:", err);
+        alert("Error: " + err.message);
     }
-});
+};
 
             onMessage(messaging, (payload) => {
                 console.log("Notification received:", payload);
