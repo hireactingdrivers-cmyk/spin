@@ -834,20 +834,27 @@
         }
 
         // Driver Portal Isolated View Control
-        const urlParams = new URLSearchParams(window.location.search);
-        const isDriverView = urlParams.get('view') === 'driver';
+const urlParams = new URLSearchParams(window.location.search);
+const isDriverView = urlParams.get('view') === 'driver';
 
-        if (isDriverView) {
-            setTimeout(() => {
-                switchTab('duty-section');
-                const navBar = document.querySelector('.sticky.top-0');
-                if (navBar) navBar.style.display = 'none';
-                document.querySelectorAll('.tab-content').forEach(tab => {
-                    if (tab.id !== 'duty-section') tab.style.display = 'none';
-                });
-            }, 100);
-        }
+if (isDriverView) {
+    // 1. நேவிகேஷன் பார்-ஐ முழுமையாக மறைக்க
+    const navBar = document.querySelector('.sticky.top-0');
+    if (navBar) navBar.style.display = 'none';
 
+    // 2. எல்லா செக்ஷன்களையும் மறைக்க
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+    });
+
+    // 3. Vacant Logger செக்ஷனை மட்டும் காட்ட
+    const vacantSection = document.getElementById('vacant-section');
+    if (vacantSection) {
+        vacantSection.style.display = 'block'; // இது மட்டும் தெரியும்
+        vacantSection.classList.remove('hidden'); // hidden class இருந்தாலும் நீக்கப்படும்
+    }
+}
+        
         // Start initialization engine
         initializeSystem();
     </script>
