@@ -813,35 +813,32 @@ window.editDuty = function(id, currentDriver, currentClient) {
 const urlParams = new URLSearchParams(window.location.search);
 const isDriverView = urlParams.get('view') === 'driver';
 
-// 2. டிரைவர் பார்க்குற லிங்க்-ஆ இருந்தா, ஃபார்மை தவிர மத்த எல்லா செக்ஷனையும் மொத்தமா மறைக்கிறோம்
 if (isDriverView) {
-    // ஸ்கிரீன்ல இருக்குற ஹெட்டிங், டைட்டில், நேவிகேஷன் பார் எல்லாத்தையும் மறைக்கிறோம்
-    document.querySelectorAll('header, nav, h1, h2, h3, h4, .stats-card').forEach(el => {
-        el.style.display = 'none';
-    });
+    // 2. நம்ம மெயின் ஃபார்மை மட்டும் டார்கெட் பண்றோம்
+    const targetForm = document.getElementById('dutyForm');
     
-    // பேஜ்ல இருக்குற எல்லா டிவிஷன் (div) மற்றும் செக்ஷன்களையும் லூப் பண்றோம்
-    document.querySelectorAll('div, section, main').forEach(el => {
-        const formEl = document.getElementById('dutyForm');
-        
-        // ஒருவேளை அந்த பாக்ஸ்/கார்டுக்குள்ள நம்ம 'dutyForm' இல்லைனா... அதை மொத்தமா ஹைட் பண்றோம்!
-        if (formEl && !el.contains(formEl)) {
-            el.style.display = 'none';
+    if (targetForm) {
+        // ஃபார்ம் இருக்குற மெயின் ஒயிட் கார்டு பாக்ஸ்
+        const formCard = targetForm.closest('.bg-white') || targetForm.parentElement;
+
+        // 3. மேஜிக் லைன்: பேஜ்ல இருக்குற மத்த எல்லா மெயின் செக்ஷன், டேபிள்கள், ஹெட்டிங்ஸ் எல்லாத்தையும் லூப் பண்றோம்
+        document.querySelectorAll('body > *, main > *, header, nav, section, table, .stats-card, h1, h2, h3').forEach(el => {
+            // அந்த பாக்ஸ்க்குள்ள நம்ம ஃபார்ம் "இல்லைனா" மட்டும் அதை அப்படியே மொத்தமா மறைச்சிருமோம்!
+            if (!el.contains(targetForm)) {
+                el.style.display = 'none';
+            }
+        });
+
+        // 4. இப்போ மறைக்காம விட்ட அந்த ஃபார்ம் கார்டை மட்டும் ஸ்கிரீன்ல அழகா சென்டரா காட்டுறோம்
+        if (formCard) {
+            formCard.style.display = 'block';
+            formCard.style.margin = '40px auto';
+            formCard.style.maxWidth = '600px';
+            formCard.style.padding = '25px';
+            formCard.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
         }
-    });
-    
-    // 3. இப்போ வேக்கண்ட் ஃபார்ம் கார்டை மட்டும் ஸ்கிரீன்ல அழகா சென்டரா தனியா காட்டுறோம்
-    const mainForm = document.getElementById('dutyForm');
-    if (mainForm) {
-        const formCard = mainForm.closest('.bg-white') || mainForm;
-        formCard.style.display = 'block';
-        formCard.style.margin = '40px auto'; // மேலேயும் கீழேயும் கேப் வர்றதுக்கு
-        formCard.style.maxWidth = '600px';   // ஃபார்ம் பாக்க நீட்டா இருக்க ஒரு அளவு
     }
 }
 
 // இதுக்கு கீழ தான் உங்க பழைய மெயின் லைன் அப்படியே இருக்கணும்:
 initializeSystem();
-    </script>
-</body>
-</html>
