@@ -218,8 +218,11 @@
                 மொத்த டூட்டிகள்: 0
             </div>
         </div>
-        <div class="flex items-center gap-2">
+        <!-- புதிய தேடல் தேடல் பாக்ஸ்கள் இங்கே -->
+        <div class="flex flex-wrap items-center gap-2">
             <input type="date" id="dutyFilterDate" class="p-2 border rounded text-sm focus:ring-2 focus:ring-orange-500">
+            <input type="text" id="filterDriver" placeholder="Driver name..." class="p-2 border rounded text-sm w-32 focus:ring-2 focus:ring-orange-500">
+            <input type="text" id="filterClient" placeholder="Client name..." class="p-2 border rounded text-sm w-32 focus:ring-2 focus:ring-orange-500">
             <button id="clearFilterBtn" class="bg-gray-500 text-white text-xs px-3 py-2 rounded hover:bg-gray-600">Clear</button>
         </div>
     </div>
@@ -314,7 +317,16 @@
     }
 }
 
-        function initializeSystem() {
+                        function initializeSystem() {
+            // 🌟 ஆப் லோட் ஆகும்போதே பெர்மிஷன் கேட்டுவிடும்
+            if (typeof Notification !== "undefined" && Notification.permission !== "granted") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        console.log("அறிவிப்புகள் அனுமதிக்கப்பட்டது! 🔔");
+                    }
+                });
+            }
+
             listenToClientsData();
             listenToDriversData();
             listenToDutiesData();
@@ -619,60 +631,76 @@
 
         // --- 4. DUTIES HISTORY SYSTEM (🌟 LIVE COUNTS TRIGGER LINK) ---
         function listenToDutiesData() {
-            onValue(ref(db, 'duties'), (snapshot) => {
-                dutiesDataMap = snapshot.exists() ? snapshot.val() : {};
-                renderDutiesTable(document.getElementById('dutyFilterDate').value);
-                // 🌟 MAGIC FIX: Trigger computations across layout engine maps instantly when a duty updates!
-                renderDriversTable(); 
-                renderClientsData();
-            });
+    onValue(ref(db, 'duties'), (snapshot) => {
+        dutiesDataMap = snapshot.exists() ? snapshot.val() : {};
+        
+        // 🌟 இங்கே பராமீட்டர் எதையும் அனுப்ப வேண்டாம். 
+        // இது தானாகவே அந்த பாக்ஸ்களில் உள்ள தற்போதைய மதிப்புகளை (Values) எடுத்துக்கொண்டு டேபிளை வரைந்துவிடும்.
+        renderDutiesTable(); 
+        
+        renderDriversTable(); 
+        renderClientsData();
+    });
         }
 
-        function renderDutiesTable(filterDateStr = '') {
+        // --- 4. DUTIES HISTORY SYSTEM (NEW SEARCH LOGIC) ---
+window.renderDutiesTable = function() {
+    const filterDate = document.getElementById('dutyFilterDate').value;
+    const filterDriver = document.getElementById('filterDriver').value.toLowerCase();
+    const filterClient = document.getElementById('filterClient').value.toLowerCase();
     const tbody = document.getElementById('dutiesTableBody');
-    const countDisplay = document.getElementById('dutyCountDisplay'); // இதையும் சேர்த்துக்கொள்ளுங்கள்
-    if(!tbody) return;
+    const countDisplay = document.getElementById('dutyCountDisplay');
     
+    if(!tbody) return;
     tbody.innerHTML = '';
-    let recordFound = false;
-    let count = 0; // 🌟 இதை மறக்காமல் சேர்த்துள்ளேன்
+    let count = 0;
     
     for (let id in dutiesDataMap) {
         const duty = dutiesDataMap[id];
         
-        // ஃபில்டர் லாஜிக்
-        if (filterDateStr && duty.date !== filterDateStr) continue;
+        // 3-வழி பில்டர் லாஜிக்
+        const matchDate = !filterDate || duty.date === filterDate;
+        const matchDriver = !filterDriver || (duty.driver && duty.driver.toLowerCase().includes(filterDriver));
+        const matchClient = !filterClient || (duty.client && duty.client.toLowerCase().includes(filterClient));
         
-        recordFound = true;
-        count++; // 🌟 ஒவ்வொரு டூட்டிக்கும் கவுண்ட் கூடும்
-        
-        const formattedTime = duty.time ? duty.time.replace(':', '.') : 'N/A';
-        
-        const row = document.createElement('tr');
-        row.className = "border-b hover:bg-orange-50/50 transition";
-        row.innerHTML = `
-            <td class="p-3 font-semibold text-gray-700">${duty.date}</td>
-            <td class="p-3">${formattedTime}</td> 
-            <td class="p-3 font-medium text-gray-800">${duty.driver}</td>
-            <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">${duty.client}</span></td>
-            <td class="p-3 flex gap-2">
-                <button onclick="editDuty('${id}', '${duty.driver}', '${duty.client}')" class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded">✏️ Edit</button>
-                <button onclick="deleteDuty('${id}')" class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded">🗑️ Del</button>
-            </td>
-        `;
-        tbody.appendChild(row);
+        if (matchDate && matchDriver && matchClient) {
+            count++;
+            const row = document.createElement('tr');
+            row.className = "border-b hover:bg-orange-50/50 transition";
+            row.innerHTML = `
+                <td class="p-3 font-semibold text-gray-700">${duty.date}</td>
+                <td class="p-3">${duty.time ? duty.time.replace(':', '.') : 'N/A'}</td>
+                <td class="p-3 font-medium text-gray-800">${duty.driver}</td>
+                <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">${duty.client}</span></td>
+                <td class="p-3 flex gap-2">
+                    <button onclick="editDuty('${id}', '${duty.driver}', '${duty.client}')" class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded">✏️ Edit</button>
+                    <button onclick="deleteDuty('${id}')" class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded">🗑️ Del</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        }
     }
-
-    // 🌟 கவுண்டரை அப்டேட் செய்யும் பகுதி (மிக முக்கியம்)
+    
     if(countDisplay) {
-        countDisplay.innerText = filterDateStr ? `தேதி ${filterDateStr}: ${count} டூட்டிகள்` : `மொத்த டூட்டிகள்: ${count}`;
+        countDisplay.innerText = `மொத்த டூட்டிகள்: ${count}`;
     }
 
-    if(!recordFound) {
-        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">No scheduled duties found.</td></tr>';
-        if(countDisplay) countDisplay.innerText = "மொத்த டூட்டிகள்: 0";
+    if(count === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400 italic">No matching records found.</td></tr>';
     }
-}
+};
+
+// Event Listeners-ஐ இங்கே சேர்க்கவும்
+document.getElementById('dutyFilterDate').addEventListener('change', renderDutiesTable);
+document.getElementById('filterDriver').addEventListener('input', renderDutiesTable);
+document.getElementById('filterClient').addEventListener('input', renderDutiesTable);
+
+document.getElementById('clearFilterBtn').addEventListener('click', () => {
+    document.getElementById('dutyFilterDate').value = '';
+    document.getElementById('filterDriver').value = '';
+    document.getElementById('filterClient').value = '';
+    renderDutiesTable();
+});
 
         function listenToVacantData() {
     onValue(ref(db, 'vacancies'), (snapshot) => {
@@ -702,7 +730,7 @@
             tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">No vacant dates logged.</td></tr>';
         }
     });
-        }
+}
 
         // Submissions & Data Validation Guards
         document.getElementById('dutyForm').addEventListener('submit', (e) => {
