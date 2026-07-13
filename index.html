@@ -304,15 +304,18 @@
         }
     });
 }
-       
+        
                         function initializeSystem() {
-    // நோட்டிபிகேஷன் சம்பந்தப்பட்ட அனைத்து வரிகளும் நீக்கப்பட்டுவிட்டன
+    // முதலில் ஆக்சஸ் செக் பண்ணிவிட்டு, சரியாக இருந்தால் மட்டும் மற்றவற்றை லோட் செய்யும்
+    checkAccess(); 
+
+    // மற்ற டேட்டா லிசனர்கள்
     listenToClientsData();
     listenToDriversData();
     listenToDutiesData();
     listenToVacantData();
     listenToRestrictions(); 
-}
+                        }
 
         function getExpiryStatus(lmvStr, trStr) {
             const today = new Date(); today.setHours(0,0,0,0);
@@ -896,61 +899,76 @@ document.getElementById('clearFilterBtn').addEventListener('click', () => {
         }
 
         // 1. URL பாராமீட்டர்களைப் பெறவும்
-    const urlParams = new URLSearchParams(window.location.search);
-    const viewMode = urlParams.get('view');
-    const adminPassword = "divya";
+    cons// 1. URL பாராமீட்டர்களைப் பெறவும்
+const urlParams = new URLSearchParams(window.location.search);
+const viewMode = urlParams.get('view');
 
-            // 2. Access control பங்க்ஷன்
-    function checkAccess() {
-        if (viewMode === 'admin') {
-            const enteredPass = prompt("Admin பாஸ்வேர்டை உள்ளிடவும்:");
-            if (enteredPass !== adminPassword) {
-                alert("தவறான பாஸ்வேர்டு!");
-                window.location.href = "about:blank"; 
-            }
-        } 
-        else if (viewMode === 'driver') {
-            const navBar = document.querySelector('.sticky.top-0');
-            if (navBar) navBar.style.display = 'none';
-            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
-            const vacantSection = document.getElementById('vacant-section');
-            if (vacantSection) {
-                vacantSection.style.display = 'block';
-                vacantSection.classList.remove('hidden');
-            }
+// பாஸ்வேர்டுகள்
+const adminPassword = "divi";
+const generalPassword = "divi"; // உங்கள் விருப்பப்படி மாற்றிக்கொள்ளுங்கள்
+
+// 2. Access control பங்க்ஷன்
+function checkAccess() {
+    // அட்மின் மோடு
+    if (viewMode === 'admin') {
+        const enteredPass = prompt("Admin பாஸ்வேர்டை உள்ளிடவும்:");
+        if (enteredPass !== adminPassword) {
+            alert("தவறான பாஸ்வேர்டு!");
+            window.location.href = "about:blank"; 
         }
-        else if (viewMode === 'feedback') {
-            const driverName = urlParams.get('driver');
-            document.body.innerHTML = `
-                <div class="p-6 max-w-md mx-auto mt-5 bg-white rounded-xl shadow-lg border border-gray-200">
-                    <h1 class="text-xl font-bold text-gray-800 text-center mb-4">Feedback for ${driverName}</h1>
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold mb-1">Driver Behaviour?</label>
-                        <div class="flex gap-2 text-2xl" id="starBehavior">
-                            <span onclick="setRating('behavior', 1)" class="cursor-pointer text-gray-300">★</span>
-                            <span onclick="setRating('behavior', 2)" class="cursor-pointer text-gray-300">★</span>
-                            <span onclick="setRating('behavior', 3)" class="cursor-pointer text-gray-300">★</span>
-                            <span onclick="setRating('behavior', 4)" class="cursor-pointer text-gray-300">★</span>
-                            <span onclick="setRating('behavior', 5)" class="cursor-pointer text-gray-300">★</span>
-                        </div>
-                        <textarea id="msgBehavior" class="w-full border p-2 mt-1 rounded text-sm" placeholder="Behaviour கருத்து..."></textarea>
+    } 
+    // டிரைவர் மோடு
+    else if (viewMode === 'driver') {
+        const navBar = document.querySelector('.sticky.top-0');
+        if (navBar) navBar.style.display = 'none';
+        document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+        const vacantSection = document.getElementById('vacant-section');
+        if (vacantSection) {
+            vacantSection.style.display = 'block';
+            vacantSection.classList.remove('hidden');
+        }
+    }
+    // ஃபீட்பேக் மோடு
+    else if (viewMode === 'feedback') {
+        const driverName = urlParams.get('driver');
+        document.body.innerHTML = `
+            <div class="p-6 max-w-md mx-auto mt-5 bg-white rounded-xl shadow-lg border border-gray-200">
+                <h1 class="text-xl font-bold text-gray-800 text-center mb-4">Feedback for ${driverName}</h1>
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-1">Driver Behaviour?</label>
+                    <div class="flex gap-2 text-2xl" id="starBehavior">
+                        <span onclick="setRating('behavior', 1)" class="cursor-pointer text-gray-300">★</span>
+                        <span onclick="setRating('behavior', 2)" class="cursor-pointer text-gray-300">★</span>
+                        <span onclick="setRating('behavior', 3)" class="cursor-pointer text-gray-300">★</span>
+                        <span onclick="setRating('behavior', 4)" class="cursor-pointer text-gray-300">★</span>
+                        <span onclick="setRating('behavior', 5)" class="cursor-pointer text-gray-300">★</span>
                     </div>
-                    <div class="mb-4">
-                        <label class="block text-sm font-semibold mb-1">Driving Skill?</label>
-                        <div class="flex gap-2 text-2xl" id="starDriving">
-                            <span onclick="setRating('driving', 1)" class="cursor-pointer text-gray-300">★</span>
-                            <span onclick="setRating('driving', 2)" class="cursor-pointer text-gray-300">★</span>
-                            <span onclick="setRating('driving', 3)" class="cursor-pointer text-gray-300">★</span>
-                            <span onclick="setRating('driving', 4)" class="cursor-pointer text-gray-300">★</span>
-                            <span onclick="setRating('driving', 5)" class="cursor-pointer text-gray-300">★</span>
-                        </div>
-                        <textarea id="msgDriving" class="w-full border p-2 mt-1 rounded text-sm" placeholder="Driving கருத்து..."></textarea>
-                    </div>
-                    <button onclick="saveFeedback('${driverName}')" class="bg-blue-600 text-white w-full py-2 rounded-lg font-bold">Submit Feedback</button>
+                    <textarea id="msgBehavior" class="w-full border p-2 mt-1 rounded text-sm" placeholder="Behaviour கருத்து..."></textarea>
                 </div>
-            `;
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold mb-1">Driving Skill?</label>
+                    <div class="flex gap-2 text-2xl" id="starDriving">
+                        <span onclick="setRating('driving', 1)" class="cursor-pointer text-gray-300">★</span>
+                        <span onclick="setRating('driving', 2)" class="cursor-pointer text-gray-300">★</span>
+                        <span onclick="setRating('driving', 3)" class="cursor-pointer text-gray-300">★</span>
+                        <span onclick="setRating('driving', 4)" class="cursor-pointer text-gray-300">★</span>
+                        <span onclick="setRating('driving', 5)" class="cursor-pointer text-gray-300">★</span>
+                    </div>
+                    <textarea id="msgDriving" class="w-full border p-2 mt-1 rounded text-sm" placeholder="Driving கருத்து..."></textarea>
+                </div>
+                <button onclick="saveFeedback('${driverName}')" class="bg-blue-600 text-white w-full py-2 rounded-lg font-bold">Submit Feedback</button>
+            </div>
+        `;
+    }
+    // ஜெனரல் மோடு (எந்த வியூவும் இல்லை என்றால்)
+    else {
+        const enteredPass = prompt("General மோடுக்கு பாஸ்வேர்டை உள்ளிடவும்:");
+        if (enteredPass !== generalPassword) {
+            alert("தவறான பாஸ்வேர்டு!");
+            window.location.href = "about:blank";
         }
-    } // <--- இதோ, சரியாக முடிந்துவிட்டது!
+    }
+}
 
     // 3. Tab switch பங்க்ஷன்
     function switchTab(tabId) {
