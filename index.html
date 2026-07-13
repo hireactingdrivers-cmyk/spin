@@ -702,7 +702,7 @@
             tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">No vacant dates logged.</td></tr>';
         }
     });
-}
+        }
 
         // Submissions & Data Validation Guards
         document.getElementById('dutyForm').addEventListener('submit', (e) => {
@@ -891,13 +891,13 @@
             }
         }
 
-    // 1. URL பாராமீட்டர்களைப் பெறவும்
+        // 1. URL பாராமீட்டர்களைப் பெறவும்
     const urlParams = new URLSearchParams(window.location.search);
     const viewMode = urlParams.get('view');
-    const adminPassword = "divya"; // இங்கே உங்கள் பாஸ்வேர்டை மாற்றிக்கொள்ளுங்கள்
+    const adminPassword = "divya";
 
+        // 2. Access control பங்க்ஷன்
     function checkAccess() {
-        // அட்மின் லோஜிக்
         if (viewMode === 'admin') {
             const enteredPass = prompt("Admin பாஸ்வேர்டை உள்ளிடவும்:");
             if (enteredPass !== adminPassword) {
@@ -905,46 +905,63 @@
                 window.location.href = "about:blank"; 
             }
         } 
-        
-        // டிரைவர் லோஜிக் (நீங்கள் கேட்டது)
         else if (viewMode === 'driver') {
             const navBar = document.querySelector('.sticky.top-0');
             if (navBar) navBar.style.display = 'none';
-
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.style.display = 'none';
-            });
-
+            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
             const vacantSection = document.getElementById('vacant-section');
             if (vacantSection) {
                 vacantSection.style.display = 'block';
                 vacantSection.classList.remove('hidden');
             }
         }
-    }
+        else if (viewMode === 'feedback') {
+            const driverName = urlParams.get('driver');
+            document.body.innerHTML = `
+                <div class="p-6 max-w-md mx-auto mt-5 bg-white rounded-xl shadow-lg border border-gray-200">
+                    <h1 class="text-xl font-bold text-gray-800 text-center mb-4">Feedback for ${driverName}</h1>
+                    <!-- Star Rating and Textarea fields -->
+                    <div id="starBehavior" class="mb-4">...</div>
+                    <div id="starDriving" class="mb-4">...</div>
+                    <button onclick="saveFeedback('${driverName}')" class="bg-blue-600 text-white w-full py-2 rounded-lg font-bold">Submit Feedback</button>
+                </div>
+            `;
+        }
+    } // <--- இந்த பிராக்கெட் தான் ரொம்ப முக்கியம்! இது `checkAccess` பங்க்ஷனை முடிக்கும்.
 
-    // பக்கத்தை லோட் செய்யும்போது இதை இயக்கவும்
-    checkAccess();
-
+    // 3. இங்கிருந்து அடுத்த பங்க்ஷன்கள் ஆரம்பிக்கணும்
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
         document.getElementById(tabId).classList.remove('hidden');
     }
-    
-    // இந்த பங்க்ஷனை ஸ்கிரிப்ட் பகுதியின் இறுதியில் சேர்க்கவும்
-window.copyFeedbackLink = function(driverName) {
-    const baseUrl = window.location.origin + window.location.pathname; 
-    const feedbackLink = `${baseUrl}?view=feedback&driver=${encodeURIComponent(driverName)}`;
-    
-    navigator.clipboard.writeText(feedbackLink).then(() => {
-        alert("✅ Link copied! கிளைண்டிற்கு அனுப்பலாம்: \n" + feedbackLink);
-    }).catch(err => {
-        alert("Error copying link: " + err);
-    });
-};
 
-        // Start initialization engine
-        initializeSystem();
+    // 4. Feedback save பங்க்ஷன்
+        window.saveFeedback = function(driverName) {
+        // நட்சத்திர ரேட்டிங் கொடுத்தாங்களானு செக் பண்றோம்
+        if (ratings.behavior === 0 || ratings.driving === 0) return alert("தயவுசெய்து ரேட்டிங் கொடுங்கள்!");
+        
+        push(ref(db, 'feedbacks'), {
+            driver: driverName,
+            behavior: { rating: ratings.behavior, msg: document.getElementById('msgBehavior').value },
+            driving: { rating: ratings.driving, msg: document.getElementById('msgDriving').value },
+            timestamp: new Date().toISOString()
+        }).then(() => {
+            document.body.innerHTML = "<h2 class='p-10 text-center text-xl'>நன்றி! கருத்து அனுப்பப்பட்டது.</h2>";
+        });
+    };
+
+    // 5. Feedback link copy பங்க்ஷன்
+    window.copyFeedbackLink = function(driverName) {
+        const baseUrl = window.location.origin + window.location.pathname; 
+        const feedbackLink = `${baseUrl}?view=feedback&driver=${encodeURIComponent(driverName)}`;
+        navigator.clipboard.writeText(feedbackLink).then(() => {
+            alert("✅ Link copied! கிளைண்டிற்கு அனுப்பலாம்.");
+        });
+    };
+
+    // ஆப் ஸ்டார்ட் ஆகும் இடம்
+    checkAccess();
+    initializeSystem();
     </script>
 </body>
 </html>
