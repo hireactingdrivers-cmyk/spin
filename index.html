@@ -304,35 +304,15 @@
         }
     });
 }
-
-       function sendNotification(msg) {
-    // இங்கே ஒரு செக் பண்றோம்: 'Notification' உங்க பிரவுசர்ல இருக்கான்னு
-    if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-        new Notification("Duty Update", {
-            body: msg,
-            icon: 'https://cdn-icons-png.flaticon.com/512/3448/3448339.png'
-        });
-    } else {
-        console.log("Notification சப்போர்ட் இல்லை அல்லது அனுமதி இல்லை.");
-    }
-}
-
+       
                         function initializeSystem() {
-            // 🌟 ஆப் லோட் ஆகும்போதே பெர்மிஷன் கேட்டுவிடும்
-            if (typeof Notification !== "undefined" && Notification.permission !== "granted") {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        console.log("அறிவிப்புகள் அனுமதிக்கப்பட்டது! 🔔");
-                    }
-                });
-            }
-
-            listenToClientsData();
-            listenToDriversData();
-            listenToDutiesData();
-            listenToVacantData();
-            listenToRestrictions(); 
-        }
+    // நோட்டிபிகேஷன் சம்பந்தப்பட்ட அனைத்து வரிகளும் நீக்கப்பட்டுவிட்டன
+    listenToClientsData();
+    listenToDriversData();
+    listenToDutiesData();
+    listenToVacantData();
+    listenToRestrictions(); 
+}
 
         function getExpiryStatus(lmvStr, trStr) {
             const today = new Date(); today.setHours(0,0,0,0);
@@ -711,10 +691,6 @@ document.getElementById('clearFilterBtn').addEventListener('click', () => {
         if (snapshot.exists()) {
             const vacancies = snapshot.val();
             
-            // 🌟 இங்க தான் புது நோட்டிபிகேஷன் வேலை நடக்கும்
-            // டேட்டா வரும்போது மெசேஜ் அனுப்பும்
-            sendNotification("🚗 ஒரு புதிய டிரைவர் காலியாக இருக்கிறார்!");
-
             for (let id in vacancies) {
                 const v = vacancies[id];
                 const row = document.createElement('tr');
