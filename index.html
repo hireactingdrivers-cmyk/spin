@@ -12,34 +12,69 @@
 </head>
 <body class="bg-gray-100 font-sans p-4 md:p-6">
 
-    <div class="max-w-6xl mx-auto space-y-6">
+    <div class="max-w-6xl mx-auto space-y-6" id="main-dashboard">
         
-        <div class="bg-white p-3 rounded-lg shadow-md flex flex-wrap justify-between items-center gap-3 sticky top-0 z-50 border border-gray-200">
-            <div class="flex flex-wrap gap-2 justify-center w-full md:w-auto">
-                <button onclick="switchTab('duty-section')" id="btn-duty-section" class="tab-btn bg-yellow-500 text-white font-bold px-4 py-2 rounded shadow flex items-center gap-2 transition text-sm">
-                    <span>📝</span> Duty Logger
-                </button>
-                <button onclick="switchTab('vacant-section')" id="btn-vacant-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
-                    <span>🚗</span> Vacant Logger
-                </button>
-                <button onclick="switchTab('drivers-list-section')" id="btn-drivers-list-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
-                    <span>📋</span> Drivers List
-                </button>
-                <button onclick="switchTab('clients-list-section')" id="btn-clients-list-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
-                    <span>🏢</span> Clients List
-                </button>
-                <button onclick="switchTab('add-data-section')" id="btn-add-data-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
-                    <span>➕</span> Add Driver/Client
-                </button>
-                <button onclick="switchTab('restrictions-section')" id="btn-restrictions-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
-                    <span>🚫</span> Restrictions
-                </button>
-                <button onclick="switchTab('history-section')" id="btn-history-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
-                    <span>📅</span> Duty History
-                </button>
+        <!-- Navigation Menu -->
+        <div class="bg-white p-3 rounded-lg shadow-md flex flex-wrap gap-2 sticky top-0 z-50 border border-gray-200">
+            <button onclick="switchTab('duty-section')" id="btn-duty-section" class="tab-btn bg-yellow-500 text-white font-bold px-4 py-2 rounded shadow flex items-center gap-2 transition text-sm">
+                <span>📝</span> Duty Logger
+            </button>
+            <button onclick="switchTab('vacant-section')" id="btn-vacant-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
+                <span>🚗</span> Vacant Logger
+            </button>
+            <button onclick="switchTab('drivers-list-section')" id="btn-drivers-list-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
+                <span>📋</span> Drivers List
+            </button>
+            <button onclick="switchTab('clients-list-section')" id="btn-clients-list-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
+                <span>🏢</span> Clients List
+            </button>
+            <button onclick="switchTab('add-data-section')" id="btn-add-data-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
+                <span>➕</span> Add Driver/Client
+            </button>
+            <button onclick="switchTab('restrictions-section')" id="btn-restrictions-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
+                <span>🚫</span> Restrictions
+            </button>
+            <button onclick="switchTab('duty-history-section')" id="btn-duty-history-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
+                <span>📅</span> Duty History
+            </button>
+            <button onclick="switchTab('feedback-section')" id="btn-feedback-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
+                <span>📊</span> Feedbacks
+            </button>
+        </div>
+
+        <!-- Feedbacks Section -->
+        <div id="feedback-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-blue-600">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b pb-4 gap-4">
+                <h2 class="text-2xl font-bold text-blue-600">📊 Driver Feedbacks Dashboard</h2>
+                <input type="text" id="searchFeedbackDriverInput" placeholder="🔍 Filter feedback by driver name..." class="p-2 border border-gray-300 rounded text-sm w-full md:w-72 focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+
+            <!-- Calculated Summary Metrics -->
+            <h3 class="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">⭐ Driver Performance Stats</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="feedbackSummaryCards">
+                <!-- Summary cards generated here -->
+            </div>
+
+            <!-- Detailed Review Logs -->
+            <h3 class="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">📝 Detailed Review Logs (Newest First)</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm border-collapse border border-gray-200">
+                    <thead>
+                        <tr class="bg-gray-100 text-left text-gray-700 font-bold border-b">
+                            <th class="p-3 border">Date & Time</th>
+                            <th class="p-3 border">Driver Name</th>
+                            <th class="p-3 border">Behaviour Rating</th>
+                            <th class="p-3 border">Driving Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feedbackTableBody">
+                        <tr><td colspan="4" class="p-4 text-center italic text-gray-400">Loading feedbacks...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
+        <!-- Duty Logger Section -->
         <div id="duty-section" class="tab-content bg-white p-6 rounded-lg shadow-md border-t-4 border-yellow-500">
             <h2 class="text-2xl font-bold mb-4 text-yellow-600 border-b pb-2">📝 Daily Duty Logger</h2>
             <form id="dutyForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
@@ -67,6 +102,7 @@
             </form>
         </div>
 
+        <!-- Vacant Logger Section -->
         <div id="vacant-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-red-500">
             <h2 class="text-2xl font-bold mb-4 text-red-600 border-b pb-2">🚗 Driver Vacant</h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -90,10 +126,11 @@
                                 <tr>
                                     <th class="p-3">Driver Name</th>
                                     <th class="p-3">Vacant Date</th>
+                                    <th class="p-3">Vacant Time</th>
                                 </tr>
                             </thead>
                             <tbody id="vacantTableBody" class="text-gray-600 text-sm">
-                                <tr><td colspan="2" class="p-4 text-center italic text-gray-400">Loading vacancy records...</td></tr>
+                                <tr><td colspan="3" class="p-4 text-center italic text-gray-400">Loading vacancy records...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -101,6 +138,7 @@
             </div>
         </div>
 
+        <!-- Drivers List Section -->
         <div id="drivers-list-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-purple-600">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b pb-2 gap-4">
                 <h2 class="text-2xl font-bold text-purple-700">📋 ALL DRIVERS LIST</h2>
@@ -127,6 +165,7 @@
             </div>
         </div>
 
+        <!-- Clients List Section -->
         <div id="clients-list-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-green-600">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b pb-2 gap-4">
                 <h2 class="text-2xl font-bold text-green-700">🏢 ALL CLIENTS LIST</h2>
@@ -137,6 +176,7 @@
             </div>
         </div>
 
+        <!-- Add Driver/Client Section -->
         <div id="add-data-section" class="tab-content hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 lg:col-span-2">
                 <h2 class="text-xl font-bold mb-4 text-indigo-600 border-b pb-2">➕ Add New Driver Form</h2>
@@ -184,6 +224,7 @@
             </div>
         </div>
 
+        <!-- Restrictions Section -->
         <div id="restrictions-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-red-600">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b pb-2 gap-4">
                 <h2 class="text-2xl font-bold text-red-600">🚫 Manage Driver/Client Restrictions</h2>
@@ -210,50 +251,55 @@
             </div>
         </div>
 
-        <div id="history-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-orange-500">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b pb-2 gap-4">
-        <div class="flex items-center gap-4">
-            <h2 class="text-2xl font-bold text-orange-600">📅 Duties History Logs</h2>
-            <div id="dutyCountDisplay" class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded border border-orange-200">
-                மொத்த டூட்டிகள்: 0
+        <!-- Duty History Section -->
+        <div id="duty-history-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-orange-500">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 border-b pb-2 gap-4">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-2xl font-bold text-orange-600">📅 Duties History Logs</h2>
+                    <div id="dutyCountDisplay" class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-1 rounded border border-orange-200">
+                        மொத்த டூட்டிகள்: 0
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <input type="date" id="dutyFilterDate" class="p-2 border rounded text-sm focus:ring-2 focus:ring-orange-500">
+                    <input type="text" id="filterDriver" placeholder="Driver name..." class="p-2 border rounded text-sm w-32 focus:ring-2 focus:ring-orange-500">
+                    <input type="text" id="filterClient" placeholder="Client name..." class="p-2 border rounded text-sm w-32 focus:ring-2 focus:ring-orange-500">
+                    <button id="clearFilterBtn" class="bg-gray-500 text-white text-xs px-3 py-2 rounded hover:bg-gray-600">Clear</button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white border border-gray-200">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-700 text-left text-sm font-bold border-b border-gray-200">
+                            <th class="p-3">Date</th>
+                            <th class="p-3">Time</th>
+                            <th class="p-3">Driver Name</th>
+                            <th class="p-3">Client Assigned</th>
+                            <th class="p-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dutiesTableBody" class="text-gray-600 text-sm">
+                        <tr><td colspan="5" class="p-4 text-center italic text-gray-400">Loading sheets...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        <!-- புதிய தேடல் தேடல் பாக்ஸ்கள் இங்கே -->
-        <div class="flex flex-wrap items-center gap-2">
-            <input type="date" id="dutyFilterDate" class="p-2 border rounded text-sm focus:ring-2 focus:ring-orange-500">
-            <input type="text" id="filterDriver" placeholder="Driver name..." class="p-2 border rounded text-sm w-32 focus:ring-2 focus:ring-orange-500">
-            <input type="text" id="filterClient" placeholder="Client name..." class="p-2 border rounded text-sm w-32 focus:ring-2 focus:ring-orange-500">
-            <button id="clearFilterBtn" class="bg-gray-500 text-white text-xs px-3 py-2 rounded hover:bg-gray-600">Clear</button>
-        </div>
-    </div>
-    
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border border-gray-200">
-            <thead>
-                <tr class="bg-gray-100 text-gray-700 text-left text-sm font-bold border-b border-gray-200">
-                    <th class="p-3">Date</th>
-                    <th class="p-3">Time</th>
-                    <th class="p-3">Driver Name</th>
-                    <th class="p-3">Client Assigned</th>
-                    <th class="p-3">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="dutiesTableBody" class="text-gray-600 text-sm">
-                <tr><td colspan="5" class="p-4 text-center italic text-gray-400">Loading sheets...</td></tr>
-            </tbody>
-        </table>
-    </div>
-</div>
 
     </div>
 
+    <!-- UI Scripts -->
     <script>
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
+            
+            const targetTab = document.getElementById(tabId);
+            if(targetTab) {
+                targetTab.classList.remove('hidden');
+            }
 
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-yellow-500', 'bg-red-500', 'bg-red-600', 'bg-purple-600', 'bg-green-600', 'bg-indigo-600', 'bg-orange-500', 'text-white');
+                btn.classList.remove('bg-yellow-500', 'bg-red-500', 'bg-red-600', 'bg-purple-600', 'bg-green-600', 'bg-indigo-600', 'bg-orange-500', 'bg-blue-600', 'text-white');
                 btn.classList.add('bg-gray-200', 'text-gray-700');
             });
 
@@ -266,14 +312,15 @@
                 if(tabId === 'clients-list-section') activeBtn.classList.add('bg-green-600', 'text-white');
                 if(tabId === 'add-data-section') activeBtn.classList.add('bg-indigo-600', 'text-white');
                 if(tabId === 'restrictions-section') activeBtn.classList.add('bg-red-600', 'text-white');
-                if(tabId === 'history-section') activeBtn.classList.add('bg-orange-500', 'text-white');
+                if(tabId === 'duty-history-section') activeBtn.classList.add('bg-orange-500', 'text-white');
+                if(tabId === 'feedback-section') activeBtn.classList.add('bg-blue-600', 'text-white');
             }
         }
     </script>
 
+    <!-- Database Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        // 🌟 FIXED: Added 'update' to imports!
         import { getDatabase, ref, push, set, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -289,46 +336,45 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // 🌟 GLOBAL DATA STORES FOR LIVE COMPUTATION SYNC
         let driversDataMap = {};
         let clientsDataMap = {};
         let dutiesDataMap = {}; 
         let restrictionsDataMap = {};
+        let feedbacksCacheData = {}; 
         let driversArray = [];
         let clientsArray = [];
-        
-        function requestPermission() {
-    Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-            console.log("Notification permission granted!");
+        let ratings = { behavior: 0, driving: 0 };
+
+        window.setRating = function(type, val) {
+            ratings[type] = val;
+            const container = document.getElementById(type === 'behavior' ? 'starBehavior' : 'starDriving');
+            const stars = container.querySelectorAll('span');
+            stars.forEach((star, index) => {
+                star.style.color = index < val ? '#fbbf24' : '#d1d5db'; 
+            });
+        };
+
+        function initializeSystem() {
+            checkAccess(); 
+            listenToClientsData();
+            listenToDriversData();
+            listenToDutiesData();
+            listenToVacantData();
+            listenToRestrictions(); 
+            listenToFeedback(); 
+            
+            // Setup feedback filtering
+            document.getElementById('searchFeedbackDriverInput').addEventListener('input', () => {
+                renderFeedbackTable(feedbacksCacheData);
+            });
         }
-    });
-}
 
-// --- இங்கு புதிய கோடைச் சேர்க்கவும் ---
-let ratings = { behavior: 0, driving: 0 };
-
-window.setRating = function(type, val) {
-    ratings[type] = val;
-    const container = document.getElementById(type === 'behavior' ? 'starBehavior' : 'starDriving');
-    const stars = container.querySelectorAll('span');
-    
-    stars.forEach((star, index) => {
-        star.style.color = index < val ? '#fbbf24' : '#d1d5db'; 
-    });
-};
-
-                        function initializeSystem() {
-    // முதலில் ஆக்சஸ் செக் பண்ணிவிட்டு, சரியாக இருந்தால் மட்டும் மற்றவற்றை லோட் செய்யும்
-    checkAccess(); 
-
-    // மற்ற டேட்டா லிசனர்கள்
-    listenToClientsData();
-    listenToDriversData();
-    listenToDutiesData();
-    listenToVacantData();
-    listenToRestrictions(); 
-}
+        function listenToFeedback() {
+            onValue(ref(db, 'feedbacks'), (snapshot) => {
+                feedbacksCacheData = snapshot.exists() ? snapshot.val() : {};
+                renderFeedbackTable(feedbacksCacheData); 
+            });
+        }
 
         function getExpiryStatus(lmvStr, trStr) {
             const today = new Date(); today.setHours(0,0,0,0);
@@ -350,7 +396,107 @@ window.setRating = function(type, val) {
             return statusHTML;
         }
 
-        // --- 1. CLIENTS SYSTEM ---
+        function renderFeedbackTable(data) {
+            const tbody = document.getElementById('feedbackTableBody'); 
+            const summaryContainer = document.getElementById('feedbackSummaryCards');
+            const searchQuery = document.getElementById('searchFeedbackDriverInput').value.toLowerCase().trim();
+
+            if (!tbody || !summaryContainer) return; 
+            tbody.innerHTML = ''; 
+            summaryContainer.innerHTML = '';
+            
+            let feedbackArray = [];
+            let driverStats = {}; // To store totals for calculation per driver
+
+            // Process records
+            for (let id in data) {
+                const f = data[id];
+                const dName = f.driver || 'Unknown';
+
+                // Aggregate calculations per driver
+                if(!driverStats[dName]) {
+                    driverStats[dName] = { count: 0, bSum: 0, dSum: 0 };
+                }
+                driverStats[dName].count += 1;
+                driverStats[dName].bSum += Number(f.behavior?.rating || 0);
+                driverStats[dName].dSum += Number(f.driving?.rating || 0);
+
+                feedbackArray.push({ id, ...f });
+            }
+
+            // Sort: Newest feedbacks on TOP
+            feedbackArray.sort((a, b) => {
+                const timeA = a.timestamp ? new Date(a.timestamp) : new Date(0);
+                const timeB = b.timestamp ? new Date(b.timestamp) : new Date(0);
+                return timeB - timeA;
+            });
+
+            // 1. Render Driver Summaries (Calculated statistics)
+            let uniqueDriversRendered = 0;
+            for (let dName in driverStats) {
+                if (searchQuery && !dName.toLowerCase().includes(searchQuery)) continue;
+                uniqueDriversRendered++;
+
+                const stat = driverStats[dName];
+                const bAvg = (stat.bSum / stat.count).toFixed(1);
+                const dAvg = (stat.dSum / stat.count).toFixed(1);
+
+                const card = document.createElement('div');
+                card.className = "p-3 bg-blue-50 border border-blue-200 rounded-lg shadow-sm flex flex-col justify-between text-left";
+                card.innerHTML = `
+                    <div>
+                        <div class="font-bold text-gray-800 text-base">${dName}</div>
+                        <div class="text-[11px] text-blue-700 font-bold mt-1 bg-blue-100 px-2 py-0.5 rounded w-max">
+                            📊 ${stat.count} Total Reviews
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mt-3 pt-2 border-t border-blue-200/50 text-xs">
+                        <div><span class="text-gray-500">Behaviour:</span> <span class="text-yellow-600 font-bold">★${bAvg}</span></div>
+                        <div><span class="text-gray-500">Driving:</span> <span class="text-yellow-600 font-bold">★${dAvg}</span></div>
+                    </div>
+                `;
+                summaryContainer.appendChild(card);
+            }
+
+            if(uniqueDriversRendered === 0) {
+                summaryContainer.innerHTML = '<p class="text-xs text-gray-400 italic col-span-4">No driver statistics match your query.</p>';
+            }
+
+            // 2. Render Log Table (Filtered)
+            let visibleLogs = 0;
+            feedbackArray.forEach(f => {
+                const dName = f.driver || 'Unknown';
+                if (searchQuery && !dName.toLowerCase().includes(searchQuery)) return;
+                visibleLogs++;
+
+                let formattedTime = 'N/A';
+                if(f.timestamp) {
+                    const dt = new Date(f.timestamp);
+                    formattedTime = dt.toLocaleDateString() + ' ' + dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                }
+
+                const row = document.createElement('tr');
+                row.className = "border-b hover:bg-gray-50 transition";
+                row.innerHTML = `
+                    <td class="p-3 text-xs text-gray-400 font-medium">${formattedTime}</td>
+                    <td class="p-3 font-bold text-gray-800">${dName}</td>
+                    <td class="p-3">
+                        <span class="text-yellow-500 font-bold">★${f.behavior?.rating || 0}</span>
+                        <p class="text-xs text-gray-600 mt-0.5">${f.behavior?.msg || '<span class="text-gray-300 italic">No message</span>'}</p>
+                    </td>
+                    <td class="p-3">
+                        <span class="text-yellow-500 font-bold">★${f.driving?.rating || 0}</span>
+                        <p class="text-xs text-gray-600 mt-0.5">${f.driving?.msg || '<span class="text-gray-300 italic">No message</span>'}</p>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            if(visibleLogs === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center italic text-gray-400">No matching review logs found.</td></tr>';
+            }
+        }
+
         function listenToClientsData() {
             onValue(ref(db, 'clients'), (snapshot) => {
                 clientsDataMap = snapshot.exists() ? snapshot.val() : {};
@@ -411,13 +557,12 @@ window.setRating = function(type, val) {
                 listContainer.innerHTML = '<p class="text-sm text-gray-400 italic col-span-4 text-center">No clients inside database.</p>';
             }
         }
-        
-        // --- 2. RESTRICTIONS SYSTEM ---
+
         function listenToRestrictions() {
             onValue(ref(db, 'restrictions'), (snapshot) => {
                 restrictionsDataMap = snapshot.exists() ? snapshot.val() : {};
                 renderRestrictionsTable();
-                renderDriversTable(); // 🌟 Sync rules live into driver data table display instantly
+                renderDriversTable(); 
             });
         }
 
@@ -444,15 +589,10 @@ window.setRating = function(type, val) {
 
         window.deleteRestriction = function(id) {
             if(confirm("Are you sure you want to remove this restriction?")) {
-                remove(ref(db, 'restrictions/' + id)).then(() => {
-                    alert('✅ Restriction Removed!');
-                }).catch((error) => {
-                    alert('Error removing restriction: ' + error);
-                });
+                remove(ref(db, 'restrictions/' + id)).then(() => alert('✅ Restriction Removed!'));
             }
         };
 
-        // --- 3. DRIVERS SYSTEM ---
         function listenToDriversData() {
             onValue(ref(db, 'drivers'), (snapshot) => {
                 driversDataMap = snapshot.exists() ? snapshot.val() : {};
@@ -465,68 +605,58 @@ window.setRating = function(type, val) {
         }
 
         function renderDriversTable() {
-    const tbody = document.getElementById('allDriversTableBody');
-    if(!tbody) return;
-    tbody.innerHTML = ''; 
-    
-    let hasDrivers = false;
-    for (let id in driversDataMap) {
-        hasDrivers = true;
-        const d = driversDataMap[id];
-        
-        let dutyCount = 0;
-        for (let dId in dutiesDataMap) {
-            if (dutiesDataMap[dId].driver === d.name) {
-                dutyCount++;
-            }
-        }
+            const tbody = document.getElementById('allDriversTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = ''; 
+            
+            let hasDrivers = false;
+            for (let id in driversDataMap) {
+                hasDrivers = true;
+                const d = driversDataMap[id];
+                
+                let dutyCount = 0;
+                for (let dId in dutiesDataMap) {
+                    if (dutiesDataMap[dId].driver === d.name) dutyCount++;
+                }
 
-        let avoidedClients = [];
-        for (let rId in restrictionsDataMap) {
-            if (restrictionsDataMap[rId].driver === d.name) {
-                avoidedClients.push(restrictionsDataMap[rId].client);
+                let avoidedClients = [];
+                for (let rId in restrictionsDataMap) {
+                    if (restrictionsDataMap[rId].driver === d.name) avoidedClients.push(restrictionsDataMap[rId].client);
+                }
+                const avoidText = avoidedClients.length > 0 ? avoidedClients.join(', ') : 'None';
+                
+                const row = document.createElement('tr');
+                row.className = "border-b border-gray-100 hover:bg-gray-50 transition";
+                row.innerHTML = `
+                    <td class="p-3 text-gray-800">
+                        <div class="font-semibold">${d.name || 'N/A'}</div>
+                        <div class="text-[11px] text-purple-600 font-bold mt-0.5 bg-purple-50 px-1.5 py-0.5 rounded w-max">
+                            🔥 ${dutyCount} Duties
+                        </div>
+                    </td>
+                    <td class="p-3">
+                        ${d.mobile ? `<a href="tel:${d.mobile}" class="text-purple-600 hover:underline font-semibold inline-flex items-center gap-1">📞 ${d.mobile}</a>` : '<span class="text-gray-400 italic">N/A</span>'}
+                    </td>
+                    <td class="p-3 text-gray-800">
+                        <div>${d.dob || 'N/A'} (${calculateExactAge(d.dob)})</div>
+                        <div class="text-[11px] font-medium mt-1 ${avoidedClients.length > 0 ? 'text-red-500 bg-red-50/50' : 'text-gray-400'} px-1 py-0.5 rounded w-max">
+                            ⚠️ Avoid: ${avoidText}
+                        </div>
+                    </td>
+                    <td class="p-3">${d.lmvIssue || 'N/A'}</td>
+                    <td class="p-3 font-medium">${d.lmvExpiry || 'N/A'}</td>
+                    <td class="p-3 font-medium">${d.lmvTrExpiry || 'N/A'}</td>
+                    <td class="p-3">${getExpiryStatus(d.lmvExpiry, d.lmvTrExpiry)}</td>
+                    <td class="p-3 flex flex-col gap-2">
+                        <button onclick="editDriver('${id}', '${d.name}', '${d.mobile || ''}')" class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded">✏️ Edit</button>
+                        <button onclick="deleteDriver('${id}', '${d.name}')" class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded">🗑️ Del</button>
+                        <button onclick="copyFeedbackLink('${d.name}')" class="text-green-700 font-bold hover:text-green-900 text-xs bg-green-50 border border-green-200 px-2 py-1 rounded">🔗 Feedback Link</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
             }
+            if (!hasDrivers) tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400">No driver profiles recorded.</td></tr>';
         }
-        const avoidText = avoidedClients.length > 0 ? avoidedClients.join(', ') : 'None';
-        
-        const row = document.createElement('tr');
-        row.className = "border-b border-gray-100 hover:bg-gray-50 transition";
-        row.innerHTML = `
-            <td class="p-3 text-gray-800">
-                <div class="font-semibold">${d.name || 'N/A'}</div>
-                <div class="text-[11px] text-purple-600 font-bold mt-0.5 bg-purple-50 px-1.5 py-0.5 rounded w-max">
-                    🔥 ${dutyCount} Duties
-                </div>
-            </td>
-            <td class="p-3">
-                ${d.mobile ? `
-                    <a href="tel:${d.mobile}" class="text-purple-600 hover:underline font-semibold inline-flex items-center gap-1">
-                        📞 ${d.mobile}
-                    </a>
-                ` : '<span class="text-gray-400 italic">N/A</span>'}
-            </td>
-            <td class="p-3 text-gray-800">
-                <div>${d.dob || 'N/A'} (${calculateExactAge(d.dob)})</div>
-                <div class="text-[11px] font-medium mt-1 ${avoidedClients.length > 0 ? 'text-red-500 bg-red-50/50' : 'text-gray-400'} px-1 py-0.5 rounded w-max">
-                    ⚠️ Avoid: ${avoidText}
-                </div>
-            </td>
-            <td class="p-3">${d.lmvIssue || 'N/A'}</td>
-            <td class="p-3 font-medium">${d.lmvExpiry || 'N/A'}</td>
-            <td class="p-3 font-medium">${d.lmvTrExpiry || 'N/A'}</td>
-            <td class="p-3">${getExpiryStatus(d.lmvExpiry, d.lmvTrExpiry)}</td>
-            <td class="p-3 flex flex-col gap-2">
-                <button onclick="editDriver('${id}', '${d.name}', '${d.mobile || ''}')" class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded">✏️ Edit</button>
-                <button onclick="deleteDriver('${id}', '${d.name}')" class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded">🗑️ Del</button>
-                <button onclick="copyFeedbackLink('${d.name}')" class="text-green-700 font-bold hover:text-green-900 text-xs bg-green-50 border border-green-200 px-2 py-1 rounded">🔗 Feedback Link</button>
-            </td>
-        `;
-        tbody.appendChild(row);
-    }
-    if (!hasDrivers) {
-        tbody.innerHTML = '<tr><td colspan="8" class="p-4 text-center text-gray-400">No driver profiles recorded.</td></tr>';
-    }
-}
 
         // Search Autocomplete Core Controls
         const driverInput = document.getElementById('dutyDriverInput');
@@ -543,10 +673,7 @@ window.setRating = function(type, val) {
                     const div = document.createElement('div');
                     div.className = "p-2 hover:bg-yellow-50 cursor-pointer text-sm font-medium text-gray-700 border-b last:border-0";
                     div.innerText = name;
-                    div.addEventListener('click', () => {
-                        driverInput.value = name;
-                        driverSugBox.classList.add('hidden');
-                    });
+                    div.addEventListener('click', () => { driverInput.value = name; driverSugBox.classList.add('hidden'); });
                     driverSugBox.appendChild(div);
                 });
                 driverSugBox.classList.remove('hidden');
@@ -573,10 +700,7 @@ window.setRating = function(type, val) {
                     const div = document.createElement('div');
                     div.className = "p-2 hover:bg-red-50 cursor-pointer text-sm font-medium text-gray-700 border-b last:border-0";
                     div.innerText = name;
-                    div.addEventListener('click', () => {
-                        vacantDriverInput.value = name;
-                        vacantDriverSugBox.classList.add('hidden');
-                    });
+                    div.addEventListener('click', () => { vacantDriverInput.value = name; vacantDriverSugBox.classList.add('hidden'); });
                     vacantDriverSugBox.appendChild(div);
                 });
                 vacantDriverSugBox.classList.remove('hidden');
@@ -603,10 +727,7 @@ window.setRating = function(type, val) {
                     const div = document.createElement('div');
                     div.className = "p-2 hover:bg-green-50 cursor-pointer text-sm font-medium text-gray-700 border-b last:border-0";
                     div.innerText = name;
-                    div.addEventListener('click', () => {
-                        clientInput.value = name;
-                        clientSugBox.classList.add('hidden');
-                    });
+                    div.addEventListener('click', () => { clientInput.value = name; clientSugBox.classList.add('hidden'); });
                     clientSugBox.appendChild(div);
                 });
                 clientSugBox.classList.remove('hidden');
@@ -620,133 +741,109 @@ window.setRating = function(type, val) {
         });
 
         document.addEventListener('click', (e) => {
-    // 1. சர்ச் பாக்ஸ்கள் வெளியே கிளிக் செய்தால் மறைக்க:
-    if (e.target !== driverInput) driverSugBox.classList.add('hidden');
-    if (e.target !== vacantDriverInput) vacantDriverSugBox.classList.add('hidden');
-    if (e.target !== clientInput) clientSugBox.classList.add('hidden');
+            if (e.target !== driverInput) driverSugBox.classList.add('hidden');
+            if (e.target !== vacantDriverInput) vacantDriverSugBox.classList.add('hidden');
+            if (e.target !== clientInput) clientSugBox.classList.add('hidden');
 
-    // 2. Feedback பட்டனை கிளிக் செய்தால் சேமிக்க:
-    if (e.target.id === 'submitFeedbackBtn') {
-        const urlParams = new URLSearchParams(window.location.search);
-        const driverName = urlParams.get('driver');
-        if (driverName) {
-            saveFeedback(driverName);
-        } else {
-            alert("டிரைவர் பெயர் கிடைக்கவில்லை!");
-        }
-    }
-});
+            if (e.target.id === 'submitFeedbackBtn') {
+                const urlParams = new URLSearchParams(window.location.search);
+                const driverName = urlParams.get('driver');
+                if (driverName) saveFeedback(driverName);
+                else alert("டிரைவர் பெயர் கிடைக்கவில்லை!");
+            }
+        });
 
-        // --- 4. DUTIES HISTORY SYSTEM (🌟 LIVE COUNTS TRIGGER LINK) ---
         function listenToDutiesData() {
-    onValue(ref(db, 'duties'), (snapshot) => {
-        dutiesDataMap = snapshot.exists() ? snapshot.val() : {};
-        
-        // 🌟 இங்கே பராமீட்டர் எதையும் அனுப்ப வேண்டாம். 
-        // இது தானாகவே அந்த பாக்ஸ்களில் உள்ள தற்போதைய மதிப்புகளை (Values) எடுத்துக்கொண்டு டேபிளை வரைந்துவிடும்.
-        renderDutiesTable(); 
-        
-        renderDriversTable(); 
-        renderClientsData();
-    });
-}
-
-        // --- 4. DUTIES HISTORY SYSTEM (NEW SEARCH LOGIC) ---
-window.renderDutiesTable = function() {
-    const filterDate = document.getElementById('dutyFilterDate').value;
-    const filterDriver = document.getElementById('filterDriver').value.toLowerCase();
-    const filterClient = document.getElementById('filterClient').value.toLowerCase();
-    const tbody = document.getElementById('dutiesTableBody');
-    const countDisplay = document.getElementById('dutyCountDisplay');
-    
-    if(!tbody) return;
-    tbody.innerHTML = '';
-    let count = 0;
-    
-    for (let id in dutiesDataMap) {
-        const duty = dutiesDataMap[id];
-        
-        // 3-வழி பில்டர் லாஜிக்
-        const matchDate = !filterDate || duty.date === filterDate;
-        const matchDriver = !filterDriver || (duty.driver && duty.driver.toLowerCase().includes(filterDriver));
-        const matchClient = !filterClient || (duty.client && duty.client.toLowerCase().includes(filterClient));
-        
-        if (matchDate && matchDriver && matchClient) {
-            count++;
-            const row = document.createElement('tr');
-            row.className = "border-b hover:bg-orange-50/50 transition";
-            row.innerHTML = `
-                <td class="p-3 font-semibold text-gray-700">${duty.date}</td>
-                <td class="p-3">${duty.time ? duty.time.replace(':', '.') : 'N/A'}</td>
-                <td class="p-3 font-medium text-gray-800">${duty.driver}</td>
-                <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">${duty.client}</span></td>
-                <td class="p-3 flex gap-2">
-                    <button onclick="editDuty('${id}', '${duty.driver}', '${duty.client}')" class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded">✏️ Edit</button>
-                    <button onclick="deleteDuty('${id}')" class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded">🗑️ Del</button>
-                </td>
-            `;
-            tbody.appendChild(row);
+            onValue(ref(db, 'duties'), (snapshot) => {
+                dutiesDataMap = snapshot.exists() ? snapshot.val() : {};
+                renderDutiesTable(); 
+                renderDriversTable(); 
+                renderClientsData();
+            });
         }
-    }
-    
-    if(countDisplay) {
-        countDisplay.innerText = `மொத்த டூட்டிகள்: ${count}`;
-    }
 
-    if(count === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400 italic">No matching records found.</td></tr>';
-    }
-};
+        window.renderDutiesTable = function() {
+            const filterDate = document.getElementById('dutyFilterDate').value;
+            const filterDriver = document.getElementById('filterDriver').value.toLowerCase();
+            const filterClient = document.getElementById('filterClient').value.toLowerCase();
+            const tbody = document.getElementById('dutiesTableBody');
+            const countDisplay = document.getElementById('dutyCountDisplay');
+            
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            let count = 0;
+            
+            for (let id in dutiesDataMap) {
+                const duty = dutiesDataMap[id];
+                const matchDate = !filterDate || duty.date === filterDate;
+                const matchDriver = !filterDriver || (duty.driver && duty.driver.toLowerCase().includes(filterDriver));
+                const matchClient = !filterClient || (duty.client && duty.client.toLowerCase().includes(filterClient));
+                
+                if (matchDate && matchDriver && matchClient) {
+                    count++;
+                    const row = document.createElement('tr');
+                    row.className = "border-b hover:bg-orange-50/50 transition";
+                    row.innerHTML = `
+                        <td class="p-3 font-semibold text-gray-700">${duty.date}</td>
+                        <td class="p-3">${duty.time ? duty.time.replace(':', '.') : 'N/A'}</td>
+                        <td class="p-3 font-medium text-gray-800">${duty.driver}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">${duty.client}</span></td>
+                        <td class="p-3 flex gap-2">
+                            <button onclick="editDuty('${id}', '${duty.driver}', '${duty.client}')" class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded">✏️ Edit</button>
+                            <button onclick="deleteDuty('${id}')" class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded">🗑️ Del</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            }
+            
+            if(countDisplay) countDisplay.innerText = `மொத்த டூட்டிகள்: ${count}`;
+            if(count === 0) tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400 italic">No matching records found.</td></tr>';
+        };
 
-// Event Listeners-ஐ இங்கே சேர்க்கவும்
-document.getElementById('dutyFilterDate').addEventListener('change', renderDutiesTable);
-document.getElementById('filterDriver').addEventListener('input', renderDutiesTable);
-document.getElementById('filterClient').addEventListener('input', renderDutiesTable);
+        document.getElementById('dutyFilterDate').addEventListener('change', window.renderDutiesTable);
+        document.getElementById('filterDriver').addEventListener('input', window.renderDutiesTable);
+        document.getElementById('filterClient').addEventListener('input', window.renderDutiesTable);
 
-document.getElementById('clearFilterBtn').addEventListener('click', () => {
-    document.getElementById('dutyFilterDate').value = '';
-    document.getElementById('filterDriver').value = '';
-    document.getElementById('filterClient').value = '';
-    renderDutiesTable();
-});
+        document.getElementById('clearFilterBtn').addEventListener('click', () => {
+            document.getElementById('dutyFilterDate').value = '';
+            document.getElementById('filterDriver').value = '';
+            document.getElementById('filterClient').value = '';
+            window.renderDutiesTable();
+        });
 
         function listenToVacantData() {
-    onValue(ref(db, 'vacancies'), (snapshot) => {
-        const tbody = document.getElementById('vacantTableBody');
-        if(!tbody) return;
-        tbody.innerHTML = '';
-        
-        if (snapshot.exists()) {
-            const vacancies = snapshot.val();
-            
-            for (let id in vacancies) {
-                const v = vacancies[id];
-                const row = document.createElement('tr');
-                row.className = "border-b hover:bg-red-50/30 transition text-gray-700 text-xs";
-                row.innerHTML = `
-                    <td class="p-3 font-bold text-gray-800">${v.driver}</td>
-                    <td class="p-3 font-medium text-red-600">${v.vacantDate || 'N/A'}</td>
-                    <td class="p-3 font-medium text-orange-600">🕒 ${v.vacantTime || 'N/A'}</td>
-                `;
-                tbody.appendChild(row);
-            }
-        } else {
-            tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">No vacant dates logged.</td></tr>';
+            onValue(ref(db, 'vacancies'), (snapshot) => {
+                const tbody = document.getElementById('vacantTableBody');
+                if(!tbody) return;
+                tbody.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    const vacancies = snapshot.val();
+                    for (let id in vacancies) {
+                        const v = vacancies[id];
+                        const row = document.createElement('tr');
+                        row.className = "border-b hover:bg-red-50/30 transition text-gray-700 text-xs";
+                        row.innerHTML = `
+                            <td class="p-3 font-bold text-gray-800">${v.driver}</td>
+                            <td class="p-3 font-medium text-red-600">${v.vacantDate || 'N/A'}</td>
+                            <td class="p-3 font-medium text-orange-600">🕒 ${v.vacantTime || 'N/A'}</td>
+                        `;
+                        tbody.appendChild(row);
+                    }
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400 italic">No vacant dates logged.</td></tr>';
+                }
+            });
         }
-    });
-}
 
-        // Submissions & Data Validation Guards
         document.getElementById('dutyForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const drName = driverInput.value.trim();
             const clName = clientInput.value.trim();
             const matchDriver = driversArray.find(x => x.toLowerCase() === drName.toLowerCase());
             
-            if(!matchDriver) { 
-                alert("🛑 Database-la intha Driver illai!"); 
-                return; 
-            }
+            if(!matchDriver) return alert("🛑 Database-la intha Driver illai!"); 
 
             let isForbidden = false;
             for (let rId in restrictionsDataMap) {
@@ -760,8 +857,7 @@ document.getElementById('clearFilterBtn').addEventListener('click', () => {
             if (isForbidden) {
                 alert(`❌ போட முடியாது பாஸ்! டிரைவர் [${matchDriver}] இந்த கிளைன்ட்டை [${clName}] அவாய்ட் பண்றாரு!`);
             } else {
-                const newDutyRef = push(ref(db, 'duties'));
-                set(newDutyRef, {
+                push(ref(db, 'duties'), {
                     driver: matchDriver, 
                     client: clName,
                     date: document.getElementById('dutyDate').value,
@@ -769,36 +865,29 @@ document.getElementById('clearFilterBtn').addEventListener('click', () => {
                 }).then(() => {
                     alert('📝 Duty assigned successfully!');
                     document.getElementById('dutyForm').reset();
-                }).catch((error) => {
-                    alert('Error logging duty: ' + error);
                 });
             }
         });
 
         document.getElementById('vacantForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const drName = vacantDriverInput.value.trim();
-    const matchDriver = driversArray.find(x => x.toLowerCase() === drName.toLowerCase());
-    
-    if(!matchDriver) { 
-        alert("🛑 Base list-la intha Driver illai!"); 
-        return; 
-    }
+            e.preventDefault();
+            const drName = vacantDriverInput.value.trim();
+            const matchDriver = driversArray.find(x => x.toLowerCase() === drName.toLowerCase());
+            
+            if(!matchDriver) return alert("🛑 Base list-la intha Driver illai!"); 
 
-    // 🌟 தற்போதைய நேரத்தை எடுக்கிறோம்
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    const newVacantRef = push(ref(db, 'vacancies'));
-    set(newVacantRef, {
-        driver: matchDriver,
-        vacantDate: document.getElementById('vacantDate').value,
-        vacantTime: timeStr // 🌟 நேரத்தையும் இங்கே சேர்க்கிறோம்
-    }).then(() => {
-        alert('🚗 Driver vacancy status marked at ' + timeStr);
-        document.getElementById('vacantForm').reset();
-    });
-});
+            push(ref(db, 'vacancies'), {
+                driver: matchDriver,
+                vacantDate: document.getElementById('vacantDate').value,
+                vacantTime: timeStr 
+            }).then(() => {
+                alert('🚗 Driver vacancy status marked at ' + timeStr);
+                document.getElementById('vacantForm').reset();
+            });
+        });
         
         document.getElementById('addRestrictionForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -812,8 +901,7 @@ document.getElementById('clearFilterBtn').addEventListener('click', () => {
 
         document.getElementById('addDriverForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const newDriverRef = push(ref(db, 'drivers'));
-            set(newDriverRef, {
+            push(ref(db, 'drivers'), {
                 name: document.getElementById('addName').value.trim(), 
                 mobile: document.getElementById('addMobile').value.trim(),
                 dob: document.getElementById('addDob').value || 'N/A', 
@@ -828,37 +916,25 @@ document.getElementById('clearFilterBtn').addEventListener('click', () => {
 
         document.getElementById('addClientForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const newClientRef = push(ref(db, 'clients'));
-            set(newClientRef, { name: document.getElementById('addClientName').value.trim() }).then(() => {
+            push(ref(db, 'clients'), { name: document.getElementById('addClientName').value.trim() }).then(() => {
                 alert('🎉 Client Added!'); 
                 document.getElementById('addClientForm').reset();
             });
         });
 
-        document.getElementById('dutyFilterDate').addEventListener('change', (e) => renderDutiesTable(e.target.value));
-        document.getElementById('clearFilterBtn').addEventListener('click', () => {
-            document.getElementById('dutyFilterDate').value = ''; 
-            renderDutiesTable();
-        });
-
-        // Dynamic Client-Side Text Filters Engine
         document.getElementById('searchDriversInput').addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
             const rows = document.querySelectorAll('#allDriversTableBody tr');
             rows.forEach(row => {
                 if (row.cells.length === 1) return; 
-                const textContent = row.innerText.toLowerCase();
-                row.classList.toggle('hidden', !textContent.includes(query));
+                row.classList.toggle('hidden', !row.innerText.toLowerCase().includes(query));
             });
         });
 
         document.getElementById('searchClientsInput').addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
             const cards = document.querySelectorAll('#clientList > div');
-            cards.forEach(card => {
-                const clientName = card.innerText.toLowerCase();
-                card.classList.toggle('hidden', !clientName.includes(query));
-            });
+            cards.forEach(card => card.classList.toggle('hidden', !card.innerText.toLowerCase().includes(query)));
         });
 
         document.getElementById('searchRestrictionsInput').addEventListener('input', (e) => {
@@ -866,8 +942,7 @@ document.getElementById('clearFilterBtn').addEventListener('click', () => {
             const rows = document.querySelectorAll('#restrictionsTableBody tr');
             rows.forEach(row => {
                 if (row.cells.length === 1) return;
-                const textContent = row.innerText.toLowerCase();
-                row.classList.toggle('hidden', !textContent.includes(query));
+                row.classList.toggle('hidden', !row.innerText.toLowerCase().includes(query));
             });
         });
 
@@ -877,13 +952,10 @@ document.getElementById('clearFilterBtn').addEventListener('click', () => {
             const today = new Date();
             let age = today.getFullYear() - birthDate.getFullYear();
             const monthDiff = today.getMonth() - birthDate.getMonth();
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
             return age > 0 ? `${age} Yrs` : 'N/A';
         }
 
-        // ====== CRUD FUNCTIONS WITH FIXES ======
         window.deleteDriver = function(id, name) {
             if (confirm(`Are you sure you want to delete driver: ${name}?`)) {
                 remove(ref(db, `drivers/${id}`)).then(() => alert('🗑️ Driver deleted!'));
@@ -893,20 +965,7 @@ document.getElementById('clearFilterBtn').addEventListener('click', () => {
         window.editDriver = function(id, currentName, currentMobile) {
             const newName = prompt("Enter new Driver Name:", currentName);
             const newMobile = prompt("Enter new Mobile Number:", currentMobile);
-            if (newName && newMobile) {
-                update(ref(db, `drivers/${id}`), { name: newName.trim(), mobile: newMobile.trim() });
-            }
-        }
-
-        window.deleteClient = function(id, name) {
-            if (confirm(`Are you sure you want to delete client: ${name}?`)) {
-                remove(ref(db, `clients/${id}`)).then(() => alert('🗑️ Client deleted!'));
-            }
-        }
-
-        window.editClient = function(id, currentName) {
-            const newName = prompt("Enter new Client Name:", currentName);
-            if (newName) update(ref(db, `clients/${id}`), { name: newName.trim() });
+            if (newName && newMobile) update(ref(db, `drivers/${id}`), { name: newName.trim(), mobile: newMobile.trim() });
         }
 
         window.deleteDuty = function(id) {
@@ -916,114 +975,82 @@ document.getElementById('clearFilterBtn').addEventListener('click', () => {
         window.editDuty = function(id, currentDriver, currentClient) {
             const newDriver = prompt("Change Driver Name:", currentDriver);
             const newClient = prompt("Change Client Name:", currentClient);
-            // 🌟 FIXED: Changed keys from driverName/clientName to driver/client to match database rules!
             if (newDriver && newClient) {
                 update(ref(db, `duties/${id}`), { driver: newDriver.trim(), client: newClient.trim() })
                 .then(() => alert('✏️ Duty updated successfully!'));
             }
         }
 
-        // 1. URL பாராமீட்டர்களைப் பெறவும்
-const urlParams = new URLSearchParams(window.location.search);
-const viewMode = urlParams.get('view');
-
-// பாஸ்வேர்டுகள்
-const adminPassword = "divi";
-const generalPassword = "divi"; // உங்கள் விருப்பப்படி மாற்றிக்கொள்ளுங்கள்
-
-// 2. Access control பங்க்ஷன்
-function checkAccess() {
-    // அட்மின் மோடு
-    if (viewMode === 'admin') {
-        const enteredPass = prompt("Admin பாஸ்வேர்டை உள்ளிடவும்:");
-        if (enteredPass !== adminPassword) {
-            alert("தவறான பாஸ்வேர்டு!");
-            window.location.href = "about:blank"; 
-        }
-    } 
-    // டிரைவர் மோடு
-    else if (viewMode === 'driver') {
-        const navBar = document.querySelector('.sticky.top-0');
-        if (navBar) navBar.style.display = 'none';
-        document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
-        const vacantSection = document.getElementById('vacant-section');
-        if (vacantSection) {
-            vacantSection.style.display = 'block';
-            vacantSection.classList.remove('hidden');
-        }
-    }
-    // ஃபீட்பேக் மோடு
-    else if (viewMode === 'feedback') {
-        const driverName = urlParams.get('driver');
-        document.body.innerHTML = `
-            <div class="p-6 max-w-md mx-auto mt-5 bg-white rounded-xl shadow-lg border border-gray-200">
-                <h1 class="text-xl font-bold text-gray-800 text-center mb-4">Feedback for ${driverName}</h1>
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold mb-1">Driver Behaviour?</label>
-                    <div class="flex gap-2 text-2xl" id="starBehavior">
-                        <span onclick="setRating('behavior', 1)" class="cursor-pointer text-gray-300">★</span>
-                        <span onclick="setRating('behavior', 2)" class="cursor-pointer text-gray-300">★</span>
-                        <span onclick="setRating('behavior', 3)" class="cursor-pointer text-gray-300">★</span>
-                        <span onclick="setRating('behavior', 4)" class="cursor-pointer text-gray-300">★</span>
-                        <span onclick="setRating('behavior', 5)" class="cursor-pointer text-gray-300">★</span>
+        function checkAccess() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewMode = urlParams.get('view');
+            
+            if (viewMode === 'admin') {
+                const enteredPass = prompt("Admin பாஸ்வேர்டை உள்ளிடவும்:");
+                if (enteredPass !== "divi") window.location.href = "about:blank"; 
+            } 
+            else if (viewMode === 'feedback') {
+                const driverName = urlParams.get('driver');
+                document.body.innerHTML = `
+                    <div class="p-6 max-w-md mx-auto mt-5 bg-white rounded-xl shadow-lg border border-gray-200">
+                        <h1 class="text-xl font-bold text-gray-800 text-center mb-4">Feedback for ${driverName}</h1>
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold mb-1">Driver Behaviour?</label>
+                            <div class="flex gap-2 text-2xl" id="starBehavior">
+                                <span onclick="setRating('behavior', 1)" class="cursor-pointer text-gray-300">★</span>
+                                <span onclick="setRating('behavior', 2)" class="cursor-pointer text-gray-300">★</span>
+                                <span onclick="setRating('behavior', 3)" class="cursor-pointer text-gray-300">★</span>
+                                <span onclick="setRating('behavior', 4)" class="cursor-pointer text-gray-300">★</span>
+                                <span onclick="setRating('behavior', 5)" class="cursor-pointer text-gray-300">★</span>
+                            </div>
+                            <textarea id="msgBehavior" class="w-full border p-2 mt-1 rounded text-sm" placeholder="Behaviour கருத்து..."></textarea>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-semibold mb-1">Driving Skill?</label>
+                            <div class="flex gap-2 text-2xl" id="starDriving">
+                                <span onclick="setRating('driving', 1)" class="cursor-pointer text-gray-300">★</span>
+                                <span onclick="setRating('driving', 2)" class="cursor-pointer text-gray-300">★</span>
+                                <span onclick="setRating('driving', 3)" class="cursor-pointer text-gray-300">★</span>
+                                <span onclick="setRating('driving', 4)" class="cursor-pointer text-gray-300">★</span>
+                                <span onclick="setRating('driving', 5)" class="cursor-pointer text-gray-300">★</span>
+                            </div>
+                            <textarea id="msgDriving" class="w-full border p-2 mt-1 rounded text-sm" placeholder="Driving கருத்து..."></textarea>
+                        </div>
+                        <button id="submitFeedbackBtn" class="bg-blue-600 text-white w-full py-2 rounded-lg font-bold">Submit Feedback</button>
                     </div>
-                    <textarea id="msgBehavior" class="w-full border p-2 mt-1 rounded text-sm" placeholder="Behaviour கருத்து..."></textarea>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-sm font-semibold mb-1">Driving Skill?</label>
-                    <div class="flex gap-2 text-2xl" id="starDriving">
-                        <span onclick="setRating('driving', 1)" class="cursor-pointer text-gray-300">★</span>
-                        <span onclick="setRating('driving', 2)" class="cursor-pointer text-gray-300">★</span>
-                        <span onclick="setRating('driving', 3)" class="cursor-pointer text-gray-300">★</span>
-                        <span onclick="setRating('driving', 4)" class="cursor-pointer text-gray-300">★</span>
-                        <span onclick="setRating('driving', 5)" class="cursor-pointer text-gray-300">★</span>
-                    </div>
-                    <textarea id="msgDriving" class="w-full border p-2 mt-1 rounded text-sm" placeholder="Driving கருத்து..."></textarea>
-                </div>
-                <button id="submitFeedbackBtn" class="bg-blue-600 text-white w-full py-2 rounded-lg font-bold">Submit Feedback</button>
-        `;
-    }
-    // ஜெனரல் மோடு (எந்த வியூவும் இல்லை என்றால்)
-    else {
-        const enteredPass = prompt("General மோடுக்கு பாஸ்வேர்டை உள்ளிடவும்:");
-        if (enteredPass !== generalPassword) {
-            alert("தவறான பாஸ்வேர்டு!");
-            window.location.href = "about:blank";
+                `;
+            }
+            else {
+                const enteredPass = prompt("General மோடுக்கு பாஸ்வேர்டை உள்ளிடவும்:");
+                if (enteredPass !== "divi") {
+                    alert("தவறான பாஸ்வேர்டு!");
+                    window.location.href = "about:blank";
+                }
+            }
         }
-    }
-}
 
-    // 3. Tab switch பங்க்ஷன்
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-        document.getElementById(tabId).classList.remove('hidden');
-    }
-
-    // 4. Feedback save பங்க்ஷன்
         window.saveFeedback = function(driverName) {
-        // நட்சத்திர ரேட்டிங் கொடுத்தாங்களானு செக் பண்றோம்
-        if (ratings.behavior === 0 || ratings.driving === 0) return alert("தயவுசெய்து ரேட்டிங் கொடுங்கள்!");
-        
-        push(ref(db, 'feedbacks'), {
-            driver: driverName,
-            behavior: { rating: ratings.behavior, msg: document.getElementById('msgBehavior').value },
-            driving: { rating: ratings.driving, msg: document.getElementById('msgDriving').value },
-            timestamp: new Date().toISOString()
-        }).then(() => {
-            document.body.innerHTML = "<h2 class='p-10 text-center text-xl'>நன்றி! கருத்து அனுப்பப்பட்டது.</h2>";
-        });
-    };
+            if (ratings.behavior === 0 || ratings.driving === 0) return alert("தயவுசெய்து ரேட்டிங் கொடுங்கள்!");
+            
+            push(ref(db, 'feedbacks'), {
+                driver: driverName,
+                behavior: { rating: ratings.behavior, msg: document.getElementById('msgBehavior').value },
+                driving: { rating: ratings.driving, msg: document.getElementById('msgDriving').value },
+                timestamp: new Date().toISOString()
+            }).then(() => {
+                document.body.innerHTML = "<h2 class='p-10 text-center text-xl font-bold text-green-600'>நன்றி! கருத்து அனுப்பப்பட்டது.</h2>";
+            });
+        };
 
-    // 5. Feedback link copy பங்க்ஷன்
-    window.copyFeedbackLink = function(driverName) {
-        const baseUrl = window.location.origin + window.location.pathname; 
-        const feedbackLink = `${baseUrl}?view=feedback&driver=${encodeURIComponent(driverName)}`;
-        navigator.clipboard.writeText(feedbackLink).then(() => {
-            alert("✅ Link copied! கிளைண்டிற்கு அனுப்பலாம்.");
-        });
-    };
+        window.copyFeedbackLink = function(driverName) {
+            const baseUrl = window.location.origin + window.location.pathname; 
+            const feedbackLink = `${baseUrl}?view=feedback&driver=${encodeURIComponent(driverName)}`;
+            navigator.clipboard.writeText(feedbackLink).then(() => {
+                alert("✅ Link copied! கிளைண்டிற்கு அனுப்பலாம்.");
+            });
+        };
 
-    initializeSystem();
+        initializeSystem();
     </script>
 </body>
 </html>
