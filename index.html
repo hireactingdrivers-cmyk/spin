@@ -68,7 +68,7 @@
         </div>
 
         <div id="vacant-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-red-500">
-            <h2 class="text-2xl font-bold mb-4 text-red-600 border-b pb-2">🚗 Driver Vacant / Leave Logger</h2>
+            <h2 class="text-2xl font-bold mb-4 text-red-600 border-b pb-2">🚗 Driver Vacant</h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <form id="vacantForm" class="space-y-4 lg:col-span-1 border-r pr-0 lg:pr-6 border-gray-200 relative">
                     <div class="relative">
@@ -304,6 +304,19 @@
         }
     });
 }
+
+// --- இங்கு புதிய கோடைச் சேர்க்கவும் ---
+let ratings = { behavior: 0, driving: 0 };
+
+window.setRating = function(type, val) {
+    ratings[type] = val;
+    const container = document.getElementById(type === 'behavior' ? 'starBehavior' : 'starDriving');
+    const stars = container.querySelectorAll('span');
+    
+    stars.forEach((star, index) => {
+        star.style.color = index < val ? '#fbbf24' : '#d1d5db'; 
+    });
+};
 
                         function initializeSystem() {
     // முதலில் ஆக்சஸ் செக் பண்ணிவிட்டு, சரியாக இருந்தால் மட்டும் மற்றவற்றை லோட் செய்யும்
@@ -607,10 +620,22 @@
         });
 
         document.addEventListener('click', (e) => {
-            if (e.target !== driverInput) driverSugBox.classList.add('hidden');
-            if (e.target !== vacantDriverInput) vacantDriverSugBox.classList.add('hidden');
-            if (e.target !== clientInput) clientSugBox.classList.add('hidden');
-        });
+    // 1. சர்ச் பாக்ஸ்கள் வெளியே கிளிக் செய்தால் மறைக்க:
+    if (e.target !== driverInput) driverSugBox.classList.add('hidden');
+    if (e.target !== vacantDriverInput) vacantDriverSugBox.classList.add('hidden');
+    if (e.target !== clientInput) clientSugBox.classList.add('hidden');
+
+    // 2. Feedback பட்டனை கிளிக் செய்தால் சேமிக்க:
+    if (e.target.id === 'submitFeedbackBtn') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const driverName = urlParams.get('driver');
+        if (driverName) {
+            saveFeedback(driverName);
+        } else {
+            alert("டிரைவர் பெயர் கிடைக்கவில்லை!");
+        }
+    }
+});
 
         // --- 4. DUTIES HISTORY SYSTEM (🌟 LIVE COUNTS TRIGGER LINK) ---
         function listenToDutiesData() {
@@ -955,8 +980,7 @@ function checkAccess() {
                     </div>
                     <textarea id="msgDriving" class="w-full border p-2 mt-1 rounded text-sm" placeholder="Driving கருத்து..."></textarea>
                 </div>
-                <button onclick="saveFeedback('${driverName}')" class="bg-blue-600 text-white w-full py-2 rounded-lg font-bold">Submit Feedback</button>
-            </div>
+                <button id="submitFeedbackBtn" class="bg-blue-600 text-white w-full py-2 rounded-lg font-bold">Submit Feedback</button>
         `;
     }
     // ஜெனரல் மோடு (எந்த வியூவும் இல்லை என்றால்)
