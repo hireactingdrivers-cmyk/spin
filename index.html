@@ -447,7 +447,7 @@ const firebaseConfig = {
 
         // --- Sends Push Notification Trigger Request To GAS ---
         function triggerPushNotification(driverName, title, body) {
-            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "YOUR_GAS_WEB_APP_URL") {
+            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "https://script.google.com/macros/s/AKfycbyfs694j0EAdRSnH6L0zQ5PYOFXGRN3IfmXC2XeCEkncvVtvy0R8JxBhCq6pbmj25bs/exec") {
                 console.log("⚠️ Apps Script URL empty! Skip trigger.");
                 return;
             }
