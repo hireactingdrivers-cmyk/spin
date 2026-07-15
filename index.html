@@ -333,18 +333,17 @@
         import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
         // ⚠️ UNGA GOOGLE APPS SCRIPT URL-AI INGA PASTE PANNUNGA 👇
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyfs694j0EAdRSnH6L0zQ5PYOFXGRN3IfmXC2XeCEkncvVtvy0R8JxBhCq6pbmj25bs/exec
-"; 
+const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyfs694j0EAdRSnH6L0zQ5PYOFXGRN3IfmXC2XeCEkncvVtvy0R8JxBhCq6pbmj25bs/exec";
 
-        const firebaseConfig = {
-          apiKey: "AIzaSyBf2I74LYfdifdJnpxy8m-xgwuhwpib3zo",
-          authDomain: "spin-ac065.firebaseapp.com",
-          databaseURL: "https://spin-ac065-default-rtdb.asia-southeast1.firebasedatabase.app",
-          projectId: "spin-ac065",
-          storageBucket: "spin-ac065.firebasestorage.app",
-          messagingSenderId: "384657177346",
-          appId: "1:384657177346:web:75c90a2f22d532a5eb601b"
-        };
+const firebaseConfig = {
+  apiKey: "AIzaSyBf2I74LYfdifdJnpxy8m-xgwuhwpib3zo",
+  authDomain: "spin-ac065.firebaseapp.com",
+  databaseURL: "https://spin-ac065-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "spin-ac065",
+  storageBucket: "spin-ac065.firebasestorage.app",
+  messagingSenderId: "384657177346",
+  appId: "1:384657177346:web:75c90a2f22d532a5eb601b"
+};
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
