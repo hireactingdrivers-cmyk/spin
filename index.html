@@ -51,7 +51,9 @@
 
             <!-- Calculated Summary Metrics -->
             <h3 class="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">⭐ Driver Performance Stats</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="feedbackSummaryCards"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="feedbackSummaryCards">
+                <!-- Summary cards generated here -->
+            </div>
 
             <!-- Detailed Review Logs -->
             <h3 class="text-xs font-bold text-gray-500 mb-3 uppercase tracking-wider">📝 Detailed Review Logs (Newest First)</h3>
@@ -95,7 +97,7 @@
                     <input type="time" id="dutyTime" required class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-yellow-500">
                 </div>
                 <div class="md:col-span-4 flex justify-end mt-2">
-                    <button type="submit" class="bg-yellow-500 text-white px-8 py-2 rounded shadow hover:bg-yellow-600 transition font-bold w-full md:w-auto">Log Duty & Notify Driver</button>
+                    <button type="submit" class="bg-yellow-500 text-white px-8 py-2 rounded shadow hover:bg-yellow-600 transition font-bold w-full md:w-auto">Log Duty</button>
                 </div>
             </form>
         </div>
@@ -330,24 +332,19 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, set, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
-        // ⚠️ UNGA GOOGLE APPS SCRIPT URL-AI INGA PASTE PANNUNGA 👇
-const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyfs694j0EAdRSnH6L0zQ5PYOFXGRN3IfmXC2XeCEkncvVtvy0R8JxBhCq6pbmj25bs/exec";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBf2I74LYfdifdJnpxy8m-xgwuhwpib3zo",
-  authDomain: "spin-ac065.firebaseapp.com",
-  databaseURL: "https://spin-ac065-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "spin-ac065",
-  storageBucket: "spin-ac065.firebasestorage.app",
-  messagingSenderId: "384657177346",
-  appId: "1:384657177346:web:75c90a2f22d532a5eb601b"
-};
+        const firebaseConfig = {
+          apiKey: "AIzaSyBf2I74LYfdifdJnpxy8m-xgwuhwpib3zo",
+          authDomain: "spin-ac065.firebaseapp.com",
+          databaseURL: "https://spin-ac065-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "spin-ac065",
+          storageBucket: "spin-ac065.firebasestorage.app",
+          messagingSenderId: "384657177346",
+          appId: "1:384657177346:web:75c90a2f22d532a5eb601b"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const messaging = getMessaging(app);
 
         let driversDataMap = {};
         let clientsDataMap = {};
@@ -358,12 +355,14 @@ const firebaseConfig = {
         let clientsArray = [];
         let ratings = { behavior: 0, driving: 0 };
 
-        // Formatting Helpers
+        // --- Helper Formatting Functions ---
         function convertDateToDDMMYYYY(dateStr) {
             if(!dateStr || dateStr === 'N/A') return 'N/A';
             if(dateStr.includes('-')) {
                 const parts = dateStr.split('-');
-                if(parts[0].length === 4) { return `${parts[2]}-${parts[1]}-${parts[0]}`; }
+                if(parts[0].length === 4) { // YYYY-MM-DD
+                    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+                }
             }
             return dateStr;
         }
@@ -435,89 +434,6 @@ const firebaseConfig = {
             });
         };
 
-        // --- Automatically Saves Driver Device Tokens ---
-        function saveDriverFCMToken(driverName, token) {
-            set(ref(db, 'driver_tokens/' + driverName), {
-                token: token,
-                lastUpdated: new Date().toISOString()
-            }).then(() => {
-                console.log(`📡 Saved notification key for ${driverName}`);
-            });
-        }
-
-        // --- Sends Push Notification Trigger Request To GAS ---
-        function triggerPushNotification(driverName, title, body) {
-            if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === "https://script.google.com/macros/s/AKfycbyfs694j0EAdRSnH6L0zQ5PYOFXGRN3IfmXC2XeCEkncvVtvy0R8JxBhCq6pbmj25bs/exec") {
-                console.log("⚠️ Apps Script URL empty! Skip trigger.");
-                return;
-            }
-
-            // Get driver token from database
-            onValue(ref(db, 'driver_tokens/' + driverName), (snapshot) => {
-                if (snapshot.exists()) {
-                    const tokenData = snapshot.val();
-                    
-                    fetch(GAS_WEB_APP_URL, {
-                        method: "POST",
-                        mode: "no-cors", // Crucial: Avoids CORS browser restrictions
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            token: tokenData.token,
-                            title: title,
-                            body: body
-                        })
-                    }).then(() => {
-                        console.log(`🔔 Notification request dispatched to ${driverName}!`);
-                    }).catch((err) => {
-                        console.error("❌ Send failed via Apps Script:", err);
-                    });
-                } else {
-                    console.log(`ℹ️ Driver ${driverName} doesn't have a registered notification token.`);
-                }
-            }, { onlyOnce: true });
-        }
-
-        // --- Push Registration Entry Point ---
-        async function setupPushNotifications() {
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    console.log('🔔 Notification access granted!');
-
-                    const registration = await navigator.serviceWorker.register('/spin/firebase-messaging-sw.js', {
-                        scope: '/spin/'
-                    });
-
-                    const token = await getToken(messaging, { 
-                        serviceWorkerRegistration: registration,
-                        vapidKey: 'BJiuCAnldXk3Vj1L4oBn7seX7n8DmQNp3zUkdIXPuK38ZGDfdP-YLo23-NgPOi-7cZhM2pkJzMPk-mIo3Wcuj7I' 
-                    });
-
-                    console.log('🔑 Device FCM Token:', token);
-
-                    // If a driver opens their own feedback URL, we save their token!
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const viewMode = urlParams.get('view');
-                    const driverName = urlParams.get('driver');
-                    if (viewMode === 'feedback' && driverName) {
-                        saveDriverFCMToken(driverName, token);
-                    }
-
-                } else {
-                    console.log('❌ Permission Denied!');
-                }
-            } catch (error) {
-                console.error('Error during notification setup:', error);
-            }
-        }
-
-        onMessage(messaging, (payload) => {
-            console.log('Foreground message received: ', payload);
-            new Notification(payload.notification.title, {
-                body: payload.notification.body
-            });
-        });
-
         function initializeSystem() {
             checkAccess(); 
             listenToClientsData();
@@ -526,7 +442,6 @@ const firebaseConfig = {
             listenToVacantData();
             listenToRestrictions(); 
             listenToFeedback(); 
-            setupPushNotifications();
             
             document.getElementById('searchFeedbackDriverInput').addEventListener('input', () => {
                 renderFeedbackTable(feedbacksCacheData);
@@ -819,7 +734,7 @@ const firebaseConfig = {
             if (!hasDrivers) tbody.innerHTML = '<tr><td colspan="9" class="p-4 text-center text-gray-400">No driver profiles recorded.</td></tr>';
         }
 
-        // Suggestions Controls
+        // Search Autocomplete Core Controls
         const driverInput = document.getElementById('dutyDriverInput');
         const driverSugBox = document.getElementById('driverSuggestions');
 
@@ -973,6 +888,7 @@ const firebaseConfig = {
             window.renderDutiesTable();
         });
 
+        // --- Active On/Off Status Controls ---
         window.setDriverVacantStatus = function(statusValue) {
             const drName = vacantDriverInput.value.trim();
             const matchDriver = driversArray.find(x => x.toLowerCase() === drName.toLowerCase());
@@ -1015,7 +931,7 @@ const firebaseConfig = {
                     for (let id in vacancies) {
                         vList.push({ id, ...vacancies[id] });
                     }
-                    vList.reverse();
+                    vList.reverse(); // Newest status first
 
                     vList.forEach(v => {
                         const isON = v.status === 'ON';
@@ -1039,7 +955,6 @@ const firebaseConfig = {
             });
         }
 
-        // --- SUBMIT DUTY FORM (SAVES DUTY & AUTO-TRIGGERS NOTIFICATION!) ---
         document.getElementById('dutyForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const drName = driverInput.value.trim();
@@ -1060,26 +975,13 @@ const firebaseConfig = {
             if (isForbidden) {
                 alert(`❌ போட முடியாது பாஸ்! டிரைவர் [${matchDriver}] இந்த கிளைன்ட்டை [${clName}] அவாய்ட் பண்றாரு!`);
             } else {
-                const dDate = document.getElementById('dutyDate').value;
-                const dTime = document.getElementById('dutyTime').value;
-
                 push(ref(db, 'duties'), {
                     driver: matchDriver, 
                     client: clName,
-                    date: dDate,
-                    time: dTime
+                    date: document.getElementById('dutyDate').value,
+                    time: document.getElementById('dutyTime').value
                 }).then(() => {
                     alert('📝 Duty assigned successfully!');
-                    
-                    // --- AUTO NOTIFY DISPATCHED HERE ---
-                    const formattedTime = convertTo12Hour(dTime);
-                    const formattedDate = convertDateToDDMMYYYY(dDate);
-                    triggerPushNotification(
-                        matchDriver,
-                        "🚗 New Duty Alert! 📝",
-                        `Hi ${matchDriver}, tomorrow/today you have been assigned to [${clName}] at ${formattedTime} (${formattedDate}).`
-                    );
-
                     document.getElementById('dutyForm').reset();
                 });
             }
@@ -1167,6 +1069,7 @@ const firebaseConfig = {
             }
         }
 
+        // --- Client Side Feedback Review Page Redirect System ---
         window.showDriverReviewsToClient = function(driverName) {
             onValue(ref(db, 'feedbacks'), (snapshot) => {
                 const data = snapshot.exists() ? snapshot.val() : {};
@@ -1177,7 +1080,7 @@ const firebaseConfig = {
                 for(let id in data) {
                     if(data[id].driver === driverName) fArray.push(data[id]);
                 }
-                fArray.reverse();
+                fArray.reverse(); // Show recent review top
 
                 fArray.forEach(f => {
                     count++;
