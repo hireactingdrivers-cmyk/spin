@@ -1144,6 +1144,14 @@
             });
         };
 
+                window.copyFeedbackLink = function(driverName) {
+            const baseUrl = window.location.origin + window.location.pathname; 
+            const feedbackLink = `${baseUrl}?view=feedback&driver=${encodeURIComponent(driverName)}`;
+            navigator.clipboard.writeText(feedbackLink).then(() => {
+                alert("✅ Link copied! கிளைண்டிற்கு அனுப்பலாம்.");
+            });
+        };
+
         function checkAccess() {
             const urlParams = new URLSearchParams(window.location.search);
             const viewMode = urlParams.get('view');
@@ -1183,6 +1191,16 @@
                     </div>
                 `;
             }
+            else if (viewMode === 'driver') {
+                // No password required for Driver Mode
+                // 1. Hide the navigation tab menu completely
+                const navMenu = document.querySelector('.sticky.top-0');
+                if (navMenu) {
+                    navMenu.style.display = 'none';
+                }
+                // 2. Force the view to only show the Vacant section
+                switchTab('vacant-section');
+            }
             else {
                 const enteredPass = prompt("General மோடுக்கு பாஸ்வேர்டை உள்ளிடவும்:");
                 if (enteredPass !== "divi") {
@@ -1191,14 +1209,6 @@
                 }
             }
         }
-
-        window.copyFeedbackLink = function(driverName) {
-            const baseUrl = window.location.origin + window.location.pathname; 
-            const feedbackLink = `${baseUrl}?view=feedback&driver=${encodeURIComponent(driverName)}`;
-            navigator.clipboard.writeText(feedbackLink).then(() => {
-                alert("✅ Link copied! கிளைண்டிற்கு அனுப்பலாம்.");
-            });
-        };
 
         initializeSystem();
     </script>
