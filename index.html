@@ -676,7 +676,7 @@
             });
         }
 
-        function renderDriversTable() {
+                function renderDriversTable() {
             const tbody = document.getElementById('allDriversTableBody');
             if(!tbody) return;
             tbody.innerHTML = ''; 
@@ -727,6 +727,7 @@
                         <button onclick="editDriver('${id}', '${d.name}', '${d.mobile || ''}')" class="text-blue-600 hover:text-blue-800 font-medium text-xs bg-blue-50 px-2 py-1 rounded">✏️ Edit</button>
                         <button onclick="deleteDriver('${id}', '${d.name}')" class="text-red-600 hover:text-red-800 font-medium text-xs bg-red-50 px-2 py-1 rounded">🗑️ Del</button>
                         <button onclick="copyFeedbackLink('${d.name}')" class="text-green-700 font-bold hover:text-green-900 text-xs bg-green-50 border border-green-200 px-2 py-1 rounded">🔗 Feedback Link</button>
+                        <button onclick="copyDriverInfo('${id}')" class="text-indigo-700 font-bold hover:text-indigo-900 text-xs bg-indigo-50 border border-indigo-200 px-2 py-1 rounded">📱 Copy Info</button>
                     </td>
                 `;
                 tbody.appendChild(row);
@@ -1209,6 +1210,27 @@
                 }
             }
         }
+
+                window.copyDriverInfo = function(id) {
+            const d = driversDataMap[id];
+            if(!d) return;
+
+            // Formatting the text exactly as you requested
+            const textToCopy = `Driver Name : ${d.name || 'N/A'}
+Mobile : ${d.mobile || 'N/A'}
+DOB : ${convertDateToDDMMYYYY(d.dob)}
+Age : ${calculatePreciseAgeExp(d.dob)}
+LMV Issue Date : ${convertDateToDDMMYYYY(d.lmvIssue)}
+Experience : ${calculatePreciseAgeExp(d.lmvIssue)}
+LMV Expiry : ${convertDateToDDMMYYYY(d.lmvExpiry) || 'N/A'}
+LMV-TR : ${convertDateToDDMMYYYY(d.lmvTrExpiry) || 'N/A'}`;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert(`✅ ${d.name}'s details copied! You can now paste it in WhatsApp.`);
+            }).catch(err => {
+                alert('❌ Failed to copy details.');
+            });
+        };
 
         initializeSystem();
     </script>
