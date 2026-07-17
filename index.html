@@ -14,18 +14,8 @@
 
     <div class="max-w-6xl mx-auto space-y-6" id="main-dashboard">
         
-        <!-- Navigation Menu (மெனு பாக்ஸ் ஆரம்பம்) -->
-<div id="navigation-menu" class="bg-white p-3 rounded-lg shadow-md flex flex-wrap gap-2 relative border border-gray-200">
-    
-    <!-- உங்க பழைய 9 செக்ஷன் பட்டன்கள் எல்லாம் இங்க தான் இருக்கணும் -->
-    <!-- (உதாரணத்துக்கு: Button 1, Button 2... Button 9) -->
-
-</div> <!-- 👈 மெனு பாக்ஸ் இங்கேயே முடிஞ்சிடணும்! (Closing Div) -->
-
-
-<a href="https://www.appcreator24.com/intra/intra.php?pag=21&idapp=4120255" target="_system" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg text-center block mt-4 mb-4">
-    🔔 நோட்டிபிகேஷன் அனுப்ப (Send Message)
-</a>
+        <!-- Navigation Menu (சரியாக ஒருங்கிணைக்கப்பட்ட மெனு பாக்ஸ்) -->
+        <div id="navigation-menu" class="bg-white p-3 rounded-lg shadow-md flex flex-wrap gap-2 relative border border-gray-200">
             <button onclick="switchTab('duty-section')" id="btn-duty-section" class="tab-btn bg-yellow-500 text-white font-bold px-4 py-2 rounded shadow flex items-center gap-2 transition text-sm">
                 <span>📝</span> Duty Logger
             </button>
@@ -45,8 +35,8 @@
                 <span>➕</span> Add Driver/Client
             </button>
             <button onclick="switchTab('restrictions-section')" id="btn-restrictions-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
-    <span>🚫</span> Restrictions
-</button>
+                <span>🚫</span> Restrictions
+            </button>
             <button onclick="switchTab('duty-history-section')" id="btn-duty-history-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
                 <span>📅</span> Duty History
             </button>
@@ -278,10 +268,11 @@
 
             <div id="duty-container" class="space-y-6">
                 
-                <!-- Driver Response Panel -->
+                <!-- Driver Response Panel (ப்ளூ பாக்ஸ்) -->
                 <div id="driverResponseSection" class="p-4 bg-blue-50 border border-blue-200 rounded-xl shadow-sm">
                     <h3 class="font-bold text-blue-800 text-base mb-2 flex items-center gap-1">🚗 Driver Response Counter</h3>
-                    <p class="text-xs text-gray-600 mb-3">டூட்டி அலர்ட் வரும்போது, கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.</p>
+                    <!-- திருத்தப்பட்ட எளிய வாக்கியம் -->
+                    <p class="text-xs text-gray-600 mb-3">கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.</p>
                     
                     <div class="flex flex-col sm:flex-row gap-3 items-start relative w-full">
                         <div class="relative flex-1 w-full">
@@ -805,7 +796,6 @@
                     if (driversDataMap[id].name) driversArray.push(driversDataMap[id].name.trim());
                 }
                 
-                // FIXED: Drivers count properly updates here now
                 const totalDriversCount = document.getElementById('totalDriversCount');
                 if (totalDriversCount) {
                     totalDriversCount.innerText = `Total: ${Object.keys(driversDataMap).length}`;
@@ -973,7 +963,6 @@
                     let vList = []; for (let id in snapshot.val()) vList.push({ id, ...snapshot.val()[id] });
                     vList.reverse().forEach(v => {
                         
-                        // SECURITY LOGIC: Delete button displays ONLY for Admin
                         let actionButtonHtml = '';
                         if (currentSystemView === 'admin' || currentSystemView === 'general') {
                             actionButtonHtml = `<td class="p-3"><button onclick="deleteVacancy('${v.id}')" class="text-red-600 hover:underline font-bold text-xs">Del</button></td>`;
@@ -1097,15 +1086,15 @@
             else if (viewMode === 'driver') {
                 currentSystemView = 'driver';
                 
-                // Hide main navigation control entirely
+                // 1. Hide main navigation control entirely
                 const navMenu = document.getElementById('navigation-menu');
                 if (navMenu) navMenu.style.display = 'none';
 
-                // Hide admin panel in the assignment room
+                // 2. Hide admin panel in the assignment room
                 const adminBlock = document.getElementById('adminSection');
                 if (adminBlock) adminBlock.style.display = 'none';
 
-                // MULTI-VIEW FIX FOR DRIVERS: Render both alert room and vacant logger together seamlessly
+                // 3. MULTI-VIEW FOR DRIVERS: Render only alert room & vacant logger together
                 switchTab('duty-assignment-section');
                 document.getElementById('vacant-section').classList.remove('hidden');
                 
