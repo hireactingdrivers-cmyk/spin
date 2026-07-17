@@ -35,8 +35,8 @@
                 <span>➕</span> Add Driver/Client
             </button>
             <button onclick="switchTab('restrictions-section')" id="btn-restrictions-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
-                <span>🚫</span> Restrictions
-            </button>
+    <span>🚫</span> Restrictions
+</button>
             <button onclick="switchTab('duty-history-section')" id="btn-duty-history-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
                 <span>📅</span> Duty History
             </button>
@@ -127,10 +127,11 @@
                                     <th class="p-3">Status</th>
                                     <th class="p-3">Date</th>
                                     <th class="p-3">Time Logged</th>
+                                    <th class="p-3 admin-only-element">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="vacantTableBody" class="text-gray-600 text-sm">
-                                <tr><td colspan="4" class="p-4 text-center italic text-gray-400">Loading status records...</td></tr>
+                                <tr><td colspan="5" class="p-4 text-center italic text-gray-400">Loading status records...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -262,17 +263,15 @@
         <div id="duty-assignment-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-yellow-500">
             <h2 class="text-2xl font-bold mb-4 text-yellow-600 flex items-center gap-2">🔔 Live Duty Alert Room</h2>
             
-            <!-- Live Broadcast: Who got the duty? (Visible to All Screens Live) -->
-            <div id="latestAssignmentDisplay" class="mb-4">
-                <!-- Dynamic Content Loaded from Firebase -->
-            </div>
+            <!-- Live Broadcast -->
+            <div id="latestAssignmentDisplay" class="mb-4"></div>
 
             <div id="duty-container" class="space-y-6">
                 
-                <!-- Driver Response Panel (Autocomplete Box Instead of Dropdown) -->
+                <!-- Driver Response Panel -->
                 <div id="driverResponseSection" class="p-4 bg-blue-50 border border-blue-200 rounded-xl shadow-sm">
                     <h3 class="font-bold text-blue-800 text-base mb-2 flex items-center gap-1">🚗 Driver Response Counter</h3>
-                    <p class="text-xs text-gray-600 mb-3">டூட்டி அலர்ட் வரும்போது, கீழே உங்கள் பெயரை டைப் செய்து தேர்ந்தெடுத்து "OK" பட்டனை அழுத்தவும்.</p>
+                    <p class="text-xs text-gray-600 mb-3">டூட்டி அலர்ட் வரும்போது, கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.</p>
                     
                     <div class="flex flex-col sm:flex-row gap-3 items-start relative w-full">
                         <div class="relative flex-1 w-full">
@@ -299,7 +298,7 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-xs font-bold text-gray-600 mb-1">1. Select the Confirmed Driver (Who pressed OK):</label>
+                            <label class="block text-xs font-bold text-gray-600 mb-1">1. Select Confirmed Driver:</label>
                             <select id="adminDriverSelect" class="w-full p-2.5 border rounded-lg bg-white text-sm font-bold text-gray-800 focus:ring-2 focus:ring-red-500">
                                 <option value="">-- No drivers ready yet --</option>
                             </select>
@@ -415,6 +414,16 @@
         let driversArray = [];
         let clientsArray = [];
         let ratings = { behavior: 0, driving: 0 };
+        let currentSystemView = 'general';
+
+        // Memory Feature Check
+        function autoFillSavedDriverName() {
+            const savedName = localStorage.getItem('blossom_saved_driver_name');
+            if (savedName) {
+                if(document.getElementById('driverResponseInput')) document.getElementById('driverResponseInput').value = savedName;
+                if(document.getElementById('vacantDriverInput')) document.getElementById('vacantDriverInput').value = savedName;
+            }
+        }
 
         // --- Driver Press OK Autocomplete Verification ---
         window.driverPressOk = function() {
@@ -423,6 +432,8 @@
 
             const matchDriver = driversArray.find(x => x.toLowerCase() === typedName.toLowerCase());
             if(!matchDriver) return alert("🛑 Name not found in Driver Database! Please check spelling.");
+
+            localStorage.setItem('blossom_saved_driver_name', matchDriver); // Save Name
 
             const now = new Date();
             let hours = now.getHours();
@@ -436,13 +447,11 @@
                 time: timeString
             }).then(() => {
                 alert(`🟢 Response sent! "${matchDriver}" marked as OK.`);
-                document.getElementById('driverResponseInput').value = '';
             });
         };
 
-        // Listening to live updates (Who pressed OK & Who got Assigned)
+        // Listening to live updates
         function listenToLiveDutyAlerts() {
-            // 1. Status Tracker for Responded Drivers
             onValue(ref(db, 'live_duty_alert/responded_drivers'), (snapshot) => {
                 const adminSel = document.getElementById('adminDriverSelect');
                 const statusList = document.getElementById('statusBoardList');
@@ -464,7 +473,6 @@
                 }
             });
 
-            // 2. Broadcast Listener: Show who got the duty to all screens
             onValue(ref(db, 'live_duty_alert/current_assignment'), (snapshot) => {
                 const displayEl = document.getElementById('latestAssignmentDisplay');
                 if(!displayEl) return;
@@ -472,10 +480,10 @@
                 if(snapshot.exists()) {
                     const data = snapshot.val();
                     displayEl.innerHTML = `
-                        <div class="p-4 bg-purple-100 border border-purple-300 rounded-xl text-center shadow-sm">
-                            <span class="text-base font-extrabold text-purple-900 block sm:inline">📢 Last Assignment Broadcast:</span>
+                        <div class="p-4 bg-purple-100 border border-purple-300 rounded-xl text-center shadow-sm alert-red">
+                            <span class="text-base font-extrabold text-purple-900 block sm:inline">📢 Live Assignment Notice:</span>
                             <span class="text-base font-black text-red-600 bg-white px-2 py-0.5 rounded mx-1 border shadow-sm">${data.driver}</span> 
-                            <span class="text-sm font-bold text-gray-700">is confirmed for</span> 
+                            <span class="text-sm font-bold text-gray-700">is assigned to</span> 
                             <span class="text-base font-black text-blue-600 bg-white px-2 py-0.5 rounded mx-1 border shadow-sm">${data.client}</span>
                             <span class="text-xs font-bold text-gray-500 block sm:inline ml-2">(${data.assignedAt})</span>
                         </div>
@@ -500,7 +508,6 @@
             if(!selectedDriver) return alert("❌ Please pick a driver who pressed OK!");
             if(!selectedClient) return alert("❌ Please pick a client destination!");
 
-            // Checking automated restriction checks
             let isForbidden = false;
             for (let rId in restrictionsDataMap) {
                 if (restrictionsDataMap[rId].driver.toLowerCase().trim() === selectedDriver.toLowerCase().trim() && 
@@ -525,22 +532,19 @@
             hours = hours % 12 || 12;
             const liveTimeStr = `${hours}:${mins} ${ampm}`;
 
-            // 1. Logging duty to Database core
             push(ref(db, 'duties'), {
                 driver: selectedDriver,
                 client: selectedClient,
                 date: `${yyyy}-${mm}-${dd}`,
                 time: liveTimeStr
             }).then(() => {
-                // 2. Post to Live Broadcast Node so everyone sees it instantly
                 set(ref(db, 'live_duty_alert/current_assignment'), {
                     driver: selectedDriver,
                     client: selectedClient,
                     assignedAt: liveTimeStr
                 }).then(() => {
-                    // 3. Clear out live responses node for the next broadcast alert sequence
                     remove(ref(db, 'live_duty_alert/responded_drivers')).then(() => {
-                        alert(`🎉 Duty completely assigned to ${selectedDriver}! Responders stack reset.`);
+                        alert(`🎉 Duty completely assigned to ${selectedDriver}! Responders reset.`);
                         document.getElementById("adminPass").value = '';
                     });
                 });
@@ -790,6 +794,13 @@
                 for (let id in driversDataMap) {
                     if (driversDataMap[id].name) driversArray.push(driversDataMap[id].name.trim());
                 }
+                
+                // FIXED: Drivers count properly updates here now
+                const totalDriversCount = document.getElementById('totalDriversCount');
+                if (totalDriversCount) {
+                    totalDriversCount.innerText = `Total: ${Object.keys(driversDataMap).length}`;
+                }
+                
                 renderDriversTable(); 
             });
         }
@@ -842,7 +853,6 @@
             driverSugBox.classList.remove('hidden');
         });
 
-        // Autocomplete for Driver Response (New Update)
         const driverResponseInput = document.getElementById('driverResponseInput');
         const driverResponseSugBox = document.getElementById('driverResponseSuggestions');
         driverResponseInput.addEventListener('input', () => {
@@ -935,12 +945,15 @@
             const drName = vacantDriverInput.value.trim();
             const matchDriver = driversArray.find(x => x.toLowerCase() === drName.toLowerCase());
             if(!matchDriver) return alert("🛑 Database driver matching failed!");
+            
+            localStorage.setItem('blossom_saved_driver_name', matchDriver); // Store in Cache memory
+
             const now = new Date();
             push(ref(db, 'vacancies'), {
                 driver: matchDriver, status: statusValue,
                 vacantDate: `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`,
                 vacantTime: convertTo12Hour(`${now.getHours()}:${now.getMinutes()}`)
-            }).then(() => { alert('🚗 Driver Status Updated!'); document.getElementById('vacantForm').reset(); });
+            }).then(() => { alert('🚗 Driver Status Updated!'); document.getElementById('vacantForm').reset(); autoFillSavedDriverName(); });
         };
 
         function listenToVacantData() {
@@ -949,16 +962,38 @@
                 if (snapshot.exists()) {
                     let vList = []; for (let id in snapshot.val()) vList.push({ id, ...snapshot.val()[id] });
                     vList.reverse().forEach(v => {
+                        
+                        // SECURITY LOGIC: Delete button displays ONLY for Admin
+                        let actionButtonHtml = '';
+                        if (currentSystemView === 'admin' || currentSystemView === 'general') {
+                            actionButtonHtml = `<td class="p-3"><button onclick="deleteVacancy('${v.id}')" class="text-red-600 hover:underline font-bold text-xs">Del</button></td>`;
+                        } else {
+                            actionButtonHtml = `<td class="p-3 text-gray-400 italic text-xs">No Action</td>`;
+                        }
+
                         tbody.innerHTML += `<tr class="border-b text-xs">
                             <td class="p-3 font-bold">${v.driver}</td>
                             <td class="p-3">${v.status === 'ON' ? '<span class="px-1.5 py-0.5 bg-green-100 text-green-700 font-bold rounded">🟢 ON</span>' : '<span class="px-1.5 py-0.5 bg-gray-100 text-gray-700 font-bold rounded">🔴 OFF</span>'}</td>
                             <td class="p-3">${v.vacantDate}</td>
                             <td class="p-3 text-orange-600 font-medium">🕒 ${v.vacantTime}</td>
+                            ${actionButtonHtml}
                         </tr>`;
                     });
                 }
             });
         }
+
+        window.deleteVacancy = function(id) {
+            if (currentSystemView === 'driver') {
+                return alert("🛑 Access Denied! drivers are not allowed to delete status history.");
+            }
+            const pass = prompt("Enter Admin Password to delete this history:");
+            if (pass === "divi") {
+                remove(ref(db, 'vacancies/' + id)).then(() => alert("🗑️ Vacancy log cleared successfully!"));
+            } else {
+                alert("❌ Incorrect Key Password!");
+            }
+        };
 
         document.getElementById('dutyForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -1046,18 +1081,29 @@
             const viewMode = urlParams.get('view');
             
             if (viewMode === 'admin') {
+                currentSystemView = 'admin';
                 if (prompt("Enter Admin Password:") !== "divi") window.location.href = "about:blank"; 
             } 
             else if (viewMode === 'driver') {
+                currentSystemView = 'driver';
+                
+                // Hide main navigation control entirely
                 const navMenu = document.getElementById('navigation-menu');
                 if (navMenu) navMenu.style.display = 'none';
 
+                // Hide admin panel in the assignment room
                 const adminBlock = document.getElementById('adminSection');
                 if (adminBlock) adminBlock.style.display = 'none';
 
+                // MULTI-VIEW FIX FOR DRIVERS: Render both alert room and vacant logger together seamlessly
                 switchTab('duty-assignment-section');
+                document.getElementById('vacant-section').classList.remove('hidden');
+                
+                // Prefill saved driver data
+                setTimeout(autoFillSavedDriverName, 500);
             }
             else if (viewMode === 'feedback') {
+                currentSystemView = 'feedback';
                 const driverName = urlParams.get('driver');
                 document.body.innerHTML = `
                     <div class="p-6 max-w-md mx-auto mt-5 bg-white rounded-xl shadow-lg border">
@@ -1076,6 +1122,7 @@
                     </div>`;
             }
             else {
+                currentSystemView = 'general';
                 if (prompt("Enter General Password:") !== "divi") window.location.href = "about:blank";
             }
         }
