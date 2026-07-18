@@ -486,28 +486,42 @@
         }
         
         function hideAdminFunctionsForDriver() {
-    // Duty Alert Control மற்றும் Vacant Logger நீங்கலாக மற்ற அனைத்து மெனுக்களும் மறைக்கப்படும்
-    const adminElements = [
-        'btn-add-data-section', 
-        'btn-restrictions-section', 
-        'btn-clients-list-section',
-        'btn-reports-section',        // Oru vailai reports section irundha
-        'btn-user-management',        // Users list irundha
-        'btn-settings-section'        // Settings irundha
+    console.log("Driver menu filter function start aagidichi!");
+
+    // Maraika vendiya admin menu buttons-oda exact IDs
+    const menusToHide = [
+        'btn-driver-dashboard-section', // Dashboard
+        'btn-duty-section',             // Duty Logger (Neenga Vacant-um, Duty Alert Room-um mattum thaan kettinga)
+        'btn-drivers-list-section',     // Drivers List
+        'btn-clients-list-section',     // Clients List
+        'btn-add-data-section',         // Add Driver/Client
+        'btn-restrictions-section',     // Restrictions
+        'btn-duty-history-section',     // Duty History
+        'btn-feedback-section'          // Feedbacks
     ];
-    
-    adminElements.forEach(id => {
+
+    // Ovvoru ID-yaai paarthu maraika seiyum logic
+    menusToHide.forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
+        if (el) {
+            el.style.setProperty('display', 'none', 'important');
+        }
     });
-    
-    // Safety check: Vacant logger-um Duty alert-um theriya aaguthu nu nichayam seiya
-    const vacantLogger = document.getElementById('btn-vacant-logger-section'); // Ungaloda exact ID potukonga
-    const dutyAlert = document.getElementById('btn-duty-alert-section');     // Ungaloda exact ID potukonga
-    
-    if (vacantLogger) vacantLogger.style.display = 'block';
-    if (dutyAlert) dutyAlert.style.display = 'block';
+
+    // Vacant Logger, Duty Alert Room, matrum Logout mattum nichayamaga theriya vaika:
+    const vacantLogger = document.getElementById('btn-vacant-section');
+    const dutyAlertRoom = document.getElementById('btn-duty-assignment-section');
+    const logoutBtn = document.getElementById('btn-logout-section');
+
+    if (vacantLogger) vacantLogger.style.setProperty('display', 'flex', 'important');
+    if (dutyAlertRoom) dutyAlertRoom.style.setProperty('display', 'flex', 'important');
+    if (logoutBtn) logoutBtn.style.setProperty('display', 'flex', 'important');
 }
+
+// Page load aagumpodhum, siriya delay-ku pinbhum run aaga
+window.addEventListener('load', hideAdminFunctionsForDriver);
+window.addEventListener('DOMContentLoaded', hideAdminFunctionsForDriver);
+setTimeout(hideAdminFunctionsForDriver, 1000);
 
         window.loadDriverDashboard = function() {
             const driverName = localStorage.getItem('blossom_saved_driver_name');
