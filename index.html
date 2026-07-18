@@ -25,30 +25,30 @@
         </div>
         
         <!-- Driver Dashboard Section (Updated) -->
-<div id="driver-dashboard-section" class="tab-content hidden space-y-6">
-    <div class="bg-white p-6 rounded-2xl shadow-xl border border-blue-100">
-        <h2 class="text-2xl font-black text-blue-800 mb-6 flex items-center gap-2">
-            👤 Driver Profile
-        </h2>
-        
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="bg-blue-600 p-4 rounded-xl text-white shadow-lg shadow-blue-200">
-                <p class="text-blue-100 text-xs font-bold uppercase">Total Duties</p>
-                <p class="text-3xl font-black" id="totalDutyCount">0</p>
-            </div>
-            <div class="bg-yellow-500 p-4 rounded-xl text-white shadow-lg shadow-yellow-200">
-                <p class="text-yellow-50 text-xs font-bold uppercase">Total Feedbacks</p>
-                <p class="text-3xl font-black" id="totalFeedbackCount">0</p>
-            </div>
-        </div>
+        <div id="driver-dashboard-section" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-xl border border-blue-100">
+                <h2 class="text-2xl font-black text-blue-800 mb-6 flex items-center gap-2">
+                    👤 Driver Profile
+                </h2>
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-blue-600 p-4 rounded-xl text-white shadow-lg shadow-blue-200">
+                        <p class="text-blue-100 text-xs font-bold uppercase">Total Duties</p>
+                        <p class="text-3xl font-black" id="totalDutyCount">0</p>
+                    </div>
+                    <div class="bg-yellow-500 p-4 rounded-xl text-white shadow-lg shadow-yellow-200">
+                        <p class="text-yellow-50 text-xs font-bold uppercase">Total Feedbacks</p>
+                        <p class="text-3xl font-black" id="totalFeedbackCount">0</p>
+                    </div>
+                </div>
 
-        <!-- Details Grid -->
-        <div class="space-y-4 text-sm" id="driverDetailsList">
-            <!-- Data will be loaded here by JavaScript -->
+                <!-- Details Grid -->
+                <div class="space-y-4 text-sm" id="driverDetailsList">
+                    <!-- Data will be loaded here by JavaScript -->
+                </div>
+            </div>
         </div>
-    </div>
-</div>
         
         <!-- Navigation Menu -->
         <div id="navigation-menu" class="bg-white p-3 rounded-lg shadow-md flex flex-wrap gap-2 relative border border-gray-200">
@@ -85,31 +85,6 @@
             <button onclick="logoutDriver()" id="btn-logout-section" class="tab-btn bg-red-600 text-white font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm ml-auto">
                 <span>🚪</span> Logout
             </button>
-        </div>
-        
-        <!-- Driver Dashboard Section -->
-        <div id="driver-dashboard-section" class="tab-content hidden space-y-6">
-            <div class="bg-white p-6 rounded-xl shadow-lg border border-indigo-100">
-                <h2 class="text-2xl font-bold text-indigo-600 mb-4" id="driverWelcomeMsg">Welcome, Driver!</h2>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-indigo-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600">Total Duties</p>
-                        <p class="text-2xl font-bold" id="totalDutyCount">0</p>
-                    </div>
-                    <div class="bg-green-50 p-4 rounded-lg">
-                        <p class="text-sm text-gray-600">Total Feedback</p>
-                        <p class="text-2xl font-bold" id="totalFeedbackCount">0</p>
-                    </div>
-                </div>
-
-                <div class="mt-6">
-                    <h3 class="font-bold text-gray-700 mb-2">Driver Details:</h3>
-                    <div id="driverDetailsList" class="text-sm text-gray-600 space-y-1">
-                        <p class="text-gray-400 italic">Loading details...</p>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Feedbacks Section -->
@@ -171,9 +146,13 @@
             <h2 class="text-2xl font-bold mb-4 text-red-600 border-b pb-2">🚗 Driver Duty Status Manager</h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <form id="vacantForm" class="space-y-4 lg:col-span-1 border-r pr-0 lg:pr-6 border-gray-200 relative" onsubmit="return false;">
-                    <div class="relative">
+                    
+                    <!-- Added Driver Greeting UI -->
+                    <div id="vacant-driver-greeting" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-800 font-bold text-sm"></div>
+
+                    <div class="relative" id="vacant-search-container">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Select Driver Name*</label>
-                        <input type="text" id="vacantDriverInput" required autocomplete="off" placeholder="Type driver name..." class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-red-500">
+                        <input type="text" id="vacantDriverInput" autocomplete="off" placeholder="Type driver name..." class="w-full p-2 border rounded text-sm focus:ring-2 focus:ring-red-500">
                         <div id="vacantDriverSuggestions" class="absolute left-0 right-0 bg-white border border-gray-300 rounded mt-1 shadow-lg max-h-48 overflow-y-auto hidden z-50"></div>
                     </div>
                     <div>
@@ -340,10 +319,12 @@
             <div id="duty-container" class="space-y-6">
                 <div id="driverResponseSection" class="p-4 bg-blue-50 border border-blue-200 rounded-xl shadow-sm">
                     <h3 class="font-bold text-blue-800 text-base mb-2 flex items-center gap-1">🚗 Driver Response Counter</h3>
-                    <p class="text-xs text-gray-600 mb-3">கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.</p>
+                    
+                    <!-- Added Dynamic Driver Text Instruction -->
+                    <p id="driver-response-text" class="text-xs text-gray-800 mb-3 font-semibold">கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.</p>
                     
                     <div class="flex flex-col sm:flex-row gap-3 items-start relative w-full">
-                        <div class="relative flex-1 w-full">
+                        <div class="relative flex-1 w-full" id="alert-search-container">
                             <input type="text" id="driverResponseInput" autocomplete="off" placeholder="Type your name to confirm..." class="w-full p-2 border border-gray-300 rounded-lg text-sm bg-white font-medium outline-none focus:ring-2 focus:ring-blue-500">
                             <div id="driverResponseSuggestions" class="absolute left-0 right-0 bg-white border border-gray-300 rounded mt-1 shadow-lg max-h-48 overflow-y-auto hidden z-50"></div>
                         </div>
@@ -477,13 +458,10 @@
         // Global State Variables inside Module
         let driversDataMap = {}, dutiesCacheData = {}, feedbacksCacheData = {}, clientsDataMap = {};
         let dutiesDataMap = {}, restrictionsDataMap = {}, driversArray = [], clientsArray = [];
-        let ratings = { behavior: 0, driving: 0 }, currentSystemView = 'driver'; // Default Driver mode
+        let ratings = { behavior: 0, driving: 0 }, currentSystemView = 'driver'; 
         
         function initializeSystem() {
-            // 1. First check access via URL parameters
             checkAccess(); 
-            
-            // 2. Setup Firebase Realtime Listeners
             listenToClientsData();
             listenToDriversData();
             listenToDutiesData();
@@ -495,35 +473,30 @@
             const savedName = localStorage.getItem('blossom_saved_driver_name');
             const loginModal = document.getElementById('login-modal');
             
-            // 💡 Admin View Setup
             if (currentSystemView === 'admin' || localStorage.getItem('userRole') === 'admin') {
                 if(loginModal) loginModal.style.display = 'none'; 
-                
                 if (typeof switchTab === 'function') {
                     const dutySec = document.getElementById('duty-section');
                     if(dutySec) switchTab('duty-section');
                 }
-                hideAdminFunctionsForDriver(); // Make all menus visible for Admin
+                hideAdminFunctionsForDriver(); 
                 return;
             }
 
-            // 💡 Feedback View Setup
             if (currentSystemView === 'feedback') {
                 if(loginModal) loginModal.style.display = 'none';
                 return;
             }
 
-            // 💡 Driver View Setup (Default flow)
             if(savedName) {
                 if(loginModal) loginModal.style.display = 'none';
-                hideAdminFunctionsForDriver(); // Will filter only 2 sections
+                hideAdminFunctionsForDriver(); 
                 setTimeout(() => {
-                    loadDriverDashboard(); // load data in background
-                    if (typeof switchTab === 'function') switchTab('vacant-section'); // Set default driver tab to vacant section
+                    loadDriverDashboard(); 
+                    if (typeof switchTab === 'function') switchTab('vacant-section'); 
                 }, 1000);
             } else {
                 if(loginModal) loginModal.style.display = 'flex';
-                // user needs to login first...
             }
 
             const searchFeedbackInput = document.getElementById('searchFeedbackDriverInput');
@@ -538,9 +511,13 @@
             const savedDriver = localStorage.getItem('blossom_saved_driver_name');
             const userRole = localStorage.getItem('userRole');
 
-            // 💡 Admin: Show ALL tabs
+            const vacantSearchContainer = document.getElementById('vacant-search-container');
+            const alertSearchContainer = document.getElementById('alert-search-container');
+            const vacantGreeting = document.getElementById('vacant-driver-greeting');
+            const driverResponseText = document.getElementById('driver-response-text');
+
+            // 💡 Admin: Show ALL tabs and Search Boxes
             if (currentSystemView === 'admin' || userRole === 'admin') {
-                console.log("Admin View/Role active. Keeping menus visible.");
                 const allMenus = [
                     'btn-driver-dashboard-section', 'btn-duty-section', 'btn-drivers-list-section',     
                     'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
@@ -551,10 +528,14 @@
                     const el = document.getElementById(id);
                     if (el) el.style.setProperty('display', 'flex', 'important');
                 });
+
+                if(vacantSearchContainer) vacantSearchContainer.style.display = 'block';
+                if(alertSearchContainer) alertSearchContainer.style.display = 'block';
+                if(vacantGreeting) vacantGreeting.style.display = 'none';
+                if(driverResponseText) driverResponseText.innerText = 'கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.';
+
                 return; 
             }
-
-            console.log("Driver logged in. Filtering menus.");
 
             // 💡 Driver: Hide Everything except specific tabs
             const menusToHide = [
@@ -565,9 +546,7 @@
 
             menusToHide.forEach(id => {
                 const el = document.getElementById(id);
-                if (el) {
-                    el.style.setProperty('display', 'none', 'important');
-                }
+                if (el) el.style.setProperty('display', 'none', 'important');
             });
 
             // 💡 Driver: Show Only these 2 sections + Logout
@@ -577,10 +556,20 @@
             
             menusToShow.forEach(id => {
                 const el = document.getElementById(id);
-                if (el) {
-                    el.style.setProperty('display', savedDriver ? 'flex' : 'none', 'important');
-                }
+                if (el) el.style.setProperty('display', savedDriver ? 'flex' : 'none', 'important');
             });
+
+            // 💡 Driver: Hide Search inputs & Show dynamic Greeting names
+            if(vacantSearchContainer) vacantSearchContainer.style.display = 'none';
+            if(alertSearchContainer) alertSearchContainer.style.display = 'none';
+            
+            if(vacantGreeting && savedDriver) {
+                vacantGreeting.style.display = 'block';
+                vacantGreeting.innerHTML = `👋 வணக்கம் <b>${savedDriver}</b>!<br><span class="text-xs font-normal text-red-600 mt-1 block">கீழே உள்ள ON / OFF பட்டனை அழுத்தி உங்கள் ஸ்டேட்டஸை அப்டேட் செய்யவும்.</span>`;
+            }
+            if(driverResponseText && savedDriver) {
+                driverResponseText.innerHTML = `👋 வணக்கம் <b>${savedDriver}</b>!<br><span class="text-xs font-normal text-gray-600 mt-1 block">கீழே உள்ள "OK" பட்டனை அழுத்தி டியூட்டிக்கு ரெடி என்பதை உறுதி செய்யவும்.</span>`;
+            }
         }
 
         function checkAccess() {
@@ -591,7 +580,6 @@
                 currentSystemView = 'admin';
                 localStorage.setItem('userRole', 'admin'); 
                 if (prompt("🔒 Enter Admin Password:") !== "divi") {
-                    // Redirects back to standard driver view if password fails
                     window.location.href = window.location.origin + window.location.pathname; 
                 }
             } 
@@ -599,7 +587,6 @@
                 currentSystemView = 'feedback';
                 const driverName = urlParams.get('driver');
                 
-                // Overlay logic
                 const feedbackOverlay = document.createElement('div');
                 feedbackOverlay.className = "fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]";
                 feedbackOverlay.innerHTML = `
@@ -632,13 +619,11 @@
                 document.body.appendChild(feedbackOverlay);
             }
             else {
-                // Default mode is now Driver
                 currentSystemView = 'driver';
                 localStorage.setItem('userRole', 'driver');
             }
         }
 
-        // Trigger menu updates safely
         window.addEventListener('DOMContentLoaded', hideAdminFunctionsForDriver);
         window.addEventListener('load', hideAdminFunctionsForDriver);
         setTimeout(hideAdminFunctionsForDriver, 500);
@@ -667,7 +652,7 @@
                 autoFillSavedDriverName();
                 loadDriverDashboard();
                 if (typeof switchTab === 'function') switchTab('vacant-section');
-                window.location.reload(); // Reload will initialize the defaults correctly
+                window.location.reload(); 
             } else {
                 alert("❌ Invalid Name or Password!");
             }
@@ -691,17 +676,22 @@
             }
         }
 
+        // 💡 UPDATED LOGIC: No need to search for logged in drivers
         window.driverPressOk = function() {
-            const driverResponseInput = document.getElementById('driverResponseInput');
-            if(!driverResponseInput) return;
-            
-            const typedName = driverResponseInput.value.trim();
-            if(!typedName) return alert("❌ Please type your name first!");
+            let typedName = "";
+            const userRole = localStorage.getItem('userRole');
+
+            if (userRole === 'admin') {
+                const driverResponseInput = document.getElementById('driverResponseInput');
+                typedName = driverResponseInput ? driverResponseInput.value.trim() : "";
+                if(!typedName) return alert("❌ Please type a driver name first!");
+            } else {
+                typedName = localStorage.getItem('blossom_saved_driver_name');
+                if(!typedName) return alert("❌ Session expired! Please login again.");
+            }
 
             const matchDriver = driversArray.find(x => x.toLowerCase() === typedName.toLowerCase());
             if(!matchDriver) return alert("🛑 Name not found in Driver Database! Please check spelling.");
-
-            localStorage.setItem('blossom_saved_driver_name', matchDriver); 
 
             const now = new Date();
             let hours = now.getHours();
@@ -715,6 +705,36 @@
                 time: timeString
             }).then(() => {
                 alert(`🟢 Response sent! "${matchDriver}" marked as OK.`);
+            });
+        };
+
+        // 💡 UPDATED LOGIC: No need to search for logged in drivers
+        window.setDriverVacantStatus = function(statusValue) {
+            let drName = "";
+            const userRole = localStorage.getItem('userRole');
+
+            if (userRole === 'admin') {
+                const vacantInput = document.getElementById('vacantDriverInput');
+                drName = vacantInput ? vacantInput.value.trim() : "";
+                if(!drName) return alert("❌ Please enter a driver name first!");
+            } else {
+                drName = localStorage.getItem('blossom_saved_driver_name');
+                if(!drName) return alert("❌ Session expired! Please login again.");
+            }
+
+            const matchDriver = driversArray.find(x => x.toLowerCase() === drName.toLowerCase());
+            if(!matchDriver) return alert("🛑 Database driver matching failed!");
+            
+            const now = new Date();
+            push(ref(db, 'vacancies'), {
+                driver: matchDriver, status: statusValue,
+                vacantDate: `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`,
+                vacantTime: convertTo12Hour(`${now.getHours()}:${now.getMinutes()}`)
+            }).then(() => { 
+                alert('🚗 Driver Status Updated!'); 
+                const vacantForm = document.getElementById('vacantForm');
+                if (vacantForm) vacantForm.reset(); 
+                autoFillSavedDriverName(); 
             });
         };
 
@@ -1101,49 +1121,44 @@
         }
 
         window.loadDriverDashboard = function() {
-    const savedDriver = localStorage.getItem('blossom_saved_driver_name');
-    if(!savedDriver) return;
+            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+            if(!savedDriver) return;
 
-    // Stats Calculation
-    let dCount = 0;
-    for(let id in dutiesDataMap) { if(dutiesDataMap[id].driver === savedDriver) dCount++; }
-    document.getElementById('totalDutyCount').innerText = dCount;
+            let dCount = 0;
+            for(let id in dutiesDataMap) { if(dutiesDataMap[id].driver === savedDriver) dCount++; }
+            document.getElementById('totalDutyCount').innerText = dCount;
 
-    let fCount = 0;
-    for(let id in feedbacksCacheData) { if(feedbacksCacheData[id].driver === savedDriver) fCount++; }
-    document.getElementById('totalFeedbackCount').innerText = fCount;
+            let fCount = 0;
+            for(let id in feedbacksCacheData) { if(feedbacksCacheData[id].driver === savedDriver) fCount++; }
+            document.getElementById('totalFeedbackCount').innerText = fCount;
 
-    // Profile Details
-    const d = Object.values(driversDataMap).find(x => x.name === savedDriver);
-    const detailsList = document.getElementById('driverDetailsList');
-    
-    if(detailsList && d) {
-        detailsList.innerHTML = `
-            <div class="grid grid-cols-2 gap-y-4 border-t pt-4">
-                <div><p class="text-gray-400 text-[10px] font-bold uppercase">Mobile</p><p class="font-bold text-gray-800">${d.mobile || 'N/A'}</p></div>
-                <div><p class="text-gray-400 text-[10px] font-bold uppercase">Age</p><p class="font-bold text-blue-600">${calculatePreciseAgeExp(d.dob)}</p></div>
-                <div><p class="text-gray-400 text-[10px] font-bold uppercase">Experience</p><p class="font-bold text-green-600">${calculatePreciseAgeExp(d.lmvIssue)}</p></div>
-                <div><p class="text-gray-400 text-[10px] font-bold uppercase">LMV Expiry</p><p class="font-bold text-red-600">${convertDateToDDMMYYYY(d.lmvExpiry)}</p></div>
-            </div>
-            <div class="mt-4 p-3 bg-red-50 rounded-lg border border-red-100">
-                <p class="text-red-800 text-[10px] font-bold uppercase">Restricted Clients</p>
-                <p class="text-sm font-bold text-red-900 mt-1">${getRestrictionsForDriver(savedDriver)}</p>
-            </div>
-        `;
-    }
-};
+            const d = Object.values(driversDataMap).find(x => x.name === savedDriver);
+            const detailsList = document.getElementById('driverDetailsList');
+            
+            if(detailsList && d) {
+                detailsList.innerHTML = `
+                    <div class="grid grid-cols-2 gap-y-4 border-t pt-4">
+                        <div><p class="text-gray-400 text-[10px] font-bold uppercase">Mobile</p><p class="font-bold text-gray-800">${d.mobile || 'N/A'}</p></div>
+                        <div><p class="text-gray-400 text-[10px] font-bold uppercase">Age</p><p class="font-bold text-blue-600">${calculatePreciseAgeExp(d.dob)}</p></div>
+                        <div><p class="text-gray-400 text-[10px] font-bold uppercase">Experience</p><p class="font-bold text-green-600">${calculatePreciseAgeExp(d.lmvIssue)}</p></div>
+                        <div><p class="text-gray-400 text-[10px] font-bold uppercase">LMV Expiry</p><p class="font-bold text-red-600">${convertDateToDDMMYYYY(d.lmvExpiry)}</p></div>
+                    </div>
+                    <div class="mt-4 p-3 bg-red-50 rounded-lg border border-red-100">
+                        <p class="text-red-800 text-[10px] font-bold uppercase">Restricted Clients</p>
+                        <p class="text-sm font-bold text-red-900 mt-1">${getRestrictionsForDriver(savedDriver)}</p>
+                    </div>
+                `;
+            }
+        };
 
-// Helper function to get restrictions
-function getRestrictionsForDriver(driverName) {
-    let list = [];
-    for (let rId in restrictionsDataMap) {
-        if (restrictionsDataMap[rId].driver === driverName) list.push(restrictionsDataMap[rId].client);
-    }
-    return list.length > 0 ? list.join(', ') : 'None';
-}
+        function getRestrictionsForDriver(driverName) {
+            let list = [];
+            for (let rId in restrictionsDataMap) {
+                if (restrictionsDataMap[rId].driver === driverName) list.push(restrictionsDataMap[rId].client);
+            }
+            return list.length > 0 ? list.join(', ') : 'None';
+        }
 
-
-        // Dropdown Auto-Completes
         const setupAutocomplete = (inputId, sugBoxId, dataArray) => {
             const input = document.getElementById(inputId);
             const sugBox = document.getElementById(sugBoxId);
@@ -1252,28 +1267,6 @@ function getRestrictionsForDriver(driverName) {
             });
         }
 
-        window.setDriverVacantStatus = function(statusValue) {
-            const vacantInput = document.getElementById('vacantDriverInput');
-            if(!vacantInput) return;
-            const drName = vacantInput.value.trim();
-            const matchDriver = driversArray.find(x => x.toLowerCase() === drName.toLowerCase());
-            if(!matchDriver) return alert("🛑 Database driver matching failed!");
-            
-            localStorage.setItem('blossom_saved_driver_name', matchDriver); 
-
-            const now = new Date();
-            push(ref(db, 'vacancies'), {
-                driver: matchDriver, status: statusValue,
-                vacantDate: `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`,
-                vacantTime: convertTo12Hour(`${now.getHours()}:${now.getMinutes()}`)
-            }).then(() => { 
-                alert('🚗 Driver Status Updated!'); 
-                const vacantForm = document.getElementById('vacantForm');
-                if (vacantForm) vacantForm.reset(); 
-                autoFillSavedDriverName(); 
-            });
-        };
-
         function listenToVacantData() {
             onValue(ref(db, 'vacancies'), (snapshot) => {
                 const tbody = document.getElementById('vacantTableBody'); if(!tbody) return; tbody.innerHTML = '';
@@ -1303,7 +1296,6 @@ function getRestrictionsForDriver(driverName) {
             }
         };
 
-        // Form Submit Listeners with explicit Safe Checks
         const dutyFormEl = document.getElementById('dutyForm');
         if (dutyFormEl) {
             dutyFormEl.addEventListener('submit', (e) => {
@@ -1446,7 +1438,6 @@ function getRestrictionsForDriver(driverName) {
                     </div>`;
                 });
 
-                // 💡 UI FIX: பழைய கண்டெய்னர்களை பாதிக்காமல் அதே ஓவர்லேயில் ரிசல்டை மாற்றுகிறது
                 const existingOverlay = document.querySelector('.fixed.inset-0');
                 if (existingOverlay) {
                     existingOverlay.innerHTML = `
