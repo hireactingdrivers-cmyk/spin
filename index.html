@@ -14,8 +14,21 @@
 
     <div class="max-w-6xl mx-auto space-y-6" id="main-dashboard">
         
-        <!-- Navigation Menu (சரியாக ஒருங்கிணைக்கப்பட்ட மெனு பாக்ஸ்) -->
+        <!-- Login Screen -->
+        <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-90 z-[1000] flex items-center justify-center p-4">
+            <div class="bg-white p-6 rounded-2xl w-full max-w-xs shadow-2xl">
+                <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">🚗 Driver Login</h2>
+                <input type="text" id="loginName" placeholder="Driver Name" class="w-full p-3 border rounded-lg mb-3 focus:ring-2 focus:ring-blue-500">
+                <input type="password" id="loginPass" placeholder="Password" class="w-full p-3 border rounded-lg mb-6 focus:ring-2 focus:ring-blue-500">
+                <button onclick="performLogin()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-blue-700 transition">LOGIN</button>
+            </div>
+        </div>
+        
+        <!-- Navigation Menu -->
         <div id="navigation-menu" class="bg-white p-3 rounded-lg shadow-md flex flex-wrap gap-2 relative border border-gray-200">
+            <button onclick="switchTab('driver-dashboard-section')" id="btn-driver-dashboard-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
+                <span>👤</span> Dashboard
+            </button>
             <button onclick="switchTab('duty-section')" id="btn-duty-section" class="tab-btn bg-yellow-500 text-white font-bold px-4 py-2 rounded shadow flex items-center gap-2 transition text-sm">
                 <span>📝</span> Duty Logger
             </button>
@@ -43,6 +56,34 @@
             <button onclick="switchTab('feedback-section')" id="btn-feedback-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
                 <span>📊</span> Feedbacks
             </button>
+            <button onclick="logoutDriver()" id="btn-logout-section" class="tab-btn bg-red-600 text-white font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm ml-auto">
+                <span>🚪</span> Logout
+            </button>
+        </div>
+        
+        <!-- Driver Dashboard Section -->
+        <div id="driver-dashboard-section" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-xl shadow-lg border border-indigo-100">
+                <h2 class="text-2xl font-bold text-indigo-600 mb-4" id="driverWelcomeMsg">Welcome, Driver!</h2>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-indigo-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-600">Total Duties</p>
+                        <p class="text-2xl font-bold" id="totalDutyCount">0</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <p class="text-sm text-gray-600">Total Feedback</p>
+                        <p class="text-2xl font-bold" id="totalFeedbackCount">0</p>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="font-bold text-gray-700 mb-2">Driver Details:</h3>
+                    <div id="driverDetailsList" class="text-sm text-gray-600 space-y-1">
+                        <p class="text-gray-400 italic">Loading details...</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Feedbacks Section -->
@@ -72,7 +113,7 @@
         </div>
 
         <!-- Duty Logger Section -->
-        <div id="duty-section" class="tab-content bg-white p-6 rounded-lg shadow-md border-t-4 border-yellow-500">
+        <div id="duty-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-yellow-500">
             <h2 class="text-2xl font-bold mb-4 text-yellow-600 border-b pb-2">📝 Daily Duty Logger</h2>
             <form id="dutyForm" class="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
                 <div class="relative">
@@ -127,7 +168,7 @@
                                     <th class="p-3">Status</th>
                                     <th class="p-3">Date</th>
                                     <th class="p-3">Time Logged</th>
-                                    <th class="p-3 admin-only-element">Action</th>
+                                    <th class="p-3">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="vacantTableBody" class="text-gray-600 text-sm">
@@ -198,6 +239,10 @@
                         <input type="text" id="addMobile" required placeholder="e.g. 9876543210" class="w-full p-2 text-sm border rounded focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Driver Login Password*</label>
+                        <input type="password" id="addPassword" required placeholder="Set password" class="w-full p-2 text-sm border rounded focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
                         <label class="block text-xs font-semibold text-gray-700 mb-1">Date of Birth (DOB)</label>
                         <input type="date" id="addDob" class="w-full p-2 text-sm border rounded focus:ring-2 focus:ring-indigo-500">
                     </div>
@@ -218,6 +263,7 @@
                     </div>
                 </form>
             </div>
+            
             <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 flex flex-col justify-between">
                 <div>
                     <h2 class="text-xl font-bold mb-4 text-green-600 border-b pb-2">➕ Add New Client</h2>
@@ -259,19 +305,15 @@
             </div>
         </div>
         
-        <!-- Duty Assignment Section (🔔 Duty Alert Room) -->
+        <!-- Duty Assignment Section -->
         <div id="duty-assignment-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-yellow-500">
             <h2 class="text-2xl font-bold mb-4 text-yellow-600 flex items-center gap-2">🔔 Live Duty Alert Room</h2>
             
-            <!-- Live Broadcast -->
             <div id="latestAssignmentDisplay" class="mb-4"></div>
 
             <div id="duty-container" class="space-y-6">
-                
-                <!-- Driver Response Panel (ப்ளூ பாக்ஸ்) -->
                 <div id="driverResponseSection" class="p-4 bg-blue-50 border border-blue-200 rounded-xl shadow-sm">
                     <h3 class="font-bold text-blue-800 text-base mb-2 flex items-center gap-1">🚗 Driver Response Counter</h3>
-                    <!-- திருத்தப்பட்ட எளிய வாக்கியம் -->
                     <p class="text-xs text-gray-600 mb-3">கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.</p>
                     
                     <div class="flex flex-col sm:flex-row gap-3 items-start relative w-full">
@@ -285,7 +327,6 @@
                     </div>
                 </div>
 
-                <!-- Live Status Board -->
                 <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl">
                     <h4 class="font-bold text-gray-700 text-sm mb-2 flex items-center gap-1">📢 OK கொடுத்த டிரைவர்கள் (Live):</h4>
                     <ul id="statusBoardList" class="list-disc pl-5 space-y-1 font-semibold text-sm text-gray-700">
@@ -293,7 +334,6 @@
                     </ul>
                 </div>
 
-                <!-- Admin Action Control Block -->
                 <div id="adminSection" class="p-4 bg-red-50 border border-red-200 rounded-xl shadow-sm">
                     <h4 class="font-bold text-red-700 text-base mb-3 flex items-center gap-1">🔒 Admin Assignment Control</h4>
                     
@@ -362,7 +402,7 @@
 
     </div>
 
-    <!-- UI Scripts -->
+    <!-- UI Tab Navigation Script -->
     <script>
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
@@ -370,7 +410,7 @@
             if(targetTab) targetTab.classList.remove('hidden');
 
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-yellow-500', 'bg-red-500', 'bg-red-600', 'bg-purple-600', 'bg-green-600', 'bg-indigo-600', 'bg-orange-500', 'bg-blue-600', 'text-white');
+                btn.classList.remove('bg-yellow-500', 'bg-red-500', 'bg-red-600', 'bg-purple-600', 'bg-green-600', 'bg-indigo-600', 'bg-orange-500', 'bg-blue-500', 'bg-blue-600', 'text-white');
                 btn.classList.add('bg-gray-200', 'text-gray-700');
             });
 
@@ -385,6 +425,7 @@
                 if(tabId === 'restrictions-section') activeBtn.classList.add('bg-red-600', 'text-white');
                 if(tabId === 'duty-assignment-section') activeBtn.classList.add('bg-yellow-500', 'text-white');
                 if(tabId === 'feedback-section') activeBtn.classList.add('bg-blue-600', 'text-white');
+                if(tabId === 'driver-dashboard-section') activeBtn.classList.add('bg-blue-500', 'text-white');
             }
         }
     </script>
@@ -392,7 +433,7 @@
     <!-- Database Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, set, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, set, remove, onValue, update, query, limitToLast, orderByChild } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyBf2I74LYfdifdJnpxy8m-xgwuhwpib3zo",
@@ -407,17 +448,127 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let driversDataMap = {};
-        let clientsDataMap = {};
-        let dutiesDataMap = {}; 
-        let restrictionsDataMap = {};
-        let feedbacksCacheData = {}; 
-        let driversArray = [];
-        let clientsArray = [];
-        let ratings = { behavior: 0, driving: 0 };
-        let currentSystemView = 'general';
+        // Global State Variables inside Module
+        let driversDataMap = {}, dutiesCacheData = {}, feedbacksCacheData = {}, clientsDataMap = {};
+        let dutiesDataMap = {}, restrictionsDataMap = {}, driversArray = [], clientsArray = [];
+        let ratings = { behavior: 0, driving: 0 }, currentSystemView = 'general';
+        
+        function initializeSystem() {
+            checkAccess(); 
+            listenToClientsData();
+            listenToDriversData();
+            listenToDutiesData();
+            listenToVacantData();
+            listenToRestrictions(); 
+            listenToFeedback(); 
+            listenToLiveDutyAlerts(); 
+            
+            const savedName = localStorage.getItem('blossom_saved_driver_name');
+            const loginModal = document.getElementById('login-modal');
+            
+            if(savedName) {
+                if(loginModal) loginModal.style.display = 'none';
+                hideAdminFunctionsForDriver();
+                setTimeout(() => {
+                    loadDriverDashboard(); 
+                    switchTab('driver-dashboard-section');
+                }, 1000);
+            } else {
+                switchTab('driver-dashboard-section');
+            }
 
-        // Memory Feature Check
+            const searchFeedbackInput = document.getElementById('searchFeedbackDriverInput');
+            if (searchFeedbackInput) {
+                searchFeedbackInput.addEventListener('input', () => {
+                    renderFeedbackTable(feedbacksCacheData);
+                });
+            }
+        }
+        
+        function hideAdminFunctionsForDriver() {
+    // Duty Alert Control மற்றும் Vacant Logger நீங்கலாக மற்ற அனைத்து மெனுக்களும் மறைக்கப்படும்
+    const adminElements = [
+        'btn-add-data-section', 
+        'btn-restrictions-section', 
+        'btn-clients-list-section',
+        'btn-reports-section',        // Oru vailai reports section irundha
+        'btn-user-management',        // Users list irundha
+        'btn-settings-section'        // Settings irundha
+    ];
+    
+    adminElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+    
+    // Safety check: Vacant logger-um Duty alert-um theriya aaguthu nu nichayam seiya
+    const vacantLogger = document.getElementById('btn-vacant-logger-section'); // Ungaloda exact ID potukonga
+    const dutyAlert = document.getElementById('btn-duty-alert-section');     // Ungaloda exact ID potukonga
+    
+    if (vacantLogger) vacantLogger.style.display = 'block';
+    if (dutyAlert) dutyAlert.style.display = 'block';
+}
+
+        window.loadDriverDashboard = function() {
+            const driverName = localStorage.getItem('blossom_saved_driver_name');
+            if(!driverName) return;
+
+            const welcomeMsg = document.getElementById('driverWelcomeMsg');
+            if(welcomeMsg) welcomeMsg.innerText = "🙋‍♂️ Hello, " + driverName;
+
+            const driverInfo = Object.values(driversDataMap).find(d => d.name && d.name.toLowerCase() === driverName.toLowerCase());
+            
+            if(driverInfo) {
+                document.getElementById('driverDetailsList').innerHTML = `
+                    <p class="flex justify-between"><strong>Mobile:</strong> <span>${driverInfo.mobile || 'N/A'}</span></p>
+                    <p class="flex justify-between"><strong>DOB:</strong> <span>${driverInfo.dob || 'N/A'}</span></p>
+                    <p class="flex justify-between"><strong>LMV Expiry:</strong> <span class="text-red-600 font-semibold">${driverInfo.lmvExpiry || 'N/A'}</span></p>
+                    <p class="flex justify-between"><strong>LMV-TR Expiry:</strong> <span class="text-red-600 font-semibold">${driverInfo.lmvTrExpiry || 'N/A'}</span></p>
+                `;
+            } else {
+                document.getElementById('driverDetailsList').innerHTML = `<p class="text-gray-400 italic text-center">Profile details loading...</p>`;
+            }
+
+            const myDuties = Object.values(dutiesDataMap).filter(d => d.driver && d.driver.toLowerCase() === driverName.toLowerCase());
+            document.getElementById('totalDutyCount').innerText = myDuties.length;
+
+            const myFeedback = Object.values(feedbacksCacheData).filter(f => f.driver && f.driver.toLowerCase() === driverName.toLowerCase());
+            document.getElementById('totalFeedbackCount').innerText = myFeedback.length;
+        };
+
+        window.performLogin = function() {
+            const name = document.getElementById('loginName').value.trim();
+            const pass = document.getElementById('loginPass').value.trim();
+
+            const driver = Object.values(driversDataMap).find(d => 
+                d.name.toLowerCase() === name.toLowerCase() && d.password === pass
+            );
+
+            if(driver) {
+                localStorage.setItem('blossom_saved_driver_name', driver.name);
+                localStorage.setItem('userRole', 'admin'); 
+                document.getElementById('login-modal').style.display = 'none';
+                
+                alert("Welcome " + driver.name + "! Login Successful.");
+                
+                hideAdminFunctionsForDriver();
+                autoFillSavedDriverName();
+                loadDriverDashboard();
+                switchTab('driver-dashboard-section');
+                window.location.reload();
+            } else {
+                alert("❌ Invalid Name or Password!");
+            }
+        };
+
+        window.logoutDriver = function() {
+            if(confirm("Are you sure you want to Logout?")) {
+                localStorage.removeItem('blossom_saved_driver_name');
+                localStorage.removeItem('userRole');
+                window.location.reload(); 
+            }
+        };
+
         function autoFillSavedDriverName() {
             const savedName = localStorage.getItem('blossom_saved_driver_name');
             if (savedName) {
@@ -426,7 +577,6 @@
             }
         }
 
-        // --- Driver Press OK Autocomplete Verification ---
         window.driverPressOk = function() {
             const typedName = document.getElementById('driverResponseInput').value.trim();
             if(!typedName) return alert("❌ Please type your name first!");
@@ -434,7 +584,7 @@
             const matchDriver = driversArray.find(x => x.toLowerCase() === typedName.toLowerCase());
             if(!matchDriver) return alert("🛑 Name not found in Driver Database! Please check spelling.");
 
-            localStorage.setItem('blossom_saved_driver_name', matchDriver); // Save Name
+            localStorage.setItem('blossom_saved_driver_name', matchDriver); 
 
             const now = new Date();
             let hours = now.getHours();
@@ -451,26 +601,26 @@
             });
         };
 
-        // Listening to live updates
         function listenToLiveDutyAlerts() {
-            onValue(ref(db, 'live_duty_alert/responded_drivers'), (snapshot) => {
-                const adminSel = document.getElementById('adminDriverSelect');
-                const statusList = document.getElementById('statusBoardList');
-                if(!adminSel || !statusList) return;
+            const adminSel = document.getElementById('adminDriverSelect');
+            const statusList = document.getElementById('statusBoardList');
+            
+            if(!statusList) return;
 
-                adminSel.innerHTML = '';
+            onValue(ref(db, 'live_duty_alert/responded_drivers'), (snapshot) => {
                 statusList.innerHTML = '';
+                if(adminSel) adminSel.innerHTML = '<option value="">-- Choose 1 Driver --</option>';
 
                 if(snapshot.exists()) {
                     const data = snapshot.val();
-                    adminSel.innerHTML = '<option value="">-- Choose 1 Driver to Assign --</option>';
-                    for(let name in data) {
-                        adminSel.innerHTML += `<option value="${name}">${name}</option>`;
-                        statusList.innerHTML += `<li class="text-green-600 font-bold">🟢 ${name} (OK at ${data[name].time})</li>`;
-                    }
+                    Object.entries(data).forEach(([name, details]) => {
+                        statusList.innerHTML += `<li class="text-green-600 font-bold">🟢 ${name} (OK at ${details.time})</li>`;
+                        if(adminSel) {
+                            adminSel.innerHTML += `<option value="${name}">${name}</option>`;
+                        }
+                    });
                 } else {
-                    adminSel.innerHTML = '<option value="">-- No drivers ready yet --</option>';
-                    statusList.innerHTML = '<li class="text-gray-400 italic font-normal list-none">No responses right now. Waiting for drivers...</li>';
+                    statusList.innerHTML = '<li class="text-gray-400 italic font-normal">No responses right now...</li>';
                 }
             });
 
@@ -562,7 +712,7 @@
             }
         }
 
-        // --- Helper Formatting Functions ---
+        // Helper Formatting Functions
         function convertDateToDDMMYYYY(dateStr) {
             if(!dateStr || dateStr === 'N/A') return 'N/A';
             if(dateStr.includes('-')) {
@@ -628,25 +778,11 @@
             });
         };
 
-        function initializeSystem() {
-            checkAccess(); 
-            listenToClientsData();
-            listenToDriversData();
-            listenToDutiesData();
-            listenToVacantData();
-            listenToRestrictions(); 
-            listenToFeedback(); 
-            listenToLiveDutyAlerts(); 
-            
-            document.getElementById('searchFeedbackDriverInput').addEventListener('input', () => {
-                renderFeedbackTable(feedbacksCacheData);
-            });
-        }
-
         function listenToFeedback() {
             onValue(ref(db, 'feedbacks'), (snapshot) => {
                 feedbacksCacheData = snapshot.exists() ? snapshot.val() : {};
                 renderFeedbackTable(feedbacksCacheData); 
+                loadDriverDashboard(); 
             });
         }
 
@@ -671,7 +807,9 @@
         function renderFeedbackTable(data) {
             const tbody = document.getElementById('feedbackTableBody'); 
             const summaryContainer = document.getElementById('feedbackSummaryCards');
-            const searchQuery = document.getElementById('searchFeedbackDriverInput').value.toLowerCase().trim();
+            const searchInput = document.getElementById('searchFeedbackDriverInput');
+            const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+            
             if (!tbody || !summaryContainer) return; 
             tbody.innerHTML = ''; summaryContainer.innerHTML = '';
             
@@ -730,7 +868,8 @@
                 for (let id in clientsDataMap) {
                     if (clientsDataMap[id].name) clientsArray.push(clientsDataMap[id].name.trim());
                 }
-                document.getElementById('totalClientsCount').innerText = `Total: ${Object.keys(clientsDataMap).length}`;
+                const countEl = document.getElementById('totalClientsCount');
+                if(countEl) countEl.innerText = `Total: ${Object.keys(clientsDataMap).length}`;
                 updateAdminClientDropdown();
                 renderClientsData();
             });
@@ -802,6 +941,7 @@
                 }
                 
                 renderDriversTable(); 
+                loadDriverDashboard(); 
             });
         }
 
@@ -838,74 +978,50 @@
             }
         }
 
-        // --- Core Auto-Complete Dropdowns Engine ---
-        const driverInput = document.getElementById('dutyDriverInput');
-        const driverSugBox = document.getElementById('driverSuggestions');
-        driverInput.addEventListener('input', () => {
-            const val = driverInput.value.trim().toLowerCase(); driverSugBox.innerHTML = '';
-            if (!val) { driverSugBox.classList.add('hidden'); return; }
-            const filtered = driversArray.filter(name => name.toLowerCase().includes(val));
-            filtered.forEach(name => {
-                const div = document.createElement('div'); div.className = "p-2 hover:bg-yellow-50 cursor-pointer text-sm border-b"; div.innerText = name;
-                div.addEventListener('click', () => { driverInput.value = name; driverSugBox.classList.add('hidden'); });
-                driverSugBox.appendChild(div);
-            });
-            driverSugBox.classList.remove('hidden');
-        });
+        // Dropdown Auto-Completes
+        const setupAutocomplete = (inputId, sugBoxId, dataArray) => {
+            const input = document.getElementById(inputId);
+            const sugBox = document.getElementById(sugBoxId);
+            if(!input || !sugBox) return;
 
-        const driverResponseInput = document.getElementById('driverResponseInput');
-        const driverResponseSugBox = document.getElementById('driverResponseSuggestions');
-        driverResponseInput.addEventListener('input', () => {
-            const val = driverResponseInput.value.trim().toLowerCase(); driverResponseSugBox.innerHTML = '';
-            if (!val) { driverResponseSugBox.classList.add('hidden'); return; }
-            const filtered = driversArray.filter(name => name.toLowerCase().includes(val));
-            filtered.forEach(name => {
-                const div = document.createElement('div'); div.className = "p-2 hover:bg-blue-50 cursor-pointer text-sm border-b font-medium text-gray-700"; div.innerText = name;
-                div.addEventListener('click', () => { driverResponseInput.value = name; driverResponseSugBox.classList.add('hidden'); });
-                driverResponseSugBox.appendChild(div);
+            input.addEventListener('input', () => {
+                const val = input.value.trim().toLowerCase(); 
+                sugBox.innerHTML = '';
+                if (!val) { sugBox.classList.add('hidden'); return; }
+                
+                const filtered = dataArray.filter(name => name.toLowerCase().includes(val));
+                filtered.forEach(name => {
+                    const div = document.createElement('div'); 
+                    div.className = "p-2 hover:bg-gray-100 cursor-pointer text-sm border-b font-medium"; 
+                    div.innerText = name;
+                    div.addEventListener('click', () => { 
+                        input.value = name; 
+                        sugBox.classList.add('hidden'); 
+                    });
+                    sugBox.appendChild(div);
+                });
+                sugBox.classList.remove('hidden');
             });
-            driverResponseSugBox.classList.remove('hidden');
-        });
 
-        const vacantDriverInput = document.getElementById('vacantDriverInput');
-        const vacantDriverSugBox = document.getElementById('vacantDriverSuggestions');
-        vacantDriverInput.addEventListener('input', () => {
-            const val = vacantDriverInput.value.trim().toLowerCase(); vacantDriverSugBox.innerHTML = '';
-            if (!val) { vacantDriverSugBox.classList.add('hidden'); return; }
-            const filtered = driversArray.filter(name => name.toLowerCase().includes(val));
-            filtered.forEach(name => {
-                const div = document.createElement('div'); div.className = "p-2 hover:bg-red-50 cursor-pointer text-sm border-b"; div.innerText = name;
-                div.addEventListener('click', () => { vacantDriverInput.value = name; vacantDriverSugBox.classList.add('hidden'); });
-                vacantDriverSugBox.appendChild(div);
+            document.addEventListener('click', (e) => {
+                if (e.target !== input) sugBox.classList.add('hidden');
             });
-            vacantDriverSugBox.classList.remove('hidden');
-        });
+        };
 
-        const clientInput = document.getElementById('dutyClientInput');
-        const clientSugBox = document.getElementById('clientSuggestions');
-        clientInput.addEventListener('input', () => {
-            const val = clientInput.value.trim().toLowerCase(); clientSugBox.innerHTML = '';
-            if (!val) { clientSugBox.classList.add('hidden'); return; }
-            const filtered = clientsArray.filter(name => name.toLowerCase().includes(val));
-            filtered.forEach(name => {
-                const div = document.createElement('div'); div.className = "p-2 hover:bg-green-50 cursor-pointer text-sm border-b"; div.innerText = name;
-                div.addEventListener('click', () => { clientInput.value = name; clientSugBox.classList.add('hidden'); });
-                clientSugBox.appendChild(div);
-            });
-            clientSugBox.classList.remove('hidden');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (e.target !== driverInput) driverSugBox.classList.add('hidden');
-            if (e.target !== driverResponseInput) driverResponseSugBox.classList.add('hidden');
-            if (e.target !== vacantDriverInput) vacantDriverSugBox.classList.add('hidden');
-            if (e.target !== clientInput) clientSugBox.classList.add('hidden');
-        });
+        setTimeout(() => {
+            setupAutocomplete('dutyDriverInput', 'driverSuggestions', driversArray);
+            setupAutocomplete('driverResponseInput', 'driverResponseSuggestions', driversArray);
+            setupAutocomplete('vacantDriverInput', 'vacantDriverSuggestions', driversArray);
+            setupAutocomplete('dutyClientInput', 'clientSuggestions', clientsArray);
+        }, 1000);
 
         function listenToDutiesData() {
             onValue(ref(db, 'duties'), (snapshot) => {
                 dutiesDataMap = snapshot.exists() ? snapshot.val() : {};
-                renderDutiesTable(); renderDriversTable(); renderClientsData();
+                window.renderDutiesTable(); 
+                renderDriversTable(); 
+                renderClientsData();
+                loadDriverDashboard(); 
             });
         }
 
@@ -914,19 +1030,28 @@
             const filterDriver = document.getElementById('filterDriver').value.toLowerCase();
             const filterClient = document.getElementById('filterClient').value.toLowerCase();
             const tbody = document.getElementById('dutiesTableBody');
-            if(!tbody) return; tbody.innerHTML = ''; let count = 0;
+            
+            if(!tbody) return; 
+            tbody.innerHTML = ''; 
+            let count = 0;
             
             for (let id in dutiesDataMap) {
                 const duty = dutiesDataMap[id];
-                if ((!filterDate || duty.date === filterDate) && (!filterDriver || duty.driver?.toLowerCase().includes(filterDriver)) && (!filterClient || duty.client?.toLowerCase().includes(filterClient))) {
+                if ((!filterDate || duty.date === filterDate) && 
+                    (!filterDriver || duty.driver?.toLowerCase().includes(filterDriver)) && 
+                    (!filterClient || duty.client?.toLowerCase().includes(filterClient))) {
                     count++;
-                    const row = document.createElement('tr'); row.className = "border-b hover:bg-orange-50/50 transition text-sm";
+                    const row = document.createElement('tr'); 
+                    row.className = "border-b hover:bg-orange-50/50 transition text-sm";
                     row.innerHTML = `
                         <td class="p-3 font-semibold text-gray-700">${convertDateToDDMMYYYY(duty.date)}</td>
                         <td class="p-3 font-medium">${convertTo12Hour(duty.time)}</td>
                         <td class="p-3 font-medium">${duty.driver}</td>
                         <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">${duty.client}</span></td>
-                        <td class="p-3 flex gap-2"><button onclick="editDuty('${id}', '${duty.driver}', '${duty.client}')" class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs">Edit</button><button onclick="deleteDuty('${id}')" class="text-red-600 bg-red-50 px-2 py-0.5 rounded text-xs">Del</button></td>
+                        <td class="p-3 flex gap-2">
+                            <button onclick="editDuty('${id}', '${duty.driver}', '${duty.client}')" class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs">Edit</button>
+                            <button onclick="deleteDuty('${id}')" class="text-red-600 bg-red-50 px-2 py-0.5 rounded text-xs">Del</button>
+                        </td>
                     `;
                     tbody.appendChild(row);
                 }
@@ -938,22 +1063,31 @@
         document.getElementById('filterDriver').addEventListener('input', window.renderDutiesTable);
         document.getElementById('filterClient').addEventListener('input', window.renderDutiesTable);
         document.getElementById('clearFilterBtn').addEventListener('click', () => {
-            document.getElementById('dutyFilterDate').value = ''; document.getElementById('filterDriver').value = ''; document.getElementById('filterClient').value = ''; window.renderDutiesTable();
+            document.getElementById('dutyFilterDate').value = ''; 
+            document.getElementById('filterDriver').value = ''; 
+            document.getElementById('filterClient').value = ''; 
+            window.renderDutiesTable();
         });
 
         window.setDriverVacantStatus = function(statusValue) {
-            const drName = vacantDriverInput.value.trim();
+            const vacantInput = document.getElementById('vacantDriverInput');
+            if(!vacantInput) return;
+            const drName = vacantInput.value.trim();
             const matchDriver = driversArray.find(x => x.toLowerCase() === drName.toLowerCase());
             if(!matchDriver) return alert("🛑 Database driver matching failed!");
             
-            localStorage.setItem('blossom_saved_driver_name', matchDriver); // Store in Cache memory
+            localStorage.setItem('blossom_saved_driver_name', matchDriver); 
 
             const now = new Date();
             push(ref(db, 'vacancies'), {
                 driver: matchDriver, status: statusValue,
                 vacantDate: `${String(now.getDate()).padStart(2,'0')}-${String(now.getMonth()+1).padStart(2,'0')}-${now.getFullYear()}`,
                 vacantTime: convertTo12Hour(`${now.getHours()}:${now.getMinutes()}`)
-            }).then(() => { alert('🚗 Driver Status Updated!'); document.getElementById('vacantForm').reset(); autoFillSavedDriverName(); });
+            }).then(() => { 
+                alert('🚗 Driver Status Updated!'); 
+                document.getElementById('vacantForm').reset(); 
+                autoFillSavedDriverName(); 
+            });
         };
 
         function listenToVacantData() {
@@ -962,13 +1096,8 @@
                 if (snapshot.exists()) {
                     let vList = []; for (let id in snapshot.val()) vList.push({ id, ...snapshot.val()[id] });
                     vList.reverse().forEach(v => {
-                        
-                        let actionButtonHtml = '';
-                        if (currentSystemView === 'admin' || currentSystemView === 'general') {
-                            actionButtonHtml = `<td class="p-3"><button onclick="deleteVacancy('${v.id}')" class="text-red-600 hover:underline font-bold text-xs">Del</button></td>`;
-                        } else {
-                            actionButtonHtml = `<td class="p-3 text-gray-400 italic text-xs">No Action</td>`;
-                        }
+                        // மாற்றி அமைக்கப்பட்டது: டிரைவர் வியூவிலும் டெலீட் ஆப்ஷன் தெரியும், ஆனால் பாஸ்வேர்ட் கேட்கும்
+                        let actionButtonHtml = `<td class="p-3"><button onclick="deleteVacancy('${v.id}')" class="text-red-600 hover:underline font-bold text-xs">Del</button></td>`;
 
                         tbody.innerHTML += `<tr class="border-b text-xs">
                             <td class="p-3 font-bold">${v.driver}</td>
@@ -983,9 +1112,7 @@
         }
 
         window.deleteVacancy = function(id) {
-            if (currentSystemView === 'driver') {
-                return alert("🛑 Access Denied! drivers are not allowed to delete status history.");
-            }
+            // மாற்றி அமைக்கப்பட்டது: எந்த வியூவில் இருந்தாலும் அட்மின் பாஸ்வேர்ட் கொடுத்தால் டெலீட் ஆகும்
             const pass = prompt("Enter Admin Password to delete this history:");
             if (pass === "divi") {
                 remove(ref(db, 'vacancies/' + id)).then(() => alert("🗑️ Vacancy log cleared successfully!"));
@@ -996,55 +1123,100 @@
 
         document.getElementById('dutyForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const drName = driverInput.value.trim(); const clName = clientInput.value.trim();
+            const drName = document.getElementById('dutyDriverInput').value.trim(); 
+            const clName = document.getElementById('dutyClientInput').value.trim();
             const matchDriver = driversArray.find(x => x.toLowerCase() === drName.toLowerCase());
+            
             if(!matchDriver) return alert("🛑 Driver Not Found!"); 
-            push(ref(db, 'duties'), { driver: matchDriver, client: clName, date: document.getElementById('dutyDate').value, time: document.getElementById('dutyTime').value })
-            .then(() => { alert('📝 Duty assigned!'); document.getElementById('dutyForm').reset(); });
+            
+            push(ref(db, 'duties'), { 
+                driver: matchDriver, 
+                client: clName, 
+                date: document.getElementById('dutyDate').value, 
+                time: document.getElementById('dutyTime').value 
+            }).then(() => { 
+                alert('📝 Duty assigned!'); 
+                document.getElementById('dutyForm').reset(); 
+            });
         });
         
         document.getElementById('addRestrictionForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            push(ref(db, 'restrictions'), { driver: document.getElementById('resDriver').value.trim(), client: document.getElementById('resClient').value.trim() })
-            .then(() => { alert('🚫 Restriction Saved!'); document.getElementById('addRestrictionForm').reset(); });
+            push(ref(db, 'restrictions'), { 
+                driver: document.getElementById('resDriver').value.trim(), 
+                client: document.getElementById('resClient').value.trim() 
+            }).then(() => { 
+                alert('🚫 Restriction Saved!'); 
+                document.getElementById('addRestrictionForm').reset(); 
+            });
         });
 
         document.getElementById('addDriverForm').addEventListener('submit', (e) => {
             e.preventDefault();
             push(ref(db, 'drivers'), {
-                name: document.getElementById('addName').value.trim(), mobile: document.getElementById('addMobile').value.trim(),
-                dob: document.getElementById('addDob').value || 'N/A', lmvIssue: document.getElementById('addLmvIssue').value || 'N/A',
-                lmvExpiry: document.getElementById('addLmvExpiry').value, lmvTrExpiry: document.getElementById('addLmvTrExpiry').value
-            }).then(() => { alert('🎉 Driver Added!'); document.getElementById('addDriverForm').reset(); });
+                name: document.getElementById('addName').value.trim(), 
+                mobile: document.getElementById('addMobile').value.trim(),
+                password: document.getElementById('addPassword').value.trim(), 
+                dob: document.getElementById('addDob').value || 'N/A', 
+                lmvIssue: document.getElementById('addLmvIssue').value || 'N/A',
+                lmvExpiry: document.getElementById('addLmvExpiry').value, 
+                lmvTrExpiry: document.getElementById('addLmvTrExpiry').value
+            }).then(() => { 
+                alert('🎉 Driver Added Successfully with Password!'); 
+                document.getElementById('addDriverForm').reset(); 
+            });
         });
 
         document.getElementById('addClientForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            push(ref(db, 'clients'), { name: document.getElementById('addClientName').value.trim() }).then(() => { alert('🎉 Client Added!'); document.getElementById('addClientForm').reset(); });
+            push(ref(db, 'clients'), { 
+                name: document.getElementById('addClientName').value.trim() 
+            }).then(() => { 
+                alert('🎉 Client Added!'); 
+                document.getElementById('addClientForm').reset(); 
+            });
         });
 
         document.getElementById('searchDriversInput').addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase().trim();
-            document.querySelectorAll('#allDriversTableBody tr').forEach(row => row.classList.toggle('hidden', !row.innerText.toLowerCase().includes(query)));
+            document.querySelectorAll('#allDriversTableBody tr').forEach(row => {
+                row.classList.toggle('hidden', !row.innerText.toLowerCase().includes(query));
+            });
         });
 
-        window.deleteDriver = function(id, name) { if (confirm(`Delete driver: ${name}?`)) remove(ref(db, `drivers/${id}`)); }
+        window.deleteDriver = function(id, name) { 
+            if (confirm(`Delete driver: ${name}?`)) remove(ref(db, `drivers/${id}`)); 
+        }
+        
         window.editDriver = function(id, currentName, currentMobile) {
-            const n = prompt("New Name:", currentName); const m = prompt("New Mobile:", currentMobile);
+            const n = prompt("New Name:", currentName); 
+            const m = prompt("New Mobile:", currentMobile);
             if (n && m) update(ref(db, `drivers/${id}`), { name: n.trim(), mobile: m.trim() });
         }
-        window.deleteDuty = function(id) { if (confirm("Delete this duty record?")) remove(ref(db, `duties/${id}`)); }
+        
+        window.deleteDuty = function(id) { 
+            if (confirm("Delete this duty record?")) remove(ref(db, `duties/${id}`)); 
+        }
+        
         window.editDuty = function(id, curD, curC) {
-            const nD = prompt("Change Driver:", curD); const nC = prompt("Change Client:", curC);
+            const nD = prompt("Change Driver:", curD); 
+            const nC = prompt("Change Client:", curC);
             if (nD && nC) update(ref(db, `duties/${id}`), { driver: nD.trim(), client: nC.trim() });
         }
 
         window.showDriverReviewsToClient = function(driverName) {
             onValue(ref(db, 'feedbacks'), (snapshot) => {
                 let logsHTML = ''; let count = 0, bSum = 0, dSum = 0;
-                let fArray = []; for(let id in snapshot.val()) { if(snapshot.val()[id].driver === driverName) fArray.push(snapshot.val()[id]); }
+                let fArray = []; 
+                if(snapshot.exists()) {
+                    for(let id in snapshot.val()) { 
+                        if(snapshot.val()[id].driver === driverName) fArray.push(snapshot.val()[id]); 
+                    }
+                }
                 fArray.reverse().forEach(f => {
-                    count++; bSum += Number(f.behavior?.rating || 0); dSum += Number(f.driving?.rating || 0);
+                    count++; 
+                    bSum += Number(f.behavior?.rating || 0); 
+                    dSum += Number(f.driving?.rating || 0);
                     logsHTML += `<div class="p-3 bg-gray-50 border rounded-lg mb-2 text-xs">
                         <div class="text-gray-400 font-bold">${formatFullTimestamp(f.timestamp)}</div>
                         <div class="font-bold mt-1 text-yellow-600">Behaviour: ★${f.behavior?.rating} | Driving: ★${f.driving?.rating}</div>
@@ -1066,8 +1238,12 @@
 
         window.saveFeedback = function(driverName) {
             if (ratings.behavior === 0 || ratings.driving === 0) return alert("Provide ratings!");
-            push(ref(db, 'feedbacks'), { driver: driverName, behavior: { rating: ratings.behavior, msg: document.getElementById('msgBehavior').value }, driving: { rating: ratings.driving, msg: document.getElementById('msgDriving').value }, timestamp: new Date().toISOString() })
-            .then(() => window.showDriverReviewsToClient(driverName));
+            push(ref(db, 'feedbacks'), { 
+                driver: driverName, 
+                behavior: { rating: ratings.behavior, msg: document.getElementById('msgBehavior').value }, 
+                driving: { rating: ratings.driving, msg: document.getElementById('msgDriving').value }, 
+                timestamp: new Date().toISOString() 
+            }).then(() => window.showDriverReviewsToClient(driverName));
         };
 
         window.copyFeedbackLink = function(driverName) {
@@ -1085,21 +1261,7 @@
             } 
             else if (viewMode === 'driver') {
                 currentSystemView = 'driver';
-                
-                // 1. Hide main navigation control entirely
-                const navMenu = document.getElementById('navigation-menu');
-                if (navMenu) navMenu.style.display = 'none';
-
-                // 2. Hide admin panel in the assignment room
-                const adminBlock = document.getElementById('adminSection');
-                if (adminBlock) adminBlock.style.display = 'none';
-
-                // 3. MULTI-VIEW FOR DRIVERS: Render only alert room & vacant logger together
-                switchTab('duty-assignment-section');
-                document.getElementById('vacant-section').classList.remove('hidden');
-                
-                // Prefill saved driver data
-                setTimeout(autoFillSavedDriverName, 500);
+                // மாற்றி அமைக்கப்பட்டது: டிரைவர் வியூவிலும் 'adminSection' (Duty Assignment Controls) முழுமையாக வேலை செய்யும்.
             }
             else if (viewMode === 'feedback') {
                 currentSystemView = 'feedback';
@@ -1131,7 +1293,8 @@
             navigator.clipboard.writeText(`Driver Name : ${d.name || 'N/A'}\nMobile : ${d.mobile || 'N/A'}\nAge : ${calculatePreciseAgeExp(d.dob)}\nExperience : ${calculatePreciseAgeExp(d.lmvIssue)}`)
             .then(() => alert(`✅ Copied ${d.name}'s info!`));
         };
-
+        
+        // Initialize App
         initializeSystem();
     </script>
 </body>
