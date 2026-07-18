@@ -14,7 +14,7 @@
 
     <div class="max-w-6xl mx-auto space-y-6" id="main-dashboard">
         
-        <!-- Login Screen -->
+        <!-- Login Screen (For Drivers) -->
         <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-90 z-[1000] flex items-center justify-center p-4">
             <div class="bg-white p-6 rounded-2xl w-full max-w-xs shadow-2xl">
                 <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">🚗 Driver Login</h2>
@@ -23,6 +23,32 @@
                 <button onclick="performLogin()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg shadow-lg hover:bg-blue-700 transition">LOGIN</button>
             </div>
         </div>
+        
+        <!-- Driver Dashboard Section (Updated) -->
+<div id="driver-dashboard-section" class="tab-content hidden space-y-6">
+    <div class="bg-white p-6 rounded-2xl shadow-xl border border-blue-100">
+        <h2 class="text-2xl font-black text-blue-800 mb-6 flex items-center gap-2">
+            👤 Driver Profile
+        </h2>
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-blue-600 p-4 rounded-xl text-white shadow-lg shadow-blue-200">
+                <p class="text-blue-100 text-xs font-bold uppercase">Total Duties</p>
+                <p class="text-3xl font-black" id="totalDutyCount">0</p>
+            </div>
+            <div class="bg-yellow-500 p-4 rounded-xl text-white shadow-lg shadow-yellow-200">
+                <p class="text-yellow-50 text-xs font-bold uppercase">Total Feedbacks</p>
+                <p class="text-3xl font-black" id="totalFeedbackCount">0</p>
+            </div>
+        </div>
+
+        <!-- Details Grid -->
+        <div class="space-y-4 text-sm" id="driverDetailsList">
+            <!-- Data will be loaded here by JavaScript -->
+        </div>
+    </div>
+</div>
         
         <!-- Navigation Menu -->
         <div id="navigation-menu" class="bg-white p-3 rounded-lg shadow-md flex flex-wrap gap-2 relative border border-gray-200">
@@ -429,11 +455,11 @@
             }
         }
     </script>
-    
-    <!-- Database Scripts -->
+
+<!-- Database Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, set, remove, onValue, update, query, limitToLast, orderByChild } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, set, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyBf2I74LYfdifdJnpxy8m-xgwuhwpib3zo",
@@ -451,10 +477,13 @@
         // Global State Variables inside Module
         let driversDataMap = {}, dutiesCacheData = {}, feedbacksCacheData = {}, clientsDataMap = {};
         let dutiesDataMap = {}, restrictionsDataMap = {}, driversArray = [], clientsArray = [];
-        let ratings = { behavior: 0, driving: 0 }, currentSystemView = 'general';
+        let ratings = { behavior: 0, driving: 0 }, currentSystemView = 'driver'; // Default Driver mode
         
         function initializeSystem() {
+            // 1. First check access via URL parameters
             checkAccess(); 
+            
+            // 2. Setup Firebase Realtime Listeners
             listenToClientsData();
             listenToDriversData();
             listenToDutiesData();
@@ -466,15 +495,35 @@
             const savedName = localStorage.getItem('blossom_saved_driver_name');
             const loginModal = document.getElementById('login-modal');
             
+            // 💡 Admin View Setup
+            if (currentSystemView === 'admin' || localStorage.getItem('userRole') === 'admin') {
+                if(loginModal) loginModal.style.display = 'none'; 
+                
+                if (typeof switchTab === 'function') {
+                    const dutySec = document.getElementById('duty-section');
+                    if(dutySec) switchTab('duty-section');
+                }
+                hideAdminFunctionsForDriver(); // Make all menus visible for Admin
+                return;
+            }
+
+            // 💡 Feedback View Setup
+            if (currentSystemView === 'feedback') {
+                if(loginModal) loginModal.style.display = 'none';
+                return;
+            }
+
+            // 💡 Driver View Setup (Default flow)
             if(savedName) {
                 if(loginModal) loginModal.style.display = 'none';
-                hideAdminFunctionsForDriver();
+                hideAdminFunctionsForDriver(); // Will filter only 2 sections
                 setTimeout(() => {
-                    loadDriverDashboard(); 
-                    switchTab('driver-dashboard-section');
+                    loadDriverDashboard(); // load data in background
+                    if (typeof switchTab === 'function') switchTab('vacant-section'); // Set default driver tab to vacant section
                 }, 1000);
             } else {
-                switchTab('driver-dashboard-section');
+                if(loginModal) loginModal.style.display = 'flex';
+                // user needs to login first...
             }
 
             const searchFeedbackInput = document.getElementById('searchFeedbackDriverInput');
@@ -486,73 +535,121 @@
         }
         
         function hideAdminFunctionsForDriver() {
-    console.log("Driver menu filter function start aagidichi!");
+            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+            const userRole = localStorage.getItem('userRole');
 
-    // Maraika vendiya admin menu buttons-oda exact IDs
-    const menusToHide = [
-        'btn-driver-dashboard-section', // Dashboard
-        'btn-duty-section',             // Duty Logger (Neenga Vacant-um, Duty Alert Room-um mattum thaan kettinga)
-        'btn-drivers-list-section',     // Drivers List
-        'btn-clients-list-section',     // Clients List
-        'btn-add-data-section',         // Add Driver/Client
-        'btn-restrictions-section',     // Restrictions
-        'btn-duty-history-section',     // Duty History
-        'btn-feedback-section'          // Feedbacks
-    ];
-
-    // Ovvoru ID-yaai paarthu maraika seiyum logic
-    menusToHide.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.style.setProperty('display', 'none', 'important');
-        }
-    });
-
-    // Vacant Logger, Duty Alert Room, matrum Logout mattum nichayamaga theriya vaika:
-    const vacantLogger = document.getElementById('btn-vacant-section');
-    const dutyAlertRoom = document.getElementById('btn-duty-assignment-section');
-    const logoutBtn = document.getElementById('btn-logout-section');
-
-    if (vacantLogger) vacantLogger.style.setProperty('display', 'flex', 'important');
-    if (dutyAlertRoom) dutyAlertRoom.style.setProperty('display', 'flex', 'important');
-    if (logoutBtn) logoutBtn.style.setProperty('display', 'flex', 'important');
-}
-
-// Page load aagumpodhum, siriya delay-ku pinbhum run aaga
-window.addEventListener('load', hideAdminFunctionsForDriver);
-window.addEventListener('DOMContentLoaded', hideAdminFunctionsForDriver);
-setTimeout(hideAdminFunctionsForDriver, 1000);
-
-        window.loadDriverDashboard = function() {
-            const driverName = localStorage.getItem('blossom_saved_driver_name');
-            if(!driverName) return;
-
-            const welcomeMsg = document.getElementById('driverWelcomeMsg');
-            if(welcomeMsg) welcomeMsg.innerText = "🙋‍♂️ Hello, " + driverName;
-
-            const driverInfo = Object.values(driversDataMap).find(d => d.name && d.name.toLowerCase() === driverName.toLowerCase());
-            
-            if(driverInfo) {
-                document.getElementById('driverDetailsList').innerHTML = `
-                    <p class="flex justify-between"><strong>Mobile:</strong> <span>${driverInfo.mobile || 'N/A'}</span></p>
-                    <p class="flex justify-between"><strong>DOB:</strong> <span>${driverInfo.dob || 'N/A'}</span></p>
-                    <p class="flex justify-between"><strong>LMV Expiry:</strong> <span class="text-red-600 font-semibold">${driverInfo.lmvExpiry || 'N/A'}</span></p>
-                    <p class="flex justify-between"><strong>LMV-TR Expiry:</strong> <span class="text-red-600 font-semibold">${driverInfo.lmvTrExpiry || 'N/A'}</span></p>
-                `;
-            } else {
-                document.getElementById('driverDetailsList').innerHTML = `<p class="text-gray-400 italic text-center">Profile details loading...</p>`;
+            // 💡 Admin: Show ALL tabs
+            if (currentSystemView === 'admin' || userRole === 'admin') {
+                console.log("Admin View/Role active. Keeping menus visible.");
+                const allMenus = [
+                    'btn-driver-dashboard-section', 'btn-duty-section', 'btn-drivers-list-section',     
+                    'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
+                    'btn-duty-history-section', 'btn-feedback-section', 'btn-vacant-section', 
+                    'btn-duty-assignment-section', 'btn-logout-section'         
+                ];
+                allMenus.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.setProperty('display', 'flex', 'important');
+                });
+                return; 
             }
 
-            const myDuties = Object.values(dutiesDataMap).filter(d => d.driver && d.driver.toLowerCase() === driverName.toLowerCase());
-            document.getElementById('totalDutyCount').innerText = myDuties.length;
+            console.log("Driver logged in. Filtering menus.");
 
-            const myFeedback = Object.values(feedbacksCacheData).filter(f => f.driver && f.driver.toLowerCase() === driverName.toLowerCase());
-            document.getElementById('totalFeedbackCount').innerText = myFeedback.length;
-        };
+            // 💡 Driver: Hide Everything except specific tabs
+            const menusToHide = [
+                'btn-driver-dashboard-section', 'btn-duty-section', 'btn-drivers-list-section',     
+                'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
+                'btn-duty-history-section', 'btn-feedback-section'          
+            ];
+
+            menusToHide.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.setProperty('display', 'none', 'important');
+                }
+            });
+
+            // 💡 Driver: Show Only these 2 sections + Logout
+            const menusToShow = [
+                'btn-vacant-section', 'btn-duty-assignment-section', 'btn-logout-section'
+            ];
+            
+            menusToShow.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.setProperty('display', savedDriver ? 'flex' : 'none', 'important');
+                }
+            });
+        }
+
+        function checkAccess() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewMode = urlParams.get('view');
+            
+            if (viewMode === 'admin') {
+                currentSystemView = 'admin';
+                localStorage.setItem('userRole', 'admin'); 
+                if (prompt("🔒 Enter Admin Password:") !== "divi") {
+                    // Redirects back to standard driver view if password fails
+                    window.location.href = window.location.origin + window.location.pathname; 
+                }
+            } 
+            else if (viewMode === 'feedback') {
+                currentSystemView = 'feedback';
+                const driverName = urlParams.get('driver');
+                
+                // Overlay logic
+                const feedbackOverlay = document.createElement('div');
+                feedbackOverlay.className = "fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]";
+                feedbackOverlay.innerHTML = `
+                    <div class="p-6 max-w-md w-full bg-white rounded-2xl shadow-2xl border text-left">
+                        <h1 class="text-xl font-black text-center mb-4 text-gray-800">Feedback for ${driverName}</h1>
+                        <div class="mb-4">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Behaviour?</label>
+                            <div class="flex gap-2 text-3xl mb-1" id="starBehavior">
+                                <span onclick="setRating('behavior', 1)" class="cursor-pointer text-gray-300 hover:scale-110 transition">★</span>
+                                <span onclick="setRating('behavior', 2)" class="cursor-pointer text-gray-300 hover:scale-110 transition">★</span>
+                                <span onclick="setRating('behavior', 3)" class="cursor-pointer text-gray-300 hover:scale-110 transition">★</span>
+                                <span onclick="setRating('behavior', 4)" class="cursor-pointer text-gray-300 hover:scale-110 transition">★</span>
+                                <span onclick="setRating('behavior', 5)" class="cursor-pointer text-gray-300 hover:scale-110 transition">★</span>
+                            </div>
+                            <textarea id="msgBehavior" class="w-full border border-gray-200 p-2.5 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Comments..."></textarea>
+                        </div>
+                        <div class="mb-5">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Driving Skill?</label>
+                            <div class="flex gap-2 text-3xl mb-1" id="starDriving">
+                                <span onclick="setRating('driving', 1)" class="cursor-pointer text-gray-300 hover:scale-110 transition">★</span>
+                                <span onclick="setRating('driving', 2)" class="cursor-pointer text-gray-300 hover:scale-110 transition">★</span>
+                                <span onclick="setRating('driving', 3)" class="cursor-pointer text-gray-300 hover:scale-110 transition">★</span>
+                                <span onclick="setRating('driving', 4)" class="cursor-pointer text-gray-300 hover:scale-110 transition">★</span>
+                                <span onclick="setRating('driving', 5)" class="cursor-pointer text-gray-300 hover:scale-110 transition">★</span>
+                            </div>
+                            <textarea id="msgDriving" class="w-full border border-gray-200 p-2.5 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Comments..."></textarea>
+                        </div>
+                        <button onclick="saveFeedback('${driverName}')" class="bg-blue-600 hover:bg-blue-700 text-white w-full py-3 rounded-xl font-bold transition shadow-md shadow-blue-200 active:scale-[0.98]">Submit Feedback</button>
+                    </div>`;
+                document.body.appendChild(feedbackOverlay);
+            }
+            else {
+                // Default mode is now Driver
+                currentSystemView = 'driver';
+                localStorage.setItem('userRole', 'driver');
+            }
+        }
+
+        // Trigger menu updates safely
+        window.addEventListener('DOMContentLoaded', hideAdminFunctionsForDriver);
+        window.addEventListener('load', hideAdminFunctionsForDriver);
+        setTimeout(hideAdminFunctionsForDriver, 500);
 
         window.performLogin = function() {
-            const name = document.getElementById('loginName').value.trim();
-            const pass = document.getElementById('loginPass').value.trim();
+            const loginNameEl = document.getElementById('loginName');
+            const loginPassEl = document.getElementById('loginPass');
+            if(!loginNameEl || !loginPassEl) return;
+
+            const name = loginNameEl.value.trim();
+            const pass = loginPassEl.value.trim();
 
             const driver = Object.values(driversDataMap).find(d => 
                 d.name.toLowerCase() === name.toLowerCase() && d.password === pass
@@ -560,16 +657,17 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
 
             if(driver) {
                 localStorage.setItem('blossom_saved_driver_name', driver.name);
-                localStorage.setItem('userRole', 'admin'); 
-                document.getElementById('login-modal').style.display = 'none';
+                localStorage.setItem('userRole', 'driver');
+                const loginModal = document.getElementById('login-modal');
+                if(loginModal) loginModal.style.display = 'none';
                 
                 alert("Welcome " + driver.name + "! Login Successful.");
                 
                 hideAdminFunctionsForDriver();
                 autoFillSavedDriverName();
                 loadDriverDashboard();
-                switchTab('driver-dashboard-section');
-                window.location.reload();
+                if (typeof switchTab === 'function') switchTab('vacant-section');
+                window.location.reload(); // Reload will initialize the defaults correctly
             } else {
                 alert("❌ Invalid Name or Password!");
             }
@@ -586,13 +684,18 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
         function autoFillSavedDriverName() {
             const savedName = localStorage.getItem('blossom_saved_driver_name');
             if (savedName) {
-                if(document.getElementById('driverResponseInput')) document.getElementById('driverResponseInput').value = savedName;
-                if(document.getElementById('vacantDriverInput')) document.getElementById('vacantDriverInput').value = savedName;
+                const driverResponseInput = document.getElementById('driverResponseInput');
+                const vacantDriverInput = document.getElementById('vacantDriverInput');
+                if(driverResponseInput) driverResponseInput.value = savedName;
+                if(vacantDriverInput) vacantDriverInput.value = savedName;
             }
         }
 
         window.driverPressOk = function() {
-            const typedName = document.getElementById('driverResponseInput').value.trim();
+            const driverResponseInput = document.getElementById('driverResponseInput');
+            if(!driverResponseInput) return;
+            
+            const typedName = driverResponseInput.value.trim();
             if(!typedName) return alert("❌ Please type your name first!");
 
             const matchDriver = driversArray.find(x => x.toLowerCase() === typedName.toLowerCase());
@@ -664,11 +767,16 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
         }
 
         window.assignDuty = function() {
-            const pass = document.getElementById("adminPass").value;
+            const adminPassEl = document.getElementById("adminPass");
+            const adminDriverSel = document.getElementById("adminDriverSelect");
+            const adminClientSel = document.getElementById("adminClientSelect");
+            if(!adminPassEl || !adminDriverSel || !adminClientSel) return;
+
+            const pass = adminPassEl.value;
             if(pass !== "divi") return alert("❌ Wrong Password!");
 
-            const selectedDriver = document.getElementById("adminDriverSelect").value;
-            const selectedClient = document.getElementById("adminClientSelect").value;
+            const selectedDriver = adminDriverSel.value;
+            const selectedClient = adminClientSel.value;
 
             if(!selectedDriver) return alert("❌ Please pick a driver who pressed OK!");
             if(!selectedClient) return alert("❌ Please pick a client destination!");
@@ -710,7 +818,7 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
                 }).then(() => {
                     remove(ref(db, 'live_duty_alert/responded_drivers')).then(() => {
                         alert(`🎉 Duty completely assigned to ${selectedDriver}! Responders reset.`);
-                        document.getElementById("adminPass").value = '';
+                        adminPassEl.value = '';
                     });
                 });
             });
@@ -726,7 +834,6 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
             }
         }
 
-        // Helper Formatting Functions
         function convertDateToDDMMYYYY(dateStr) {
             if(!dateStr || dateStr === 'N/A') return 'N/A';
             if(dateStr.includes('-')) {
@@ -786,6 +893,7 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
         window.setRating = function(type, val) {
             ratings[type] = val;
             const container = document.getElementById(type === 'behavior' ? 'starBehavior' : 'starDriving');
+            if (!container) return;
             const stars = container.querySelectorAll('span');
             stars.forEach((star, index) => {
                 star.style.color = index < val ? '#fbbf24' : '#d1d5db'; 
@@ -992,6 +1100,49 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
             }
         }
 
+        window.loadDriverDashboard = function() {
+    const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+    if(!savedDriver) return;
+
+    // Stats Calculation
+    let dCount = 0;
+    for(let id in dutiesDataMap) { if(dutiesDataMap[id].driver === savedDriver) dCount++; }
+    document.getElementById('totalDutyCount').innerText = dCount;
+
+    let fCount = 0;
+    for(let id in feedbacksCacheData) { if(feedbacksCacheData[id].driver === savedDriver) fCount++; }
+    document.getElementById('totalFeedbackCount').innerText = fCount;
+
+    // Profile Details
+    const d = Object.values(driversDataMap).find(x => x.name === savedDriver);
+    const detailsList = document.getElementById('driverDetailsList');
+    
+    if(detailsList && d) {
+        detailsList.innerHTML = `
+            <div class="grid grid-cols-2 gap-y-4 border-t pt-4">
+                <div><p class="text-gray-400 text-[10px] font-bold uppercase">Mobile</p><p class="font-bold text-gray-800">${d.mobile || 'N/A'}</p></div>
+                <div><p class="text-gray-400 text-[10px] font-bold uppercase">Age</p><p class="font-bold text-blue-600">${calculatePreciseAgeExp(d.dob)}</p></div>
+                <div><p class="text-gray-400 text-[10px] font-bold uppercase">Experience</p><p class="font-bold text-green-600">${calculatePreciseAgeExp(d.lmvIssue)}</p></div>
+                <div><p class="text-gray-400 text-[10px] font-bold uppercase">LMV Expiry</p><p class="font-bold text-red-600">${convertDateToDDMMYYYY(d.lmvExpiry)}</p></div>
+            </div>
+            <div class="mt-4 p-3 bg-red-50 rounded-lg border border-red-100">
+                <p class="text-red-800 text-[10px] font-bold uppercase">Restricted Clients</p>
+                <p class="text-sm font-bold text-red-900 mt-1">${getRestrictionsForDriver(savedDriver)}</p>
+            </div>
+        `;
+    }
+};
+
+// Helper function to get restrictions
+function getRestrictionsForDriver(driverName) {
+    let list = [];
+    for (let rId in restrictionsDataMap) {
+        if (restrictionsDataMap[rId].driver === driverName) list.push(restrictionsDataMap[rId].client);
+    }
+    return list.length > 0 ? list.join(', ') : 'None';
+}
+
+
         // Dropdown Auto-Completes
         const setupAutocomplete = (inputId, sugBoxId, dataArray) => {
             const input = document.getElementById(inputId);
@@ -1040,12 +1191,17 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
         }
 
         window.renderDutiesTable = function() {
-            const filterDate = document.getElementById('dutyFilterDate').value;
-            const filterDriver = document.getElementById('filterDriver').value.toLowerCase();
-            const filterClient = document.getElementById('filterClient').value.toLowerCase();
-            const tbody = document.getElementById('dutiesTableBody');
+            const filterDateEl = document.getElementById('dutyFilterDate');
+            const filterDriverEl = document.getElementById('filterDriver');
+            const filterClientEl = document.getElementById('filterClient');
+
+            const filterDate = filterDateEl ? filterDateEl.value : '';
+            const filterDriver = filterDriverEl ? filterDriverEl.value.toLowerCase() : '';
+            const filterClient = filterClientEl ? filterClientEl.value.toLowerCase() : '';
             
+            const tbody = document.getElementById('dutiesTableBody');
             if(!tbody) return; 
+            
             tbody.innerHTML = ''; 
             let count = 0;
             
@@ -1054,6 +1210,7 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
                 if ((!filterDate || duty.date === filterDate) && 
                     (!filterDriver || duty.driver?.toLowerCase().includes(filterDriver)) && 
                     (!filterClient || duty.client?.toLowerCase().includes(filterClient))) {
+                    
                     count++;
                     const row = document.createElement('tr'); 
                     row.className = "border-b hover:bg-orange-50/50 transition text-sm";
@@ -1063,25 +1220,37 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
                         <td class="p-3 font-medium">${duty.driver}</td>
                         <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded text-xs">${duty.client}</span></td>
                         <td class="p-3 flex gap-2">
-                            <button onclick="editDuty('${id}', '${duty.driver}', '${duty.client}')" class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs">Edit</button>
+                            <button onclick="editDuty('${id}', '${duty.driver || ''}', '${duty.client || ''}')" class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs">Edit</button>
                             <button onclick="deleteDuty('${id}')" class="text-red-600 bg-red-50 px-2 py-0.5 rounded text-xs">Del</button>
                         </td>
                     `;
                     tbody.appendChild(row);
                 }
             }
-            document.getElementById('dutyCountDisplay').innerText = `மொத்த டூட்டிகள்: ${count}`;
+            
+            const countDisplay = document.getElementById('dutyCountDisplay');
+            if(countDisplay) {
+                countDisplay.innerText = `Total Duties: ${count}`;
+            }
         };
 
-        document.getElementById('dutyFilterDate').addEventListener('change', window.renderDutiesTable);
-        document.getElementById('filterDriver').addEventListener('input', window.renderDutiesTable);
-        document.getElementById('filterClient').addEventListener('input', window.renderDutiesTable);
-        document.getElementById('clearFilterBtn').addEventListener('click', () => {
-            document.getElementById('dutyFilterDate').value = ''; 
-            document.getElementById('filterDriver').value = ''; 
-            document.getElementById('filterClient').value = ''; 
-            window.renderDutiesTable();
-        });
+        const filterDateEl = document.getElementById('dutyFilterDate');
+        const filterDriverEl = document.getElementById('filterDriver');
+        const filterClientEl = document.getElementById('filterClient');
+        const clearFilterBtnEl = document.getElementById('clearFilterBtn');
+
+        if (filterDateEl) filterDateEl.addEventListener('change', window.renderDutiesTable);
+        if (filterDriverEl) filterDriverEl.addEventListener('input', window.renderDutiesTable);
+        if (filterClientEl) filterClientEl.addEventListener('input', window.renderDutiesTable);
+
+        if (clearFilterBtnEl) {
+            clearFilterBtnEl.addEventListener('click', () => {
+                if (filterDateEl) filterDateEl.value = ''; 
+                if (filterDriverEl) filterDriverEl.value = ''; 
+                if (filterClientEl) filterClientEl.value = ''; 
+                window.renderDutiesTable();
+            });
+        }
 
         window.setDriverVacantStatus = function(statusValue) {
             const vacantInput = document.getElementById('vacantDriverInput');
@@ -1099,7 +1268,8 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
                 vacantTime: convertTo12Hour(`${now.getHours()}:${now.getMinutes()}`)
             }).then(() => { 
                 alert('🚗 Driver Status Updated!'); 
-                document.getElementById('vacantForm').reset(); 
+                const vacantForm = document.getElementById('vacantForm');
+                if (vacantForm) vacantForm.reset(); 
                 autoFillSavedDriverName(); 
             });
         };
@@ -1110,7 +1280,6 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
                 if (snapshot.exists()) {
                     let vList = []; for (let id in snapshot.val()) vList.push({ id, ...snapshot.val()[id] });
                     vList.reverse().forEach(v => {
-                        // மாற்றி அமைக்கப்பட்டது: டிரைவர் வியூவிலும் டெலீட் ஆப்ஷன் தெரியும், ஆனால் பாஸ்வேர்ட் கேட்கும்
                         let actionButtonHtml = `<td class="p-3"><button onclick="deleteVacancy('${v.id}')" class="text-red-600 hover:underline font-bold text-xs">Del</button></td>`;
 
                         tbody.innerHTML += `<tr class="border-b text-xs">
@@ -1126,7 +1295,6 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
         }
 
         window.deleteVacancy = function(id) {
-            // மாற்றி அமைக்கப்பட்டது: எந்த வியூவில் இருந்தாலும் அட்மின் பாஸ்வேர்ட் கொடுத்தால் டெலீட் ஆகும்
             const pass = prompt("Enter Admin Password to delete this history:");
             if (pass === "divi") {
                 remove(ref(db, 'vacancies/' + id)).then(() => alert("🗑️ Vacancy log cleared successfully!"));
@@ -1135,68 +1303,108 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
             }
         };
 
-        document.getElementById('dutyForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const drName = document.getElementById('dutyDriverInput').value.trim(); 
-            const clName = document.getElementById('dutyClientInput').value.trim();
-            const matchDriver = driversArray.find(x => x.toLowerCase() === drName.toLowerCase());
-            
-            if(!matchDriver) return alert("🛑 Driver Not Found!"); 
-            
-            push(ref(db, 'duties'), { 
-                driver: matchDriver, 
-                client: clName, 
-                date: document.getElementById('dutyDate').value, 
-                time: document.getElementById('dutyTime').value 
-            }).then(() => { 
-                alert('📝 Duty assigned!'); 
-                document.getElementById('dutyForm').reset(); 
+        // Form Submit Listeners with explicit Safe Checks
+        const dutyFormEl = document.getElementById('dutyForm');
+        if (dutyFormEl) {
+            dutyFormEl.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const dutyDriverInput = document.getElementById('dutyDriverInput');
+                const dutyClientInput = document.getElementById('dutyClientInput');
+                const dutyDateInput = document.getElementById('dutyDate');
+                const dutyTimeInput = document.getElementById('dutyTime');
+                
+                if(!dutyDriverInput || !dutyClientInput || !dutyDateInput || !dutyTimeInput) return;
+
+                const drName = dutyDriverInput.value.trim(); 
+                const clName = dutyClientInput.value.trim();
+                const matchDriver = driversArray.find(x => x.toLowerCase() === drName.toLowerCase());
+                
+                if(!matchDriver) return alert("🛑 Driver Not Found!"); 
+                
+                push(ref(db, 'duties'), { 
+                    driver: matchDriver, 
+                    client: clName, 
+                    date: dutyDateInput.value, 
+                    time: dutyTimeInput.value 
+                }).then(() => { 
+                    alert('📝 Duty assigned!'); 
+                    dutyFormEl.reset(); 
+                });
             });
-        });
+        }
         
-        document.getElementById('addRestrictionForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            push(ref(db, 'restrictions'), { 
-                driver: document.getElementById('resDriver').value.trim(), 
-                client: document.getElementById('resClient').value.trim() 
-            }).then(() => { 
-                alert('🚫 Restriction Saved!'); 
-                document.getElementById('addRestrictionForm').reset(); 
-            });
-        });
+        const addRestrictionFormEl = document.getElementById('addRestrictionForm');
+        if (addRestrictionFormEl) {
+            addRestrictionFormEl.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const resDriverInput = document.getElementById('resDriver');
+                const resClientInput = document.getElementById('resClient');
+                if(!resDriverInput || !resClientInput) return;
 
-        document.getElementById('addDriverForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            push(ref(db, 'drivers'), {
-                name: document.getElementById('addName').value.trim(), 
-                mobile: document.getElementById('addMobile').value.trim(),
-                password: document.getElementById('addPassword').value.trim(), 
-                dob: document.getElementById('addDob').value || 'N/A', 
-                lmvIssue: document.getElementById('addLmvIssue').value || 'N/A',
-                lmvExpiry: document.getElementById('addLmvExpiry').value, 
-                lmvTrExpiry: document.getElementById('addLmvTrExpiry').value
-            }).then(() => { 
-                alert('🎉 Driver Added Successfully with Password!'); 
-                document.getElementById('addDriverForm').reset(); 
+                push(ref(db, 'restrictions'), { 
+                    driver: resDriverInput.value.trim(), 
+                    client: resClientInput.value.trim() 
+                }).then(() => { 
+                    alert('🚫 Restriction Saved!'); 
+                    addRestrictionFormEl.reset(); 
+                });
             });
-        });
+        }
 
-        document.getElementById('addClientForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            push(ref(db, 'clients'), { 
-                name: document.getElementById('addClientName').value.trim() 
-            }).then(() => { 
-                alert('🎉 Client Added!'); 
-                document.getElementById('addClientForm').reset(); 
-            });
-        });
+        const addDriverFormEl = document.getElementById('addDriverForm');
+        if (addDriverFormEl) {
+            addDriverFormEl.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const addNameEl = document.getElementById('addName');
+                const addMobileEl = document.getElementById('addMobile');
+                const addPasswordEl = document.getElementById('addPassword');
+                const addDobEl = document.getElementById('addDob');
+                const addLmvIssueEl = document.getElementById('addLmvIssue');
+                const addLmvExpiryEl = document.getElementById('addLmvExpiry');
+                const addLmvTrExpiryEl = document.getElementById('addLmvTrExpiry');
 
-        document.getElementById('searchDriversInput').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            document.querySelectorAll('#allDriversTableBody tr').forEach(row => {
-                row.classList.toggle('hidden', !row.innerText.toLowerCase().includes(query));
+                if(!addNameEl || !addMobileEl || !addPasswordEl || !addDobEl || !addLmvIssueEl || !addLmvExpiryEl || !addLmvTrExpiryEl) return;
+
+                push(ref(db, 'drivers'), {
+                    name: addNameEl.value.trim(), 
+                    mobile: addMobileEl.value.trim(),
+                    password: addPasswordEl.value.trim(), 
+                    dob: addDobEl.value || 'N/A', 
+                    lmvIssue: addLmvIssueEl.value || 'N/A',
+                    lmvExpiry: addLmvExpiryEl.value, 
+                    lmvTrExpiry: addLmvTrExpiryEl.value
+                }).then(() => { 
+                    alert('🎉 Driver Added Successfully with Password!'); 
+                    addDriverFormEl.reset(); 
+                });
             });
-        });
+        }
+
+        const addClientFormEl = document.getElementById('addClientForm');
+        if (addClientFormEl) {
+            addClientFormEl.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const addClientNameEl = document.getElementById('addClientName');
+                if(!addClientNameEl) return;
+
+                push(ref(db, 'clients'), { 
+                    name: addClientNameEl.value.trim() 
+                }).then(() => { 
+                    alert('🎉 Client Added!'); 
+                    addClientFormEl.reset(); 
+                });
+            });
+        }
+
+        const searchDriversInputEl = document.getElementById('searchDriversInput');
+        if (searchDriversInputEl) {
+            searchDriversInputEl.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase().trim();
+                document.querySelectorAll('#allDriversTableBody tr').forEach(row => {
+                    row.classList.toggle('hidden', !row.innerText.toLowerCase().includes(query));
+                });
+            });
+        }
 
         window.deleteDriver = function(id, name) { 
             if (confirm(`Delete driver: ${name}?`)) remove(ref(db, `drivers/${id}`)); 
@@ -1231,31 +1439,42 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
                     count++; 
                     bSum += Number(f.behavior?.rating || 0); 
                     dSum += Number(f.driving?.rating || 0);
-                    logsHTML += `<div class="p-3 bg-gray-50 border rounded-lg mb-2 text-xs">
+                    logsHTML += `<div class="p-3 bg-gray-50 border rounded-lg mb-2 text-xs text-left">
                         <div class="text-gray-400 font-bold">${formatFullTimestamp(f.timestamp)}</div>
                         <div class="font-bold mt-1 text-yellow-600">Behaviour: ★${f.behavior?.rating} | Driving: ★${f.driving?.rating}</div>
                         <div class="mt-1 bg-white p-1 rounded border text-gray-600">💬 ${f.behavior?.msg || ''} | ${f.driving?.msg || ''}</div>
                     </div>`;
                 });
-                document.body.className = "bg-gray-100 p-4 flex items-center justify-center min-h-screen";
-                document.body.innerHTML = `
-                    <div class="max-w-md w-full bg-white rounded-xl shadow-xl p-6 text-center">
-                        <h2 class="text-xl font-bold text-green-600">🎉 Feedback Submitted!</h2>
-                        <div class="bg-blue-50 border rounded-xl p-3 my-4 grid grid-cols-2 gap-2 text-xs">
-                            <div class="bg-white p-2 rounded border">Behavior: <span class="font-bold text-yellow-600">★${(bSum/count || 0).toFixed(1)}</span></div>
-                            <div class="bg-white p-2 rounded border">Driving: <span class="font-bold text-yellow-600">★${(dSum/count || 0).toFixed(1)}</span></div>
+
+                // 💡 UI FIX: பழைய கண்டெய்னர்களை பாதிக்காமல் அதே ஓவர்லேயில் ரிசல்டை மாற்றுகிறது
+                const existingOverlay = document.querySelector('.fixed.inset-0');
+                if (existingOverlay) {
+                    existingOverlay.innerHTML = `
+                        <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-6 text-center border">
+                            <h2 class="text-xl font-black text-green-600">🎉 Feedback Submitted!</h2>
+                            <p class="text-xs text-gray-500 mt-1">Thank you for rating ${driverName}</p>
+                            <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 my-4 grid grid-cols-2 gap-2 text-xs">
+                                <div class="bg-white p-2 rounded-lg border font-semibold text-gray-700">Behavior: <span class="font-bold text-yellow-600">★${(bSum/count || 0).toFixed(1)}</span></div>
+                                <div class="bg-white p-2 rounded-lg border font-semibold text-gray-700">Driving: <span class="font-bold text-yellow-600">★${(dSum/count || 0).toFixed(1)}</span></div>
+                            </div>
+                            <div class="max-h-60 overflow-y-auto border border-gray-100 rounded-xl p-2 bg-gray-50/50">${logsHTML || '<p class="text-xs text-gray-400 italic py-4">No other reviews yet.</p>'}</div>
+                            <button onclick="document.querySelector('.fixed.inset-0')?.remove()" class="mt-4 bg-gray-800 text-white text-xs px-4 py-2 rounded-lg font-bold hover:bg-gray-900 transition w-full">Close & Return to App</button>
                         </div>
-                        <div class="max-h-60 overflow-y-auto">${logsHTML}</div>
-                    </div>`;
+                    `;
+                }
             }, { onlyOnce: true });
         };
 
         window.saveFeedback = function(driverName) {
-            if (ratings.behavior === 0 || ratings.driving === 0) return alert("Provide ratings!");
+            if (ratings.behavior === 0 || ratings.driving === 0) return alert("Please provide ratings!");
+            
+            const msgBehaviorEl = document.getElementById('msgBehavior');
+            const msgDrivingEl = document.getElementById('msgDriving');
+            
             push(ref(db, 'feedbacks'), { 
                 driver: driverName, 
-                behavior: { rating: ratings.behavior, msg: document.getElementById('msgBehavior').value }, 
-                driving: { rating: ratings.driving, msg: document.getElementById('msgDriving').value }, 
+                behavior: { rating: ratings.behavior, msg: msgBehaviorEl ? msgBehaviorEl.value : '' }, 
+                driving: { rating: ratings.driving, msg: msgDrivingEl ? msgDrivingEl.value : '' }, 
                 timestamp: new Date().toISOString() 
             }).then(() => window.showDriverReviewsToClient(driverName));
         };
@@ -1264,43 +1483,6 @@ setTimeout(hideAdminFunctionsForDriver, 1000);
             navigator.clipboard.writeText(`${window.location.origin + window.location.pathname}?view=feedback&driver=${encodeURIComponent(driverName)}`)
             .then(() => alert("✅ Feedback Link copied!"));
         };
-
-        function checkAccess() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const viewMode = urlParams.get('view');
-            
-            if (viewMode === 'admin') {
-                currentSystemView = 'admin';
-                if (prompt("Enter Admin Password:") !== "divi") window.location.href = "about:blank"; 
-            } 
-            else if (viewMode === 'driver') {
-                currentSystemView = 'driver';
-                // மாற்றி அமைக்கப்பட்டது: டிரைவர் வியூவிலும் 'adminSection' (Duty Assignment Controls) முழுமையாக வேலை செய்யும்.
-            }
-            else if (viewMode === 'feedback') {
-                currentSystemView = 'feedback';
-                const driverName = urlParams.get('driver');
-                document.body.innerHTML = `
-                    <div class="p-6 max-w-md mx-auto mt-5 bg-white rounded-xl shadow-lg border">
-                        <h1 class="text-xl font-bold text-center mb-4">Feedback for ${driverName}</h1>
-                        <div class="mb-4">
-                            <label class="block text-sm font-semibold mb-1">Behaviour?</label>
-                            <div class="flex gap-2 text-2xl mb-1" id="starBehavior"><span onclick="setRating('behavior', 1)" class="cursor-pointer text-gray-300">★</span><span onclick="setRating('behavior', 2)" class="cursor-pointer text-gray-300">★</span><span onclick="setRating('behavior', 3)" class="cursor-pointer text-gray-300">★</span><span onclick="setRating('behavior', 4)" class="cursor-pointer text-gray-300">★</span><span onclick="setRating('behavior', 5)" class="cursor-pointer text-gray-300">★</span></div>
-                            <textarea id="msgBehavior" class="w-full border p-2 rounded text-sm placeholder-gray-300" placeholder="Comments..."></textarea>
-                        </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-semibold mb-1">Driving Skill?</label>
-                            <div class="flex gap-2 text-2xl mb-1" id="starDriving"><span onclick="setRating('driving', 1)" class="cursor-pointer text-gray-300">★</span><span onclick="setRating('driving', 2)" class="cursor-pointer text-gray-300">★</span><span onclick="setRating('driving', 3)" class="cursor-pointer text-gray-300">★</span><span onclick="setRating('driving', 4)" class="cursor-pointer text-gray-300">★</span><span onclick="setRating('driving', 5)" class="cursor-pointer text-gray-300">★</span></div>
-                            <textarea id="msgDriving" class="w-full border p-2 rounded text-sm placeholder-gray-300" placeholder="Comments..."></textarea>
-                        </div>
-                        <button onclick="saveFeedback('${driverName}')" class="bg-blue-600 text-white w-full py-2 rounded-lg font-bold">Submit Feedback</button>
-                    </div>`;
-            }
-            else {
-                currentSystemView = 'general';
-                if (prompt("Enter General Password:") !== "divi") window.location.href = "about:blank";
-            }
-        }
         
         window.copyDriverInfo = function(id) {
             const d = driversDataMap[id]; if(!d) return;
