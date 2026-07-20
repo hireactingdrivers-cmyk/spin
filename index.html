@@ -66,33 +66,32 @@
         </div>
 
         <!-- Driver Dashboard Section -->
-<div id="driver-dashboard-section" class="tab-content space-y-6">
-    <div class="bg-white p-6 rounded-2xl shadow-xl border border-blue-100">
-        <h2 class="text-2xl font-black text-blue-800 mb-2 flex items-center gap-2">
-            👤 Driver Profile
-        </h2>
-        
-        <!-- 💡 Driver Name-ku intha line-ai add pannirukken -->
-        <p id="dashboardDriverName" class="text-lg font-bold text-gray-700 mb-6">Welcome, Driver!</p>
-        
-        <!-- Stats Cards -->
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="bg-blue-600 p-4 rounded-xl text-white shadow-lg shadow-blue-200">
-                <p class="text-blue-100 text-xs font-bold uppercase">Total Duties Taken</p>
-                <p class="text-3xl font-black mt-1" id="totalDutyCount">0</p>
-            </div>
-            <div class="bg-yellow-500 p-4 rounded-xl text-white shadow-lg shadow-yellow-200">
-                <p class="text-yellow-50 text-xs font-bold uppercase">Total Feedbacks</p>
-                <p class="text-3xl font-black mt-1" id="totalFeedbackCount">0</p>
-            </div>
-        </div>
+        <div id="driver-dashboard-section" class="tab-content space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-xl border border-blue-100">
+                <h2 class="text-2xl font-black text-blue-800 mb-2 flex items-center gap-2">
+                    👤 Driver Profile
+                </h2>
+                
+                <p id="dashboardDriverName" class="text-lg font-bold text-gray-700 mb-6">Welcome, Driver!</p>
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-blue-600 p-4 rounded-xl text-white shadow-lg shadow-blue-200">
+                        <p class="text-blue-100 text-xs font-bold uppercase">Total Duties Taken</p>
+                        <p class="text-3xl font-black mt-1" id="totalDutyCount">0</p>
+                    </div>
+                    <div class="bg-yellow-500 p-4 rounded-xl text-white shadow-lg shadow-yellow-200">
+                        <p class="text-yellow-50 text-xs font-bold uppercase">Total Feedbacks</p>
+                        <p class="text-3xl font-black mt-1" id="totalFeedbackCount">0</p>
+                    </div>
+                </div>
 
-        <!-- Details Grid -->
-        <div class="space-y-4 text-sm" id="driverDetailsList">
-            <!-- Data will be loaded here by JavaScript -->
+                <!-- Details Grid -->
+                <div class="space-y-4 text-sm" id="driverDetailsList">
+                    <!-- Data will be loaded here by JavaScript -->
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
         <!-- Chat Section -->
         <div id="chat-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-cyan-500 h-[70vh] flex flex-col md:flex-row gap-4">
@@ -275,7 +274,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 mb-1">Driver Login Password*</label>
-                        <input type="password" id="addPassword" required placeholder="Set password" class="w-full p-2 text-sm border rounded focus:ring-2 focus:ring-indigo-500">
+                        <input type="text" id="addPassword" required placeholder="Set password" class="w-full p-2 text-sm border rounded focus:ring-2 focus:ring-indigo-500">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 mb-1">Date of Birth (DOB)</label>
@@ -467,7 +466,7 @@
         }
     </script>
 
-<!-- Database Scripts -->
+    <!-- Database Scripts -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, push, set, remove, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -487,7 +486,7 @@
 
         // Global State Variables inside Module
         let driversDataMap = {}, dutiesCacheData = {}, feedbacksCacheData = {}, clientsDataMap = {};
-        let dutiesDataMap = {}, restrictionsDataMap = {}, driversArray = [], clientsArray = [];
+        let restrictionsDataMap = {}, driversArray = [], clientsArray = [];
         let globalChatsData = {}, currentChatTarget = '';
         let ratings = { behavior: 0, driving: 0 }, currentSystemView = 'driver'; 
         
@@ -562,7 +561,6 @@
             const driverResponseText = document.getElementById('driver-response-text');
             const chatSidebar = document.getElementById('chat-admin-sidebar');
 
-            // 💡 Admin: Show specific tabs and hide Driver Dashboard
             if (currentSystemView === 'admin' || userRole === 'admin') {
                 const allMenus = [
                     'btn-duty-section', 'btn-drivers-list-section',     
@@ -575,7 +573,6 @@
                     if (el) el.style.setProperty('display', 'flex', 'important');
                 });
 
-                // Force Hide Driver Dashboard for Admin
                 const drvDashBtn = document.getElementById('btn-driver-dashboard-section');
                 if(drvDashBtn) drvDashBtn.style.setProperty('display', 'none', 'important');
 
@@ -588,7 +585,6 @@
                 return; 
             }
 
-            // 💡 Driver: Hide Everything except specific tabs
             const menusToHide = [
                 'btn-duty-section', 'btn-drivers-list-section',     
                 'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
@@ -600,7 +596,6 @@
                 if (el) el.style.setProperty('display', 'none', 'important');
             });
 
-            // 💡 Driver: Show Only these sections + Logout
             const menusToShow = [
                 'btn-driver-dashboard-section', 'btn-vacant-section', 'btn-duty-assignment-section', 'btn-chat-section', 'btn-logout-section'
             ];
@@ -610,7 +605,6 @@
                 if (el) el.style.setProperty('display', savedDriver ? 'flex' : 'none', 'important');
             });
 
-            // 💡 Driver: Hide Search inputs & Show dynamic Greeting names
             if(vacantSearchContainer) vacantSearchContainer.style.display = 'none';
             if(alertSearchContainer) alertSearchContainer.style.display = 'none';
             if(chatSidebar) chatSidebar.style.setProperty('display', 'none', 'important');
@@ -707,7 +701,7 @@
                 hideAdminFunctionsForDriver();
                 autoFillSavedDriverName();
                 loadDriverDashboard();
-                if (typeof switchTab === 'function') switchTab('driver-dashboard-section'); // Changed to dashboard
+                if (typeof switchTab === 'function') switchTab('driver-dashboard-section'); 
                 window.location.reload(); 
             } else {
                 alert("❌ Invalid Name or Password!");
@@ -722,7 +716,6 @@
             }
         };
 
-        // --- Chat Features Setup ---
         function listenToChats() {
             onValue(ref(db, 'chats'), (snapshot) => {
                 globalChatsData = snapshot.exists() ? snapshot.val() : {};
@@ -870,7 +863,6 @@
                 });
             }
         }, 1000);
-        // --- Chat Features End ---
 
         function autoFillSavedDriverName() {
             const savedName = localStorage.getItem('blossom_saved_driver_name');
@@ -1229,10 +1221,10 @@
             for (let id in clientsDataMap) {
                 const name = clientsDataMap[id].name || 'Unknown';
                 let bookingCount = 0; let lastDriver = 'None'; let lastDate = '', lastTime = '';
-                for (let dId in dutiesDataMap) {
-                    if (dutiesDataMap[dId].client === name) {
-                        bookingCount++; lastDriver = dutiesDataMap[dId].driver || 'Vacant';
-                        lastDate = dutiesDataMap[dId].date || ''; lastTime = dutiesDataMap[dId].time || '';
+                for (let dId in dutiesCacheData) {
+                    if (dutiesCacheData[dId].client === name) {
+                        bookingCount++; lastDriver = dutiesCacheData[dId].driver || 'Vacant';
+                        lastDate = dutiesCacheData[dId].date || ''; lastTime = dutiesCacheData[dId].time || '';
                     }
                 }
                 const card = document.createElement('div');
@@ -1298,7 +1290,7 @@
             for (let id in driversDataMap) {
                 const d = driversDataMap[id];
                 let dutyCount = 0;
-                for (let dId in dutiesDataMap) { if (dutiesDataMap[dId].driver === d.name) dutyCount++; }
+                for (let dId in dutiesCacheData) { if (dutiesCacheData[dId].driver === d.name) dutyCount++; }
                 let avoidedClients = [];
                 for (let rId in restrictionsDataMap) { if (restrictionsDataMap[rId].driver === d.name) avoidedClients.push(restrictionsDataMap[rId].client); }
                 
@@ -1325,41 +1317,40 @@
         }
 
         window.loadDriverDashboard = function() {
-    const savedDriver = localStorage.getItem('blossom_saved_driver_name');
-    if(!savedDriver) return;
+            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+            if(!savedDriver) return;
 
-    // 💡 Driver Name-ai UI-la display panra code
-    const nameEl = document.getElementById('dashboardDriverName');
-    if(nameEl) {
-        nameEl.innerHTML = `👋 Welcome, <span class="text-blue-600 font-extrabold">${savedDriver}</span>`;
-    }
+            const nameEl = document.getElementById('dashboardDriverName');
+            if(nameEl) {
+                nameEl.innerHTML = `👋 Welcome, <span class="text-blue-600 font-extrabold">${savedDriver}</span>`;
+            }
 
-    let dCount = 0;
-    for(let id in dutiesDataMap) { if(dutiesDataMap[id].driver === savedDriver) dCount++; }
-    document.getElementById('totalDutyCount').innerText = dCount;
+            let dCount = 0;
+            for(let id in dutiesCacheData) { if(dutiesCacheData[id].driver === savedDriver) dCount++; }
+            document.getElementById('totalDutyCount').innerText = dCount;
 
-    let fCount = 0;
-    for(let id in feedbacksCacheData) { if(feedbacksCacheData[id].driver === savedDriver) fCount++; }
-    document.getElementById('totalFeedbackCount').innerText = fCount;
+            let fCount = 0;
+            for(let id in feedbacksCacheData) { if(feedbacksCacheData[id].driver === savedDriver) fCount++; }
+            document.getElementById('totalFeedbackCount').innerText = fCount;
 
-    const d = Object.values(driversDataMap).find(x => x.name === savedDriver);
-    const detailsList = document.getElementById('driverDetailsList');
-    
-    if(detailsList && d) {
-        detailsList.innerHTML = `
-            <div class="grid grid-cols-2 gap-y-4 border-t pt-4">
-                <div><p class="text-gray-400 text-[10px] font-bold uppercase">Mobile</p><p class="font-bold text-gray-800">${d.mobile || 'N/A'}</p></div>
-                <div><p class="text-gray-400 text-[10px] font-bold uppercase">Age</p><p class="font-bold text-blue-600">${calculatePreciseAgeExp(d.dob)}</p></div>
-                <div><p class="text-gray-400 text-[10px] font-bold uppercase">Experience</p><p class="font-bold text-green-600">${calculatePreciseAgeExp(d.lmvIssue)}</p></div>
-                <div><p class="text-gray-400 text-[10px] font-bold uppercase">LMV Expiry</p><p class="font-bold text-red-600">${convertDateToDDMMYYYY(d.lmvExpiry)}</p></div>
-            </div>
-            <div class="mt-4 p-3 bg-red-50 rounded-lg border border-red-100">
-                <p class="text-red-800 text-[10px] font-bold uppercase">Restricted Clients</p>
-                <p class="text-sm font-bold text-red-900 mt-1">${getRestrictionsForDriver(savedDriver)}</p>
-            </div>
-        `;
-    }
-};
+            const d = Object.values(driversDataMap).find(x => x.name === savedDriver);
+            const detailsList = document.getElementById('driverDetailsList');
+            
+            if(detailsList && d) {
+                detailsList.innerHTML = `
+                    <div class="grid grid-cols-2 gap-y-4 border-t pt-4">
+                        <div><p class="text-gray-400 text-[10px] font-bold uppercase">Mobile</p><p class="font-bold text-gray-800">${d.mobile || 'N/A'}</p></div>
+                        <div><p class="text-gray-400 text-[10px] font-bold uppercase">Age</p><p class="font-bold text-blue-600">${calculatePreciseAgeExp(d.dob)}</p></div>
+                        <div><p class="text-gray-400 text-[10px] font-bold uppercase">Experience</p><p class="font-bold text-green-600">${calculatePreciseAgeExp(d.lmvIssue)}</p></div>
+                        <div><p class="text-gray-400 text-[10px] font-bold uppercase">LMV Expiry</p><p class="font-bold text-red-600">${convertDateToDDMMYYYY(d.lmvExpiry)}</p></div>
+                    </div>
+                    <div class="mt-4 p-3 bg-red-50 rounded-lg border border-red-100">
+                        <p class="text-red-800 text-[10px] font-bold uppercase">Restricted Clients</p>
+                        <p class="text-sm font-bold text-red-900 mt-1">${getRestrictionsForDriver(savedDriver)}</p>
+                    </div>
+                `;
+            }
+        };
 
         function getRestrictionsForDriver(driverName) {
             let list = [];
@@ -1407,7 +1398,7 @@
 
         function listenToDutiesData() {
             onValue(ref(db, 'duties'), (snapshot) => {
-                dutiesDataMap = snapshot.exists() ? snapshot.val() : {};
+                dutiesCacheData = snapshot.exists() ? snapshot.val() : {};
                 window.renderDutiesTable(); 
                 renderDriversTable(); 
                 renderClientsData();
@@ -1430,8 +1421,8 @@
             tbody.innerHTML = ''; 
             let count = 0;
             
-            for (let id in dutiesDataMap) {
-                const duty = dutiesDataMap[id];
+            for (let id in dutiesCacheData) {
+                const duty = dutiesCacheData[id];
                 if ((!filterDate || duty.date === filterDate) && 
                     (!filterDriver || duty.driver?.toLowerCase().includes(filterDriver)) && 
                     (!filterClient || duty.client?.toLowerCase().includes(filterClient))) {
