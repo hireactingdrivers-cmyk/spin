@@ -88,14 +88,13 @@
 
                 <!-- Details Grid -->
                 <div class="space-y-4 text-sm" id="driverDetailsList">
-                    <!-- Data will be loaded here by JavaScript -->
+                    <!-- Data loaded via JS -->
                 </div>
             </div>
         </div>
 
-        <!-- Chat Section -->
+        <!-- Chat Section (Updated with File Attach Option) -->
         <div id="chat-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-cyan-500 h-[70vh] flex flex-col md:flex-row gap-4">
-            <!-- Sidebar for Admin only -->
             <div id="chat-admin-sidebar" class="w-full md:w-64 border-r border-gray-200 pr-4 hidden flex-col overflow-y-auto">
                 <h3 class="font-bold text-gray-700 mb-3 flex justify-between items-center">
                     Drivers
@@ -104,7 +103,6 @@
                 <div id="chatDriverList" class="space-y-2"></div>
             </div>
             
-            <!-- Chat Window -->
             <div class="flex-1 flex flex-col h-full relative">
                 <div class="flex justify-between items-center border-b pb-2 mb-4">
                     <h2 id="chatHeaderTitle" class="text-xl font-bold text-cyan-700">💬 Chat Room</h2>
@@ -115,9 +113,19 @@
                 <div id="chatMessages" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg p-4 overflow-y-auto flex flex-col gap-3 mb-4">
                     <div class="text-center text-gray-400 italic text-sm mt-10">Select a driver or type a message to start...</div>
                 </div>
-                <div class="flex gap-2">
+                
+                <!-- Input & Attachment Box -->
+                <div class="flex gap-2 items-center">
+                    <!-- Hidden File Input -->
+                    <input type="file" id="chatFileInput" class="hidden" onchange="handleFileAttachment(this)">
+                    
+                    <!-- Attachment Button -->
+                    <button onclick="document.getElementById('chatFileInput').click()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2.5 rounded-lg transition text-base" title="Attach File">
+                        📎
+                    </button>
+
                     <input type="text" id="chatInput" placeholder="Type your message here..." class="flex-1 p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                    <button onclick="sendChatMessage()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-2 rounded-lg shadow transition">Send</button>
+                    <button onclick="sendChatMessage()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-2.5 rounded-lg shadow transition">Send</button>
                 </div>
             </div>
         </div>
@@ -181,7 +189,6 @@
             <h2 class="text-2xl font-bold mb-4 text-red-600 border-b pb-2">🚗 Driver Duty Status Manager</h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <form id="vacantForm" class="space-y-4 lg:col-span-1 border-r pr-0 lg:pr-6 border-gray-200 relative" onsubmit="return false;">
-                    
                     <div id="vacant-driver-greeting" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-800 font-bold text-sm"></div>
 
                     <div class="relative" id="vacant-search-container">
@@ -489,7 +496,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Global State Variables inside Module
         let driversDataMap = {}, dutiesCacheData = {}, feedbacksCacheData = {}, clientsDataMap = {};
         let restrictionsDataMap = {}, driversArray = [], clientsArray = [];
         let globalChatsData = {}, currentChatTarget = '';
@@ -839,10 +845,21 @@
             msgKeys.forEach(mId => {
                 const m = msgs[mId];
                 const isMe = (userRole === 'admin' && m.sender === 'admin') || (userRole === 'driver' && m.sender === savedDriver);
+                
+                let contentHTML = '';
+                if (m.type === 'image') {
+                    contentHTML = `<a href="${m.fileUrl}" target="_blank"><img src="${m.fileUrl}" class="max-w-xs rounded-lg mb-1 shadow-sm hover:opacity-90 transition"></a>`;
+                } else if (m.type === 'file') {
+                    contentHTML = `<a href="${m.fileUrl}" target="_blank" class="underline font-bold flex items-center gap-1">📎 Download File</a>`;
+                }
+                if (m.text) {
+                    contentHTML += `<div>${m.text}</div>`;
+                }
+
                 chatBox.innerHTML += `
                     <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
                         <div class="${isMe ? 'bg-cyan-600 text-white' : 'bg-gray-200 text-gray-800'} px-4 py-2 rounded-2xl max-w-[80%] text-sm shadow-sm break-words">
-                            ${m.text}
+                            ${contentHTML}
                         </div>
                         <span class="text-[10px] text-gray-400 mt-1 mx-1">${m.timeStr || ''}</span>
                     </div>
@@ -869,10 +886,48 @@
             const timeStr = `${hours % 12 || 12}:${mins} ${ampm}`;
 
             push(ref(db, `chats/${targetDriver}`), {
-                sender: senderName, text: text, read: false,
+                sender: senderName, text: text, type: 'text', read: false,
                 timestamp: Date.now(), timeStr: timeStr
             });
             inputEl.value = '';
+        };
+
+        window.handleFileAttachment = function(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const userRole = localStorage.getItem('userRole');
+            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+            let targetDriver = userRole === 'admin' ? currentChatTarget : savedDriver;
+            if (!targetDriver) {
+                alert("Please select a chat recipient first!");
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                const isImage = file.type.startsWith('image/');
+                let senderName = userRole === 'admin' ? 'admin' : savedDriver;
+                
+                const now = new Date();
+                let hours = now.getHours();
+                const mins = String(now.getMinutes()).padStart(2, '0');
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                const timeStr = `${hours % 12 || 12}:${mins} ${ampm}`;
+
+                push(ref(db, `chats/${targetDriver}`), {
+                    sender: senderName,
+                    text: file.name,
+                    fileUrl: base64Data,
+                    type: isImage ? 'image' : 'file',
+                    read: false,
+                    timestamp: Date.now(),
+                    timeStr: timeStr
+                });
+                input.value = '';
+            };
+            reader.readAsDataURL(file);
         };
 
         setTimeout(() => {
@@ -1500,219 +1555,165 @@
                             <td class="p-3 font-bold">${v.driver}</td>
                             <td class="p-3">${v.status === 'ON' ? '<span class="px-1.5 py-0.5 bg-green-100 text-green-700 font-bold rounded">🟢 ON</span>' : '<span class="px-1.5 py-0.5 bg-gray-100 text-gray-700 font-bold rounded">🔴 OFF</span>'}</td>
                             <td class="p-3">${v.vacantDate}</td>
-                            <td class="p-3 text-orange-600 font-medium">🕒 ${v.vacantTime}</td>
+                            <td class="p-3 text-orange-600 font-medium">🕒 ${v.vacantTime || 'N/A'}</td>
                             ${actionButtonHtml}
                         </tr>`;
                     });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center italic text-gray-400">No status records found...</td></tr>';
                 }
             });
         }
 
         window.deleteVacancy = function(id) {
-            const pass = prompt("Enter Admin Password to delete this history:");
-            if (pass === "divi") {
-                remove(ref(db, 'vacancies/' + id)).then(() => alert("🗑️ Vacancy log cleared successfully!"));
-            } else {
-                alert("❌ Incorrect Key Password!");
-            }
-        };
-
-        const dutyFormEl = document.getElementById('dutyForm');
-        if (dutyFormEl) {
-            dutyFormEl.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const dutyDriverInput = document.getElementById('dutyDriverInput');
-                const dutyClientInput = document.getElementById('dutyClientInput');
-                const dutyDateInput = document.getElementById('dutyDate');
-                const dutyTimeInput = document.getElementById('dutyTime');
-                
-                if(!dutyDriverInput || !dutyClientInput || !dutyDateInput || !dutyTimeInput) return;
-
-                const drName = dutyDriverInput.value.trim(); 
-                const clName = dutyClientInput.value.trim();
-                const matchDriver = driversArray.find(x => x.toLowerCase() === drName.toLowerCase());
-                
-                if(!matchDriver) return alert("🛑 Driver Not Found!"); 
-                
-                push(ref(db, 'duties'), { 
-                    driver: matchDriver, 
-                    client: clName, 
-                    date: dutyDateInput.value, 
-                    time: dutyTimeInput.value 
-                }).then(() => { 
-                    alert('📝 Duty assigned!'); 
-                    dutyFormEl.reset(); 
-                });
-            });
-        }
-        
-        const addRestrictionFormEl = document.getElementById('addRestrictionForm');
-        if (addRestrictionFormEl) {
-            addRestrictionFormEl.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const resDriverInput = document.getElementById('resDriver');
-                const resClientInput = document.getElementById('resClient');
-                if(!resDriverInput || !resClientInput) return;
-
-                push(ref(db, 'restrictions'), { 
-                    driver: resDriverInput.value.trim(), 
-                    client: resClientInput.value.trim() 
-                }).then(() => { 
-                    alert('🚫 Restriction Saved!'); 
-                    addRestrictionFormEl.reset(); 
-                });
-            });
-        }
-
-        const addDriverFormEl = document.getElementById('addDriverForm');
-        if (addDriverFormEl) {
-            addDriverFormEl.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const addNameEl = document.getElementById('addName');
-                const addMobileEl = document.getElementById('addMobile');
-                const addPasswordEl = document.getElementById('addPassword');
-                const addDobEl = document.getElementById('addDob');
-                const addLmvIssueEl = document.getElementById('addLmvIssue');
-                const addLmvExpiryEl = document.getElementById('addLmvExpiry');
-                const addLmvTrExpiryEl = document.getElementById('addLmvTrExpiry');
-
-                if(!addNameEl || !addMobileEl || !addPasswordEl || !addDobEl || !addLmvIssueEl || !addLmvExpiryEl || !addLmvTrExpiryEl) return;
-
-                push(ref(db, 'drivers'), {
-                    name: addNameEl.value.trim(), 
-                    mobile: addMobileEl.value.trim(),
-                    password: addPasswordEl.value.trim(), 
-                    dob: addDobEl.value || 'N/A', 
-                    lmvIssue: addLmvIssueEl.value || 'N/A',
-                    lmvExpiry: addLmvExpiryEl.value, 
-                    lmvTrExpiry: addLmvTrExpiryEl.value
-                }).then(() => { 
-                    alert('🎉 Driver Added Successfully with Password!'); 
-                    addDriverFormEl.reset(); 
-                });
-            });
-        }
-
-        const addClientFormEl = document.getElementById('addClientForm');
-        if (addClientFormEl) {
-            addClientFormEl.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const addClientNameEl = document.getElementById('addClientName');
-                if(!addClientNameEl) return;
-
-                push(ref(db, 'clients'), { 
-                    name: addClientNameEl.value.trim() 
-                }).then(() => { 
-                    alert('🎉 Client Added!'); 
-                    addClientFormEl.reset(); 
-                });
-            });
-        }
-
-        const searchDriversInputEl = document.getElementById('searchDriversInput');
-        if (searchDriversInputEl) {
-            searchDriversInputEl.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase().trim();
-                document.querySelectorAll('#allDriversTableBody tr').forEach(row => {
-                    row.classList.toggle('hidden', !row.innerText.toLowerCase().includes(query));
-                });
-            });
-        }
-
-        window.deleteDriver = function(id, name) { 
-            if (confirm(`Delete driver: ${name}?`)) remove(ref(db, `drivers/${id}`)); 
-        }
-        
-        window.editDriver = function(id, currentName, currentMobile, currentPassword) {
-            const n = prompt("New Name:", currentName); 
-            if (n === null) return;
-            const m = prompt("New Mobile:", currentMobile);
-            if (m === null) return;
-            const p = prompt("New Login Password:", currentPassword || "");
-            if (p === null) return;
-
-            update(ref(db, `drivers/${id}`), { 
-                name: n.trim(), 
-                mobile: m.trim(),
-                password: p.trim() 
-            }).then(() => {
-                alert("✅ Driver details & password updated successfully!");
-            });
-        }
-        
-        window.deleteDuty = function(id) { 
-            if (confirm("Delete this duty record?")) remove(ref(db, `duties/${id}`)); 
-        }
-        
-        window.editDuty = function(id, curD, curC) {
-            const nD = prompt("Change Driver:", curD); 
-            const nC = prompt("Change Client:", curC);
-            if (nD && nC) update(ref(db, `duties/${id}`), { driver: nD.trim(), client: nC.trim() });
-        }
-
-        window.showDriverReviewsToClient = function(driverName) {
-            onValue(ref(db, 'feedbacks'), (snapshot) => {
-                let logsHTML = ''; let count = 0, bSum = 0, dSum = 0;
-                let fArray = []; 
-                if(snapshot.exists()) {
-                    for(let id in snapshot.val()) { 
-                        if(snapshot.val()[id].driver === driverName) fArray.push(snapshot.val()[id]); 
-                    }
-                }
-                fArray.reverse().forEach(f => {
-                    count++; 
-                    bSum += Number(f.behavior?.rating || 0); 
-                    dSum += Number(f.driving?.rating || 0);
-                    logsHTML += `<div class="p-3 bg-gray-50 border rounded-lg mb-2 text-xs text-left">
-                        <div class="text-gray-400 font-bold">${formatFullTimestamp(f.timestamp)}</div>
-                        <div class="font-bold mt-1 text-yellow-600">Behaviour: ★${f.behavior?.rating} | Driving: ★${f.driving?.rating}</div>
-                        <div class="mt-1 bg-white p-1 rounded border text-gray-600">💬 ${f.behavior?.msg || ''} | ${f.driving?.msg || ''}</div>
-                    </div>`;
-                });
-
-                const existingOverlay = document.querySelector('.fixed.inset-0');
-                if (existingOverlay) {
-                    existingOverlay.innerHTML = `
-                        <div class="max-w-md w-full bg-white rounded-2xl shadow-2xl p-6 text-center border">
-                            <h2 class="text-xl font-black text-green-600">🎉 Feedback Submitted!</h2>
-                            <p class="text-xs text-gray-500 mt-1">Thank you for rating ${driverName}</p>
-                            <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 my-4 grid grid-cols-2 gap-2 text-xs">
-                                <div class="bg-white p-2 rounded-lg border font-semibold text-gray-700">Behavior: <span class="font-bold text-yellow-600">★${(bSum/count || 0).toFixed(1)}</span></div>
-                                <div class="bg-white p-2 rounded-lg border font-semibold text-gray-700">Driving: <span class="font-bold text-yellow-600">★${(dSum/count || 0).toFixed(1)}</span></div>
-                            </div>
-                            <div class="max-h-60 overflow-y-auto border border-gray-100 rounded-xl p-2 bg-gray-50/50">${logsHTML || '<p class="text-xs text-gray-400 italic py-4">No other reviews yet.</p>'}</div>
-                            <button onclick="document.querySelector('.fixed.inset-0')?.remove()" class="mt-4 bg-gray-800 text-white text-xs px-4 py-2 rounded-lg font-bold hover:bg-gray-900 transition w-full">Close & Return to App</button>
-                        </div>
-                    `;
-                }
-            }, { onlyOnce: true });
+            if(confirm("Delete this vacancy status log?")) remove(ref(db, 'vacancies/' + id));
         };
 
         window.saveFeedback = function(driverName) {
-            if (ratings.behavior === 0 || ratings.driving === 0) return alert("Please provide ratings!");
+            const bMsg = document.getElementById('msgBehavior').value.trim();
+            const dMsg = document.getElementById('msgDriving').value.trim();
             
-            const msgBehaviorEl = document.getElementById('msgBehavior');
-            const msgDrivingEl = document.getElementById('msgDriving');
-            
-            push(ref(db, 'feedbacks'), { 
-                driver: driverName, 
-                behavior: { rating: ratings.behavior, msg: msgBehaviorEl ? msgBehaviorEl.value : '' }, 
-                driving: { rating: ratings.driving, msg: msgDrivingEl ? msgDrivingEl.value : '' }, 
-                timestamp: new Date().toISOString() 
-            }).then(() => window.showDriverReviewsToClient(driverName));
+            if (ratings.behavior === 0 || ratings.driving === 0) {
+                return alert("⚠️ Please provide ratings for both Behaviour and Driving Skill using the stars!");
+            }
+
+            push(ref(db, 'feedbacks'), {
+                driver: driverName,
+                behavior: { rating: ratings.behavior, msg: bMsg },
+                driving: { rating: ratings.driving, msg: dMsg },
+                timestamp: new Date().toISOString()
+            }).then(() => {
+                alert("✅ Thank you! Feedback submitted successfully.");
+                window.close();
+            });
         };
 
         window.copyFeedbackLink = function(driverName) {
-            navigator.clipboard.writeText(`${window.location.origin + window.location.pathname}?view=feedback&driver=${encodeURIComponent(driverName)}`)
-            .then(() => alert("✅ Feedback Link copied!"));
+            const url = `${window.location.origin}${window.location.pathname}?view=feedback&driver=${encodeURIComponent(driverName)}`;
+            navigator.clipboard.writeText(url).then(() => {
+                alert(`📋 Feedback link copied for ${driverName}!\n\n${url}`);
+            });
         };
-        
+
         window.copyDriverInfo = function(id) {
-            const d = driversDataMap[id]; if(!d) return;
-            navigator.clipboard.writeText(`Driver Name : ${d.name || 'N/A'}\nMobile : ${d.mobile || 'N/A'}\nAge : ${calculatePreciseAgeExp(d.dob)}\nExperience : ${calculatePreciseAgeExp(d.lmvIssue)}`)
-            .then(() => alert(`✅ Copied ${d.name}'s info!`));
+            const d = driversDataMap[id];
+            if(!d) return;
+            const text = `🚗 Driver Profile: ${d.name}\n📞 Mobile: ${d.mobile || 'N/A'}\n🎂 DOB: ${convertDateToDDMMYYYY(d.dob)}\n📜 LMV Issue: ${convertDateToDDMMYYYY(d.lmvIssue)}\n⚠️ LMV Expiry: ${convertDateToDDMMYYYY(d.lmvExpiry)}\n⚠️ LMV-TR Expiry: ${convertDateToDDMMYYYY(d.lmvTrExpiry)}`;
+            navigator.clipboard.writeText(text).then(() => alert("📋 Driver profile details copied to clipboard!"));
         };
-        
+
+        window.editDriver = function(id, name, mobile, pass) {
+            const newName = prompt("Edit Driver Name:", name);
+            if(!newName) return;
+            const newMob = prompt("Edit Mobile Number:", mobile);
+            const newPass = prompt("Edit Password:", pass);
+            
+            update(ref(db, 'drivers/' + id), {
+                name: newName.trim(),
+                mobile: newMob ? newMob.trim() : mobile,
+                password: newPass ? newPass.trim() : pass
+            }).then(() => alert("✅ Driver details updated!"));
+        };
+
+        window.deleteDriver = function(id, name) {
+            if(confirm(`Are you sure you want to delete driver ${name}?`)) {
+                remove(ref(db, 'drivers/' + id)).then(() => alert("🗑️ Driver deleted successfully!"));
+            }
+        };
+
+        window.editDuty = function(id, curDriver, curClient) {
+            const newDriver = prompt("Edit Driver Name:", curDriver);
+            if(!newDriver) return;
+            const newClient = prompt("Edit Client Name:", curClient);
+            if(!newClient) return;
+
+            update(ref(db, 'duties/' + id), {
+                driver: newDriver.trim(),
+                client: newClient.trim()
+            }).then(() => alert("✅ Duty record updated successfully!"));
+        };
+
+        window.deleteDuty = function(id) {
+            if(confirm("Are you sure you want to delete this duty record?")) {
+                remove(ref(db, 'duties/' + id)).then(() => alert("🗑️ Duty record deleted successfully!"));
+            }
+        };
+
+        const addDriverForm = document.getElementById('addDriverForm');
+        if (addDriverForm) {
+            addDriverForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                push(ref(db, 'drivers'), {
+                    name: document.getElementById('addName').value.trim(),
+                    mobile: document.getElementById('addMobile').value.trim(),
+                    password: document.getElementById('addPassword').value.trim(),
+                    dob: document.getElementById('addDob').value || 'N/A',
+                    lmvIssue: document.getElementById('addLmvIssue').value || 'N/A',
+                    lmvExpiry: document.getElementById('addLmvExpiry').value,
+                    lmvTrExpiry: document.getElementById('addLmvTrExpiry').value
+                }).then(() => {
+                    alert('🎉 New Driver Saved Successfully!');
+                    addDriverForm.reset();
+                });
+            });
+        }
+
+        const addClientForm = document.getElementById('addClientForm');
+        if (addClientForm) {
+            addClientForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                push(ref(db, 'clients'), {
+                    name: document.getElementById('addClientName').value.trim()
+                }).then(() => {
+                    alert('🎉 New Client Saved Successfully!');
+                    addClientForm.reset();
+                });
+            });
+        }
+
+        const addRestrictionForm = document.getElementById('addRestrictionForm');
+        if (addRestrictionForm) {
+            addRestrictionForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                push(ref(db, 'restrictions'), {
+                    driver: document.getElementById('resDriver').value.trim(),
+                    client: document.getElementById('resClient').value.trim()
+                }).then(() => {
+                    alert('🚫 Restriction Saved Successfully!');
+                    addRestrictionForm.reset();
+                });
+            });
+        }
+
+        const dutyForm = document.getElementById('dutyForm');
+        if (dutyForm) {
+            dutyForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const driver = document.getElementById('dutyDriverInput').value.trim();
+                const client = document.getElementById('dutyClientInput').value.trim();
+                const date = document.getElementById('dutyDate').value;
+                const time = document.getElementById('dutyTime').value;
+
+                let isForbidden = false;
+                for (let rId in restrictionsDataMap) {
+                    if (restrictionsDataMap[rId].driver.toLowerCase().trim() === driver.toLowerCase().trim() && 
+                        restrictionsDataMap[rId].client.toLowerCase().trim() === client.toLowerCase().trim()) {
+                        isForbidden = true;
+                        break;
+                    }
+                }
+
+                if (isForbidden) {
+                    return alert(`❌ Restricted Duty! Driver [${driver}] is restricted from serving client [${client}].`);
+                }
+
+                push(ref(db, 'duties'), { driver, client, date, time: convertTo12Hour(time) }).then(() => {
+                    alert('📝 Duty Logged Successfully!');
+                    dutyForm.reset();
+                });
+            });
+        }
+
         initializeSystem();
     </script>
 </body>
