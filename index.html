@@ -14,8 +14,8 @@
 
     <div class="max-w-6xl mx-auto space-y-6" id="main-dashboard">
         
-        <!-- Login Screen (For Drivers) -->
-        <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-90 z-[1000] flex items-center justify-center p-4">
+        <!-- Login Screen -->
+        <div id="login-modal" class="fixed inset-0 bg-gray-900 bg-opacity-90 z-[1000] hidden items-center justify-center p-4">
             <div class="bg-white p-6 rounded-2xl w-full max-w-xs shadow-2xl">
                 <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">🚗 Driver Login</h2>
                 <input type="text" id="loginName" placeholder="Driver Name" class="w-full p-3 border rounded-lg mb-3 focus:ring-2 focus:ring-blue-500">
@@ -24,42 +24,20 @@
             </div>
         </div>
         
-        <!-- Driver Dashboard Section (Updated) -->
-        <div id="driver-dashboard-section" class="tab-content hidden space-y-6">
-            <div class="bg-white p-6 rounded-2xl shadow-xl border border-blue-100">
-                <h2 class="text-2xl font-black text-blue-800 mb-6 flex items-center gap-2">
-                    👤 Driver Profile
-                </h2>
-                
-                <!-- Stats Cards -->
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-blue-600 p-4 rounded-xl text-white shadow-lg shadow-blue-200">
-                        <p class="text-blue-100 text-xs font-bold uppercase">Total Duties</p>
-                        <p class="text-3xl font-black" id="totalDutyCount">0</p>
-                    </div>
-                    <div class="bg-yellow-500 p-4 rounded-xl text-white shadow-lg shadow-yellow-200">
-                        <p class="text-yellow-50 text-xs font-bold uppercase">Total Feedbacks</p>
-                        <p class="text-3xl font-black" id="totalFeedbackCount">0</p>
-                    </div>
-                </div>
-
-                <!-- Details Grid -->
-                <div class="space-y-4 text-sm" id="driverDetailsList">
-                    <!-- Data will be loaded here by JavaScript -->
-                </div>
-            </div>
-        </div>
-        
         <!-- Navigation Menu -->
         <div id="navigation-menu" class="bg-white p-3 rounded-lg shadow-md flex flex-wrap gap-2 relative border border-gray-200">
-            <button onclick="switchTab('driver-dashboard-section')" id="btn-driver-dashboard-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
+            <button onclick="switchTab('driver-dashboard-section')" id="btn-driver-dashboard-section" class="tab-btn bg-blue-500 text-white font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
                 <span>👤</span> Dashboard
             </button>
-            <button onclick="switchTab('duty-section')" id="btn-duty-section" class="tab-btn bg-yellow-500 text-white font-bold px-4 py-2 rounded shadow flex items-center gap-2 transition text-sm">
+            <button onclick="switchTab('duty-section')" id="btn-duty-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded shadow flex items-center gap-2 transition text-sm">
                 <span>📝</span> Duty Logger
             </button>
             <button onclick="switchTab('vacant-section')" id="btn-vacant-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
                 <span>🚗</span> Vacant Logger
+            </button>
+            <button onclick="switchTab('chat-section'); markChatRead();" id="btn-chat-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm relative">
+                <span>💬</span> Chat
+                <span id="chatBadge" class="hidden absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow border border-white">0</span>
             </button>
             <button onclick="switchTab('drivers-list-section')" id="btn-drivers-list-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
                 <span>📋</span> Drivers List
@@ -85,6 +63,56 @@
             <button onclick="logoutDriver()" id="btn-logout-section" class="tab-btn bg-red-600 text-white font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm ml-auto">
                 <span>🚪</span> Logout
             </button>
+        </div>
+
+        <!-- Driver Dashboard Section -->
+        <div id="driver-dashboard-section" class="tab-content space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-xl border border-blue-100">
+                <h2 class="text-2xl font-black text-blue-800 mb-6 flex items-center gap-2">
+                    👤 Driver Profile
+                </h2>
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-blue-600 p-4 rounded-xl text-white shadow-lg shadow-blue-200">
+                        <p class="text-blue-100 text-xs font-bold uppercase">Total Duties Taken</p>
+                        <p class="text-3xl font-black mt-1" id="totalDutyCount">0</p>
+                    </div>
+                    <div class="bg-yellow-500 p-4 rounded-xl text-white shadow-lg shadow-yellow-200">
+                        <p class="text-yellow-50 text-xs font-bold uppercase">Total Feedbacks</p>
+                        <p class="text-3xl font-black mt-1" id="totalFeedbackCount">0</p>
+                    </div>
+                </div>
+
+                <!-- Details Grid -->
+                <div class="space-y-4 text-sm" id="driverDetailsList">
+                    <!-- Data will be loaded here by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Section -->
+        <div id="chat-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-cyan-500 h-[70vh] flex flex-col md:flex-row gap-4">
+            <!-- Sidebar for Admin only -->
+            <div id="chat-admin-sidebar" class="w-full md:w-64 border-r border-gray-200 pr-4 hidden flex-col overflow-y-auto">
+                <h3 class="font-bold text-gray-700 mb-3 flex justify-between items-center">
+                    Drivers
+                    <span id="adminTotalUnread" class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full hidden">0</span>
+                </h3>
+                <div id="chatDriverList" class="space-y-2"></div>
+            </div>
+            
+            <!-- Chat Window -->
+            <div class="flex-1 flex flex-col h-full relative">
+                <h2 id="chatHeaderTitle" class="text-xl font-bold mb-4 text-cyan-700 border-b pb-2">💬 Chat Room</h2>
+                <div id="chatMessages" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg p-4 overflow-y-auto flex flex-col gap-3 mb-4">
+                    <div class="text-center text-gray-400 italic text-sm mt-10">Select a driver or type a message to start...</div>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="chatInput" placeholder="Type your message here..." class="flex-1 p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
+                    <button onclick="sendChatMessage()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-2 rounded-lg shadow transition">Send</button>
+                </div>
+            </div>
         </div>
 
         <!-- Feedbacks Section -->
@@ -147,7 +175,6 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <form id="vacantForm" class="space-y-4 lg:col-span-1 border-r pr-0 lg:pr-6 border-gray-200 relative" onsubmit="return false;">
                     
-                    <!-- Added Driver Greeting UI -->
                     <div id="vacant-driver-greeting" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded text-red-800 font-bold text-sm"></div>
 
                     <div class="relative" id="vacant-search-container">
@@ -320,7 +347,6 @@
                 <div id="driverResponseSection" class="p-4 bg-blue-50 border border-blue-200 rounded-xl shadow-sm">
                     <h3 class="font-bold text-blue-800 text-base mb-2 flex items-center gap-1">🚗 Driver Response Counter</h3>
                     
-                    <!-- Added Dynamic Driver Text Instruction -->
                     <p id="driver-response-text" class="text-xs text-gray-800 mb-3 font-semibold">கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.</p>
                     
                     <div class="flex flex-col sm:flex-row gap-3 items-start relative w-full">
@@ -417,7 +443,7 @@
             if(targetTab) targetTab.classList.remove('hidden');
 
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-yellow-500', 'bg-red-500', 'bg-red-600', 'bg-purple-600', 'bg-green-600', 'bg-indigo-600', 'bg-orange-500', 'bg-blue-500', 'bg-blue-600', 'text-white');
+                btn.classList.remove('bg-yellow-500', 'bg-red-500', 'bg-red-600', 'bg-purple-600', 'bg-green-600', 'bg-indigo-600', 'bg-orange-500', 'bg-blue-500', 'bg-blue-600', 'bg-cyan-500', 'text-white');
                 btn.classList.add('bg-gray-200', 'text-gray-700');
             });
 
@@ -433,6 +459,7 @@
                 if(tabId === 'duty-assignment-section') activeBtn.classList.add('bg-yellow-500', 'text-white');
                 if(tabId === 'feedback-section') activeBtn.classList.add('bg-blue-600', 'text-white');
                 if(tabId === 'driver-dashboard-section') activeBtn.classList.add('bg-blue-500', 'text-white');
+                if(tabId === 'chat-section') activeBtn.classList.add('bg-cyan-500', 'text-white');
             }
         }
     </script>
@@ -458,9 +485,12 @@
         // Global State Variables inside Module
         let driversDataMap = {}, dutiesCacheData = {}, feedbacksCacheData = {}, clientsDataMap = {};
         let dutiesDataMap = {}, restrictionsDataMap = {}, driversArray = [], clientsArray = [];
+        let globalChatsData = {}, currentChatTarget = '';
         let ratings = { behavior: 0, driving: 0 }, currentSystemView = 'driver'; 
         
         function initializeSystem() {
+            const loginModal = document.getElementById('login-modal');
+            
             checkAccess(); 
             listenToClientsData();
             listenToDriversData();
@@ -469,12 +499,15 @@
             listenToRestrictions(); 
             listenToFeedback(); 
             listenToLiveDutyAlerts(); 
+            listenToChats();
             
             const savedName = localStorage.getItem('blossom_saved_driver_name');
-            const loginModal = document.getElementById('login-modal');
             
             if (currentSystemView === 'admin' || localStorage.getItem('userRole') === 'admin') {
-                if(loginModal) loginModal.style.display = 'none'; 
+                if(loginModal) {
+                    loginModal.classList.add('hidden');
+                    loginModal.classList.remove('flex');
+                }
                 if (typeof switchTab === 'function') {
                     const dutySec = document.getElementById('duty-section');
                     if(dutySec) switchTab('duty-section');
@@ -484,19 +517,28 @@
             }
 
             if (currentSystemView === 'feedback') {
-                if(loginModal) loginModal.style.display = 'none';
+                if(loginModal) {
+                    loginModal.classList.add('hidden');
+                    loginModal.classList.remove('flex');
+                }
                 return;
             }
 
             if(savedName) {
-                if(loginModal) loginModal.style.display = 'none';
+                if(loginModal) {
+                    loginModal.classList.add('hidden');
+                    loginModal.classList.remove('flex');
+                }
                 hideAdminFunctionsForDriver(); 
                 setTimeout(() => {
                     loadDriverDashboard(); 
-                    if (typeof switchTab === 'function') switchTab('vacant-section'); 
+                    if (typeof switchTab === 'function') switchTab('driver-dashboard-section'); 
                 }, 1000);
             } else {
-                if(loginModal) loginModal.style.display = 'flex';
+                if(loginModal) {
+                    loginModal.classList.remove('hidden');
+                    loginModal.classList.add('flex');
+                }
             }
 
             const searchFeedbackInput = document.getElementById('searchFeedbackDriverInput');
@@ -515,31 +557,37 @@
             const alertSearchContainer = document.getElementById('alert-search-container');
             const vacantGreeting = document.getElementById('vacant-driver-greeting');
             const driverResponseText = document.getElementById('driver-response-text');
+            const chatSidebar = document.getElementById('chat-admin-sidebar');
 
-            // 💡 Admin: Show ALL tabs and Search Boxes
+            // 💡 Admin: Show specific tabs and hide Driver Dashboard
             if (currentSystemView === 'admin' || userRole === 'admin') {
                 const allMenus = [
-                    'btn-driver-dashboard-section', 'btn-duty-section', 'btn-drivers-list-section',     
+                    'btn-duty-section', 'btn-drivers-list-section',     
                     'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
                     'btn-duty-history-section', 'btn-feedback-section', 'btn-vacant-section', 
-                    'btn-duty-assignment-section', 'btn-logout-section'         
+                    'btn-duty-assignment-section', 'btn-chat-section', 'btn-logout-section'         
                 ];
                 allMenus.forEach(id => {
                     const el = document.getElementById(id);
                     if (el) el.style.setProperty('display', 'flex', 'important');
                 });
 
+                // Force Hide Driver Dashboard for Admin
+                const drvDashBtn = document.getElementById('btn-driver-dashboard-section');
+                if(drvDashBtn) drvDashBtn.style.setProperty('display', 'none', 'important');
+
                 if(vacantSearchContainer) vacantSearchContainer.style.display = 'block';
                 if(alertSearchContainer) alertSearchContainer.style.display = 'block';
                 if(vacantGreeting) vacantGreeting.style.display = 'none';
                 if(driverResponseText) driverResponseText.innerText = 'கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.';
+                if(chatSidebar) chatSidebar.style.setProperty('display', 'flex', 'important');
 
                 return; 
             }
 
             // 💡 Driver: Hide Everything except specific tabs
             const menusToHide = [
-                'btn-driver-dashboard-section', 'btn-duty-section', 'btn-drivers-list-section',     
+                'btn-duty-section', 'btn-drivers-list-section',     
                 'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
                 'btn-duty-history-section', 'btn-feedback-section'          
             ];
@@ -549,9 +597,9 @@
                 if (el) el.style.setProperty('display', 'none', 'important');
             });
 
-            // 💡 Driver: Show Only these 2 sections + Logout
+            // 💡 Driver: Show Only these sections + Logout
             const menusToShow = [
-                'btn-vacant-section', 'btn-duty-assignment-section', 'btn-logout-section'
+                'btn-driver-dashboard-section', 'btn-vacant-section', 'btn-duty-assignment-section', 'btn-chat-section', 'btn-logout-section'
             ];
             
             menusToShow.forEach(id => {
@@ -562,6 +610,8 @@
             // 💡 Driver: Hide Search inputs & Show dynamic Greeting names
             if(vacantSearchContainer) vacantSearchContainer.style.display = 'none';
             if(alertSearchContainer) alertSearchContainer.style.display = 'none';
+            if(chatSidebar) chatSidebar.style.setProperty('display', 'none', 'important');
+            document.getElementById('chatHeaderTitle').innerText = "💬 Chat with Admin";
             
             if(vacantGreeting && savedDriver) {
                 vacantGreeting.style.display = 'block';
@@ -644,14 +694,17 @@
                 localStorage.setItem('blossom_saved_driver_name', driver.name);
                 localStorage.setItem('userRole', 'driver');
                 const loginModal = document.getElementById('login-modal');
-                if(loginModal) loginModal.style.display = 'none';
+                if(loginModal) {
+                    loginModal.classList.add('hidden');
+                    loginModal.classList.remove('flex');
+                }
                 
                 alert("Welcome " + driver.name + "! Login Successful.");
                 
                 hideAdminFunctionsForDriver();
                 autoFillSavedDriverName();
                 loadDriverDashboard();
-                if (typeof switchTab === 'function') switchTab('vacant-section');
+                if (typeof switchTab === 'function') switchTab('driver-dashboard-section'); // Changed to dashboard
                 window.location.reload(); 
             } else {
                 alert("❌ Invalid Name or Password!");
@@ -666,6 +719,156 @@
             }
         };
 
+        // --- Chat Features Setup ---
+        function listenToChats() {
+            onValue(ref(db, 'chats'), (snapshot) => {
+                globalChatsData = snapshot.exists() ? snapshot.val() : {};
+                updateChatUI();
+            });
+        }
+
+        function updateChatUI() {
+            const userRole = localStorage.getItem('userRole');
+            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+            let totalUnread = 0;
+            
+            if (userRole === 'admin') {
+                const driverListEl = document.getElementById('chatDriverList');
+                if (driverListEl) driverListEl.innerHTML = '';
+                
+                let chatDrivers = Object.keys(globalChatsData);
+                driversArray.forEach(d => { if(!chatDrivers.includes(d)) chatDrivers.push(d); });
+                
+                chatDrivers.forEach(driverName => {
+                    let unreadForThisDriver = 0;
+                    const msgs = globalChatsData[driverName] || {};
+                    for (let mId in msgs) {
+                        if (msgs[mId].sender === driverName && !msgs[mId].read) {
+                            unreadForThisDriver++; totalUnread++;
+                        }
+                    }
+                    if (driverListEl) {
+                        driverListEl.innerHTML += `
+                            <div onclick="selectDriverForChat('${driverName}')" class="p-3 border rounded-lg cursor-pointer hover:bg-cyan-50 flex justify-between items-center transition ${currentChatTarget === driverName ? 'bg-cyan-100 border-cyan-400' : 'bg-white'}">
+                                <span class="font-semibold text-sm text-gray-700">${driverName}</span>
+                                ${unreadForThisDriver > 0 ? `<span class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">${unreadForThisDriver}</span>` : ''}
+                            </div>
+                        `;
+                    }
+                });
+                
+                const adminBadge = document.getElementById('adminTotalUnread');
+                if (adminBadge) {
+                    adminBadge.innerText = totalUnread;
+                    adminBadge.style.display = totalUnread > 0 ? 'inline-block' : 'none';
+                }
+            } else if (savedDriver) {
+                const msgs = globalChatsData[savedDriver] || {};
+                for (let mId in msgs) {
+                    if (msgs[mId].sender === 'admin' && !msgs[mId].read) totalUnread++;
+                }
+            }
+            
+            const mainBadge = document.getElementById('chatBadge');
+            if (mainBadge) {
+                mainBadge.innerText = totalUnread;
+                mainBadge.style.display = totalUnread > 0 ? 'inline-block' : 'none';
+            }
+            renderMessages();
+        }
+
+        window.selectDriverForChat = function(driverName) {
+            currentChatTarget = driverName;
+            document.getElementById('chatHeaderTitle').innerText = "💬 Chat with " + driverName;
+            if (globalChatsData[driverName]) {
+                for(let mId in globalChatsData[driverName]) {
+                    if(globalChatsData[driverName][mId].sender === driverName && !globalChatsData[driverName][mId].read) {
+                        update(ref(db, `chats/${driverName}/${mId}`), { read: true });
+                    }
+                }
+            }
+            updateChatUI();
+        };
+
+        window.markChatRead = function() {
+            const userRole = localStorage.getItem('userRole');
+            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+            if (userRole === 'driver' && savedDriver && globalChatsData[savedDriver]) {
+                for(let mId in globalChatsData[savedDriver]) {
+                    if(globalChatsData[savedDriver][mId].sender === 'admin' && !globalChatsData[savedDriver][mId].read) {
+                        update(ref(db, `chats/${savedDriver}/${mId}`), { read: true });
+                    }
+                }
+            }
+        };
+
+        function renderMessages() {
+            const userRole = localStorage.getItem('userRole');
+            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+            let activeChatName = userRole === 'admin' ? currentChatTarget : savedDriver;
+            
+            if (!activeChatName) return;
+            const chatBox = document.getElementById('chatMessages');
+            if(!chatBox) return;
+            chatBox.innerHTML = '';
+            
+            const msgs = globalChatsData[activeChatName] || {};
+            const msgKeys = Object.keys(msgs).sort((a,b) => msgs[a].timestamp - msgs[b].timestamp);
+            
+            if (msgKeys.length === 0) {
+                chatBox.innerHTML = '<div class="text-center text-gray-400 italic text-sm mt-10">No messages yet. Say hi!</div>';
+                return;
+            }
+
+            msgKeys.forEach(mId => {
+                const m = msgs[mId];
+                const isMe = (userRole === 'admin' && m.sender === 'admin') || (userRole === 'driver' && m.sender === savedDriver);
+                chatBox.innerHTML += `
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                        <div class="${isMe ? 'bg-cyan-600 text-white' : 'bg-gray-200 text-gray-800'} px-4 py-2 rounded-2xl max-w-[80%] text-sm shadow-sm break-words">
+                            ${m.text}
+                        </div>
+                        <span class="text-[10px] text-gray-400 mt-1 mx-1">${m.timeStr || ''}</span>
+                    </div>
+                `;
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        window.sendChatMessage = function() {
+            const userRole = localStorage.getItem('userRole');
+            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+            const inputEl = document.getElementById('chatInput');
+            const text = inputEl.value.trim();
+            if(!text) return;
+            
+            let targetDriver = userRole === 'admin' ? currentChatTarget : savedDriver;
+            if (!targetDriver) return alert("Select a driver to chat with first!");
+            
+            let senderName = userRole === 'admin' ? 'admin' : savedDriver;
+            const now = new Date();
+            let hours = now.getHours();
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const timeStr = `${hours % 12 || 12}:${mins} ${ampm}`;
+
+            push(ref(db, `chats/${targetDriver}`), {
+                sender: senderName, text: text, read: false,
+                timestamp: Date.now(), timeStr: timeStr
+            });
+            inputEl.value = '';
+        };
+
+        setTimeout(() => {
+            const cInput = document.getElementById('chatInput');
+            if (cInput) {
+                cInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') sendChatMessage();
+                });
+            }
+        }, 1000);
+        // --- Chat Features End ---
+
         function autoFillSavedDriverName() {
             const savedName = localStorage.getItem('blossom_saved_driver_name');
             if (savedName) {
@@ -676,7 +879,6 @@
             }
         }
 
-        // 💡 UPDATED LOGIC: No need to search for logged in drivers
         window.driverPressOk = function() {
             let typedName = "";
             const userRole = localStorage.getItem('userRole');
@@ -708,7 +910,6 @@
             });
         };
 
-        // 💡 UPDATED LOGIC: No need to search for logged in drivers
         window.setDriverVacantStatus = function(statusValue) {
             let drName = "";
             const userRole = localStorage.getItem('userRole');
