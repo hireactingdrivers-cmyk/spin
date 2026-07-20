@@ -106,7 +106,12 @@
             
             <!-- Chat Window -->
             <div class="flex-1 flex flex-col h-full relative">
-                <h2 id="chatHeaderTitle" class="text-xl font-bold mb-4 text-cyan-700 border-b pb-2">💬 Chat Room</h2>
+                <div class="flex justify-between items-center border-b pb-2 mb-4">
+                    <h2 id="chatHeaderTitle" class="text-xl font-bold text-cyan-700">💬 Chat Room</h2>
+                    <button id="adminClearChatBtn" onclick="clearCurrentChat()" class="hidden bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs px-3 py-1.5 rounded-lg border border-red-300 transition">
+                        🗑️ Clear Chat History
+                    </button>
+                </div>
                 <div id="chatMessages" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg p-4 overflow-y-auto flex flex-col gap-3 mb-4">
                     <div class="text-center text-gray-400 italic text-sm mt-10">Select a driver or type a message to start...</div>
                 </div>
@@ -560,6 +565,7 @@
             const vacantGreeting = document.getElementById('vacant-driver-greeting');
             const driverResponseText = document.getElementById('driver-response-text');
             const chatSidebar = document.getElementById('chat-admin-sidebar');
+            const adminClearChatBtn = document.getElementById('adminClearChatBtn');
 
             if (currentSystemView === 'admin' || userRole === 'admin') {
                 const allMenus = [
@@ -581,6 +587,7 @@
                 if(vacantGreeting) vacantGreeting.style.display = 'none';
                 if(driverResponseText) driverResponseText.innerText = 'கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.';
                 if(chatSidebar) chatSidebar.style.setProperty('display', 'flex', 'important');
+                if(adminClearChatBtn) adminClearChatBtn.style.setProperty('display', 'block', 'important');
 
                 return; 
             }
@@ -608,6 +615,7 @@
             if(vacantSearchContainer) vacantSearchContainer.style.display = 'none';
             if(alertSearchContainer) alertSearchContainer.style.display = 'none';
             if(chatSidebar) chatSidebar.style.setProperty('display', 'none', 'important');
+            if(adminClearChatBtn) adminClearChatBtn.style.setProperty('display', 'none', 'important');
             document.getElementById('chatHeaderTitle').innerText = "💬 Chat with Admin";
             
             if(vacantGreeting && savedDriver) {
@@ -795,6 +803,18 @@
                         update(ref(db, `chats/${savedDriver}/${mId}`), { read: true });
                     }
                 }
+            }
+        };
+
+        window.clearCurrentChat = function() {
+            const userRole = localStorage.getItem('userRole');
+            if (userRole !== 'admin') return alert("❌ Unauthorized action!");
+            if (!currentChatTarget) return alert("❌ Please select a driver chat first!");
+            
+            if (confirm(`Are you sure you want to delete all chat history with ${currentChatTarget}?`)) {
+                remove(ref(db, `chats/${currentChatTarget}`)).then(() => {
+                    alert("🗑️ Chat history cleared successfully!");
+                });
             }
         };
 
@@ -1306,7 +1326,7 @@
                     <td class="p-3">${convertDateToDDMMYYYY(d.lmvTrExpiry)}</td>
                     <td class="p-3">${getExpiryStatus(d.lmvExpiry, d.lmvTrExpiry)}</td>
                     <td class="p-3 flex flex-col gap-1">
-                        <button onclick="editDriver('${id}', '${d.name}', '${d.mobile || ''}')" class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs">Edit</button>
+                        <button onclick="editDriver('${id}', '${d.name}', '${d.mobile || ''}', '${d.password || ''}')" class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs">Edit</button>
                         <button onclick="deleteDriver('${id}', '${d.name}')" class="text-red-600 bg-red-50 px-2 py-0.5 rounded text-xs">Del</button>
                         <button onclick="copyFeedbackLink('${d.name}')" class="text-green-700 bg-green-50 border px-2 py-0.5 rounded text-xs">Link</button>
                         <button onclick="copyDriverInfo('${id}')" class="text-indigo-700 bg-indigo-50 border px-2 py-0.5 rounded text-xs">Copy</button>
@@ -1603,10 +1623,21 @@
             if (confirm(`Delete driver: ${name}?`)) remove(ref(db, `drivers/${id}`)); 
         }
         
-        window.editDriver = function(id, currentName, currentMobile) {
+        window.editDriver = function(id, currentName, currentMobile, currentPassword) {
             const n = prompt("New Name:", currentName); 
+            if (n === null) return;
             const m = prompt("New Mobile:", currentMobile);
-            if (n && m) update(ref(db, `drivers/${id}`), { name: n.trim(), mobile: m.trim() });
+            if (m === null) return;
+            const p = prompt("New Login Password:", currentPassword || "");
+            if (p === null) return;
+
+            update(ref(db, `drivers/${id}`), { 
+                name: n.trim(), 
+                mobile: m.trim(),
+                password: p.trim() 
+            }).then(() => {
+                alert("✅ Driver details & password updated successfully!");
+            });
         }
         
         window.deleteDuty = function(id) { 
