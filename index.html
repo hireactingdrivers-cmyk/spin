@@ -114,12 +114,25 @@
                     <div class="text-center text-gray-400 italic text-sm mt-10">Select a driver or type a message to start...</div>
                 </div>
                 
-                <!-- Input & Attachment Box -->
+                <!-- Input, Attachment, Camera & Voice Note Box -->
                 <div class="flex gap-2 items-center">
+                    <!-- File Attachment Input -->
                     <input type="file" id="chatFileInput" class="hidden" onchange="handleFileAttachment(this)">
-                    <button onclick="document.getElementById('chatFileInput').click()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2.5 rounded-lg transition text-base" title="Attach File">
+                    <button onclick="document.getElementById('chatFileInput').click()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2.5 rounded-lg transition text-base" title="Attach File / Screenshot">
                         📎
                     </button>
+
+                    <!-- Live Camera Capture Input -->
+                    <input type="file" id="chatCameraInput" accept="image/*" class="hidden" onchange="handleCameraAttachment(this)">
+                    <button onclick="document.getElementById('chatCameraInput').click()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2.5 rounded-lg transition text-base" title="Take Photo">
+                        📷
+                    </button>
+
+                    <!-- Voice Note Record Button -->
+                    <button id="voiceRecordBtn" onclick="toggleVoiceRecording()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2.5 rounded-lg transition text-base" title="Record Voice Note">
+                        🎤
+                    </button>
+
                     <input type="text" id="chatInput" placeholder="Type your message here..." class="flex-1 p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
                     <button onclick="sendChatMessage()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-2.5 rounded-lg shadow transition">Send</button>
                 </div>
@@ -559,76 +572,85 @@
         }
         
         function hideAdminFunctionsForDriver() {
-            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
-            const userRole = localStorage.getItem('userRole');
+    const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+    const userRole = localStorage.getItem('userRole');
 
-            const vacantSearchContainer = document.getElementById('vacant-search-container');
-            const alertSearchContainer = document.getElementById('alert-search-container');
-            const vacantGreeting = document.getElementById('vacant-driver-greeting');
-            const driverResponseText = document.getElementById('driver-response-text');
-            const chatSidebar = document.getElementById('chat-admin-sidebar');
-            const adminClearChatBtn = document.getElementById('adminClearChatBtn');
+    const vacantSearchContainer = document.getElementById('vacant-search-container');
+    const alertSearchContainer = document.getElementById('alert-search-container');
+    const vacantGreeting = document.getElementById('vacant-driver-greeting');
+    const driverResponseText = document.getElementById('driver-response-text');
+    const chatSidebar = document.getElementById('chat-admin-sidebar');
+    const adminClearChatBtn = document.getElementById('adminClearChatBtn');
+    
+    // அட்மின் கண்ட்ரோல் செக்ஷனைக் கட்டுப்படுத்த இந்த எலிமெண்ட் எடுக்கப்பட்டுள்ளது
+    const adminSection = document.getElementById('adminSection');
 
-            if (currentSystemView === 'admin' || userRole === 'admin') {
-                const allMenus = [
-                    'btn-duty-section', 'btn-drivers-list-section',     
-                    'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
-                    'btn-duty-history-section', 'btn-feedback-section', 'btn-vacant-section', 
-                    'btn-duty-assignment-section', 'btn-chat-section', 'btn-logout-section'         
-                ];
-                allMenus.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.style.setProperty('display', 'flex', 'important');
-                });
+    if (currentSystemView === 'admin' || userRole === 'admin') {
+        const allMenus = [
+            'btn-duty-section', 'btn-drivers-list-section',     
+            'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
+            'btn-duty-history-section', 'btn-feedback-section', 'btn-vacant-section', 
+            'btn-duty-assignment-section', 'btn-chat-section', 'btn-logout-section'         
+        ];
+        allMenus.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.setProperty('display', 'flex', 'important');
+        });
 
-                const drvDashBtn = document.getElementById('btn-driver-dashboard-section');
-                if(drvDashBtn) drvDashBtn.style.setProperty('display', 'none', 'important');
+        const drvDashBtn = document.getElementById('btn-driver-dashboard-section');
+        if(drvDashBtn) drvDashBtn.style.setProperty('display', 'none', 'important');
 
-                if(vacantSearchContainer) vacantSearchContainer.style.display = 'block';
-                if(alertSearchContainer) alertSearchContainer.style.display = 'block';
-                if(vacantGreeting) vacantGreeting.style.display = 'none';
-                if(driverResponseText) driverResponseText.innerText = 'கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.';
-                if(chatSidebar) chatSidebar.style.setProperty('display', 'flex', 'important');
-                if(adminClearChatBtn) adminClearChatBtn.style.setProperty('display', 'block', 'important');
+        if(vacantSearchContainer) vacantSearchContainer.style.display = 'block';
+        if(alertSearchContainer) alertSearchContainer.style.display = 'block';
+        if(vacantGreeting) vacantGreeting.style.display = 'none';
+        if(driverResponseText) driverResponseText.innerText = 'கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.';
+        if(chatSidebar) chatSidebar.style.setProperty('display', 'flex', 'important');
+        if(adminClearChatBtn) adminClearChatBtn.style.setProperty('display', 'block', 'important');
+        
+        // அட்மினுக்கு மட்டும் அட்மின் கண்ட்ரோல் தெரியும்
+        if(adminSection) adminSection.style.setProperty('display', 'block', 'important');
 
-                return; 
-            }
+        return; 
+    }
 
-            const menusToHide = [
-                'btn-duty-section', 'btn-drivers-list-section',     
-                'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
-                'btn-duty-history-section', 'btn-feedback-section'          
-            ];
+    // டிரைவராக இருந்தால் அட்மின் கண்ட்ரோல் கண்டிப்பாகத் தெரியக்கூடாது (Hidden)
+    if(adminSection) adminSection.style.setProperty('display', 'none', 'important');
 
-            menusToHide.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.style.setProperty('display', 'none', 'important');
-            });
+    const menusToHide = [
+        'btn-duty-section', 'btn-drivers-list-section',     
+        'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
+        'btn-duty-history-section', 'btn-feedback-section'          
+    ];
 
-            const menusToShow = [
-                'btn-driver-dashboard-section', 'btn-vacant-section', 'btn-duty-assignment-section', 'btn-chat-section', 'btn-logout-section'
-            ];
-            
-            menusToShow.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.style.setProperty('display', savedDriver ? 'flex' : 'none', 'important');
-            });
+    menusToHide.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.setProperty('display', 'none', 'important');
+    });
 
-            if(vacantSearchContainer) vacantSearchContainer.style.display = 'none';
-            if(alertSearchContainer) alertSearchContainer.style.display = 'none';
-            if(chatSidebar) chatSidebar.style.setProperty('display', 'none', 'important');
-            if(adminClearChatBtn) adminClearChatBtn.style.setProperty('display', 'none', 'important');
-            const chatHeaderTitle = document.getElementById('chatHeaderTitle');
-            if(chatHeaderTitle) chatHeaderTitle.innerText = "💬 Chat with Admin";
-            
-            if(vacantGreeting && savedDriver) {
-                vacantGreeting.style.display = 'block';
-                vacantGreeting.innerHTML = `👋 வணக்கம் <b>${savedDriver}</b>!<br><span class="text-xs font-normal text-red-600 mt-1 block">கீழே உள்ள ON / OFF பட்டனை அழுத்தி உங்கள் ஸ்டேட்டஸை அப்டேட் செய்யவும்.</span>`;
-            }
-            if(driverResponseText && savedDriver) {
-                driverResponseText.innerHTML = `👋 வணக்கம் <b>${savedDriver}</b>!<br><span class="text-xs font-normal text-gray-600 mt-1 block">கீழே உள்ள "OK" பட்டனை அழுத்தி டியூட்டிக்கு ரெடி என்பதை உறுதி செய்யவும்.</span>`;
-            }
-        }
+    const menusToShow = [
+        'btn-driver-dashboard-section', 'btn-vacant-section', 'btn-duty-assignment-section', 'btn-chat-section', 'btn-logout-section'
+    ];
+    
+    menusToShow.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.setProperty('display', savedDriver ? 'flex' : 'none', 'important');
+    });
+
+    if(vacantSearchContainer) vacantSearchContainer.style.display = 'none';
+    if(alertSearchContainer) alertSearchContainer.style.display = 'none';
+    if(chatSidebar) chatSidebar.style.setProperty('display', 'none', 'important');
+    if(adminClearChatBtn) adminClearChatBtn.style.setProperty('display', 'none', 'important');
+    const chatHeaderTitle = document.getElementById('chatHeaderTitle');
+    if(chatHeaderTitle) chatHeaderTitle.innerText = "💬 Chat with Admin";
+    
+    if(vacantGreeting && savedDriver) {
+        vacantGreeting.style.display = 'block';
+        vacantGreeting.innerHTML = `👋 வணக்கம் <b>${savedDriver}</b>!<br><span class="text-xs font-normal text-red-600 mt-1 block">கீழே உள்ள ON / OFF பட்டனை அழுத்தி உங்கள் ஸ்டேட்டஸை அப்டேட் செய்யவும்.</span>`;
+    }
+    if(driverResponseText && savedDriver) {
+        driverResponseText.innerHTML = `👋 வணக்கம் <b>${savedDriver}</b>!<br><span class="text-xs font-normal text-gray-600 mt-1 block">கீழே உள்ள "OK" பட்டனை அழுத்தி டியூட்டிக்கு ரெடி என்பதை உறுதி செய்யவும்.</span>`;
+    }
+}
 
         function checkAccess() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -821,51 +843,54 @@
             }
         };
 
-        function renderMessages() {
-            const userRole = localStorage.getItem('userRole');
-            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
-            let activeChatName = userRole === 'admin' ? currentChatTarget : savedDriver;
-            
-            if (!activeChatName) return;
-            const chatBox = document.getElementById('chatMessages');
-            if(!chatBox) return;
-            chatBox.innerHTML = '';
-            
-            const msgs = globalChatsData[activeChatName] || {};
-            const msgKeys = Object.keys(msgs).sort((a,b) => msgs[a].timestamp - msgs[b].timestamp);
-            
-            if (msgKeys.length === 0) {
-                chatBox.innerHTML = '<div class="text-center text-gray-400 italic text-sm mt-10">No messages yet. Say hi!</div>';
-                return;
-            }
+        window.renderMessages = function() {
+    const userRole = localStorage.getItem('userRole');
+    const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+    let activeChatName = userRole === 'admin' ? currentChatTarget : savedDriver;
+    
+    if (!activeChatName) return;
+    const chatBox = document.getElementById('chatMessages');
+    if(!chatBox) return;
+    chatBox.innerHTML = '';
+    
+    const msgs = globalChatsData[activeChatName] || {};
+    const msgKeys = Object.keys(msgs).sort((a,b) => msgs[a].timestamp - msgs[b].timestamp);
+    
+    if (msgKeys.length === 0) {
+        chatBox.innerHTML = '<div class="text-center text-gray-400 italic text-sm mt-10">No messages yet. Say hi!</div>';
+        return;
+    }
 
-            msgKeys.forEach(mId => {
-                const m = msgs[mId];
-                const isMe = (userRole === 'admin' && m.sender === 'admin') || (userRole === 'driver' && m.sender === savedDriver);
-                
-                let contentHTML = '';
-                if (m.type === 'image') {
-                    contentHTML = `<a href="${m.fileUrl}" target="_blank"><img src="${m.fileUrl}" class="max-w-xs rounded-lg mb-1 shadow-sm hover:opacity-90 transition"></a>`;
-                } else if (m.type === 'file') {
-                    contentHTML = `<a href="${m.fileUrl}" target="_blank" download="${m.text}" class="underline font-bold flex items-center gap-1">📎 Download File</a>`;
-                }
-                if (m.text && m.type === 'text') {
-                    contentHTML += `<div>${m.text}</div>`;
-                } else if (m.text && (m.type === 'image' || m.type === 'file')) {
-                    contentHTML += `<div class="text-xs mt-1">${m.text}</div>`;
-                }
-
-                chatBox.innerHTML += `
-                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                        <div class="${isMe ? 'bg-cyan-600 text-white' : 'bg-gray-200 text-gray-800'} px-4 py-2 rounded-2xl max-w-[80%] text-sm shadow-sm break-words">
-                            ${contentHTML}
-                        </div>
-                        <span class="text-[10px] text-gray-400 mt-1 mx-1">${m.timeStr || ''}</span>
-                    </div>
-                `;
-            });
-            chatBox.scrollTop = chatBox.scrollHeight;
+    msgKeys.forEach(mId => {
+        const m = msgs[mId];
+        const isMe = (userRole === 'admin' && m.sender === 'admin') || (userRole === 'driver' && m.sender === savedDriver);
+        
+        let contentHTML = '';
+        if (m.type === 'image') {
+            contentHTML = `<a href="${m.fileUrl}" target="_blank"><img src="${m.fileUrl}" class="max-w-xs rounded-lg mb-1 shadow-sm hover:opacity-90 transition"></a>`;
+        } else if (m.type === 'file') {
+            contentHTML = `<a href="${m.fileUrl}" target="_blank" download="${m.text}" class="underline font-bold flex items-center gap-1">📎 Download File</a>`;
+        } else if (m.type === 'audio') {
+            contentHTML = `<audio controls class="max-w-[220px] h-10 mb-1"><source src="${m.fileUrl}" type="audio/webm">Your browser does not support audio.</audio>`;
         }
+
+        if (m.text && m.type === 'text') {
+            contentHTML += `<div>${m.text}</div>`;
+        } else if (m.text && (m.type === 'image' || m.type === 'file' || m.type === 'audio')) {
+            contentHTML += `<div class="text-xs mt-1">${m.text}</div>`;
+        }
+
+        chatBox.innerHTML += `
+            <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                <div class="${isMe ? 'bg-cyan-600 text-white' : 'bg-gray-200 text-gray-800'} px-4 py-2 rounded-2xl max-w-[80%] text-sm shadow-sm break-words">
+                    ${contentHTML}
+                </div>
+                <span class="text-[10px] text-gray-400 mt-1 mx-1">${m.timeStr || ''}</span>
+            </div>
+        `;
+    });
+    chatBox.scrollTop = chatBox.scrollHeight;
+};
 
         window.sendChatMessage = function() {
             const userRole = localStorage.getItem('userRole');
@@ -911,9 +936,9 @@
     alert("Uploading file to server, please wait...");
 
     fetch('https://hirecalldrivers.com/upload.php', {
-    method: 'POST',
-    body: formData
-})
+        method: 'POST',
+        body: formData
+    })
     .then(async response => {
         const text = await response.text();
         try {
@@ -957,6 +982,24 @@
     });
 };
 
+// --- குட்டி பூனை சரிசெய்த கேமரா கோடு ஆரம்பம் ---
+window.handleCameraAttachment = function(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+
+    // கேமராவில் எடுத்த போட்டோவை ஒரு முறையான ஃபைலாக மாற்றிக் கொள்வது
+    const renamedFile = new File([file], "camera_photo_" + Date.now() + ".jpg", { type: file.type || 'image/jpeg' });
+
+    // DataTransfer மூலம் ஃபைலை இன்புட்டிற்குள் சரியாக இணைப்பது
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(renamedFile);
+    input.files = dataTransfer.files;
+
+    // இப்போது வழக்கம் போல ஃபைல் அப்லோட் ஃபங்ஷனை அழைக்கும்
+    window.handleFileAttachment(input);
+};
+// --- கேமரா கோடு முடிவு ---
+
 setTimeout(() => {
     const cInput = document.getElementById('chatInput');
     if (cInput) {
@@ -965,6 +1008,113 @@ setTimeout(() => {
         });
     }
 }, 1000);
+
+let mediaRecorder;
+let audioChunks = [];
+let isRecording = false;
+
+window.toggleVoiceRecording = function() {
+    const micBtn = document.getElementById('voiceRecordBtn');
+
+    if (!isRecording) {
+        // மைக்கை ஆன் செய்ய பர்மிஷன் கேட்பது
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const audioFile = new File([audioBlob], "voice_note_" + Date.now() + ".webm", { type: 'audio/webm' });
+                    
+                    // ரெக்கார்ட் செய்த ஆடியோவை அப்லோட் செய்ய அனுப்புவது
+                    uploadVoiceNote(audioFile);
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                micBtn.style.backgroundColor = '#ef4444'; // ரெக்கார்ட் ஆகும்போது பட்டன் சிவப்பு நிறமாக மாறும் (Red)
+                micBtn.style.color = '#ffffff';
+                micBtn.title = "Recording... Click to Stop";
+                alert("🔴 Recording started... Speak now. Click mic again to stop.");
+            })
+            .catch(error => {
+                console.error("Microphone access denied:", error);
+                alert("❌ Microphone permission denied or not supported on this browser.");
+            });
+    } else {
+        // ரெக்கார்டிங்கை நிறுத்துவது
+        mediaRecorder.stop();
+        // கேமரா/மைக் ஸ்ட்ரீமை ஆஃப் செய்வது
+        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        isRecording = false;
+        micBtn.style.backgroundColor = '';
+        micBtn.style.color = '';
+        micBtn.title = "Record Voice Note";
+    }
+};
+
+function uploadVoiceNote(file) {
+    const userRole = localStorage.getItem('userRole');
+    const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+    let targetDriver = userRole === 'admin' ? currentChatTarget : savedDriver;
+    
+    if (!targetDriver) {
+        alert("Please select a chat recipient first!");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    alert("Uploading voice note, please wait...");
+
+    fetch('https://hirecalldrivers.com/upload.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(async response => {
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            throw new Error("Server returned an invalid response.");
+        }
+    })
+    .then(data => {
+        if (data.status === 'success') {
+            const fileUrl = data.url;
+            let senderName = userRole === 'admin' ? 'admin' : savedDriver;
+            
+            const now = new Date();
+            let hours = now.getHours();
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const timeStr = `${hours % 12 || 12}:${mins} ${ampm}`;
+
+            // Firebase-ல் ஆடியோ மெசேஜ் ஆக சேமிப்பது
+            push(ref(db, `chats/${targetDriver}`), {
+                sender: senderName,
+                text: "🎙️ Voice Message",
+                fileUrl: fileUrl,
+                type: 'audio',
+                read: false,
+                timestamp: Date.now(),
+                timeStr: timeStr
+            });
+        } else {
+            alert("❌ Voice upload failed: " + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error uploading voice:', error);
+        alert("❌ Error uploading voice note: " + error.message);
+    });
+}
 
         function autoFillSavedDriverName() {
             const savedName = localStorage.getItem('blossom_saved_driver_name');
