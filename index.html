@@ -262,12 +262,13 @@
                             <th class="p-3">Live Experience</th>
                             <th class="p-3">LMV Expiry</th>
                             <th class="p-3">LMV-TR Expiry</th>
+                            <th class="p-3">Documents</th>
                             <th class="p-3">Status</th>
                             <th class="p-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="allDriversTableBody" class="text-gray-600 text-sm">
-                        <tr><td colspan="9" class="p-4 text-center italic text-gray-400">Fetching drivers profiles...</td></tr>
+                        <tr><td colspan="10" class="p-4 text-center italic text-gray-400">Fetching drivers profiles...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -321,7 +322,7 @@
                         <input type="date" id="addLmvTrExpiry" required class="w-full p-2 text-sm border rounded focus:ring-2 focus:ring-indigo-500">
                     </div>
                     
-                    <!-- Pudhusa Add Panna 3 Fields -->
+                    <!-- Driver Photos & Licence Uploads -->
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 mb-1">Driver Profile Photo</label>
                         <input type="file" id="addDriverPhoto" accept="image/*" class="w-full p-2 text-xs border rounded bg-white focus:ring-2 focus:ring-indigo-500">
@@ -544,6 +545,7 @@
             listenToFeedback(); 
             listenToLiveDutyAlerts(); 
             listenToChats();
+            setupSearchListeners();
             
             const savedName = localStorage.getItem('blossom_saved_driver_name');
             
@@ -584,6 +586,17 @@
                     loginModal.classList.add('flex');
                 }
             }
+        }
+
+        function setupSearchListeners() {
+            const searchDriversInput = document.getElementById('searchDriversInput');
+            if (searchDriversInput) searchDriversInput.addEventListener('input', renderDriversTable);
+
+            const searchClientsInput = document.getElementById('searchClientsInput');
+            if (searchClientsInput) searchClientsInput.addEventListener('input', renderClientsData);
+
+            const searchRestrictionsInput = document.getElementById('searchRestrictionsInput');
+            if (searchRestrictionsInput) searchRestrictionsInput.addEventListener('input', renderRestrictionsTable);
 
             const searchFeedbackInput = document.getElementById('searchFeedbackDriverInput');
             if (searchFeedbackInput) {
@@ -668,7 +681,6 @@
                 driverResponseText.innerHTML = `👋 வணக்கம் <b>${savedDriver}</b>!<br><span class="text-xs font-normal text-gray-600 mt-1 block">கீழே உள்ள "OK" பட்டனை அழுத்தி டியூட்டிக்கு ரெடி என்பதை உறுதி செய்யவும்.</span>`;
             }
             
-            // Driver-க்கு நேரடி Chat Box திறக்க இலக்கு செட் செய்தல்
             if(savedDriver && !currentChatTarget) {
                 currentChatTarget = savedDriver;
             }
@@ -783,7 +795,7 @@
             });
         }
 
-        function filterChatDriversList() {
+        window.filterChatDriversList = function() {
             updateChatUI();
         }
 
@@ -987,8 +999,7 @@
                 try {
                     return JSON.parse(text);
                 } catch (e) {
-                    console.error("Server raw response:", text);
-                    throw new Error("Server returned an invalid response (Check PHP error logs).");
+                    throw new Error("Server returned an invalid response.");
                 }
             })
             .then(data => {
@@ -1030,7 +1041,6 @@
             const file = input.files[0];
 
             const renamedFile = new File([file], "camera_photo_" + Date.now() + ".jpg", { type: file.type || 'image/jpeg' });
-
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(renamedFile);
             input.files = dataTransfer.files;
@@ -1499,11 +1509,18 @@
 
         function renderClientsData() {
             const listContainer = document.getElementById('clientList');
+            const searchInput = document.getElementById('searchClientsInput');
+            const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
             if(!listContainer) return;
             listContainer.innerHTML = ''; 
             
+            let visibleCount = 0;
             for (let id in clientsDataMap) {
                 const name = clientsDataMap[id].name || 'Unknown';
+                if (searchQuery && !name.toLowerCase().includes(searchQuery)) continue;
+                visibleCount++;
+
                 let bookingCount = 0; let lastDriver = 'None'; let lastDate = '', lastTime = '';
                 for (let dId in dutiesCacheData) {
                     if (dutiesCacheData[dId].client === name) {
@@ -1520,6 +1537,9 @@
                 `;
                 listContainer.appendChild(card);
             }
+            if(visibleCount === 0) {
+                listContainer.innerHTML = '<p class="text-gray-400 italic col-span-4 text-center">No clients found matching search.</p>';
+            }
         }
 
         function listenToRestrictions() {
@@ -1532,16 +1552,29 @@
 
         function renderRestrictionsTable() {
             const tbody = document.getElementById('restrictionsTableBody');
+            const searchInput = document.getElementById('searchRestrictionsInput');
+            const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
             if(!tbody) return; tbody.innerHTML = '';
+            let visibleCount = 0;
             for (let id in restrictionsDataMap) {
+                const r = restrictionsDataMap[id];
+                const driver = (r.driver || '').toLowerCase();
+                const client = (r.client || '').toLowerCase();
+                if (searchQuery && !driver.includes(searchQuery) && !client.includes(searchQuery)) continue;
+                visibleCount++;
+
                 const row = document.createElement('tr');
                 row.className = "border-b hover:bg-gray-50 transition";
                 row.innerHTML = `
-                    <td class="p-3 font-semibold text-gray-800">${restrictionsDataMap[id].driver}</td>
-                    <td class="p-3 font-semibold text-gray-800">${restrictionsDataMap[id].client}</td>
+                    <td class="p-3 font-semibold text-gray-800">${r.driver}</td>
+                    <td class="p-3 font-semibold text-gray-800">${r.client}</td>
                     <td class="p-3"><button onclick="deleteRestriction('${id}')" class="text-red-500 font-bold hover:bg-red-50 border rounded px-2 py-1">Remove</button></td>
                 `;
                 tbody.appendChild(row);
+            }
+            if(visibleCount === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="p-4 text-center italic text-gray-400">No restrictions found matching search.</td></tr>';
             }
         }
 
@@ -1570,15 +1603,30 @@
 
         function renderDriversTable() {
             const tbody = document.getElementById('allDriversTableBody');
+            const searchInput = document.getElementById('searchDriversInput');
+            const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
             if(!tbody) return; tbody.innerHTML = ''; 
             
+            let visibleCount = 0;
             for (let id in driversDataMap) {
                 const d = driversDataMap[id];
+                const name = (d.name || '').toLowerCase();
+                const mobile = (d.mobile || '').toLowerCase();
+                if (searchQuery && !name.includes(searchQuery) && !mobile.includes(searchQuery)) continue;
+                visibleCount++;
+
                 let dutyCount = 0;
                 for (let dId in dutiesCacheData) { if (dutiesCacheData[dId].driver === d.name) dutyCount++; }
                 let avoidedClients = [];
                 for (let rId in restrictionsDataMap) { if (restrictionsDataMap[rId].driver === d.name) avoidedClients.push(restrictionsDataMap[rId].client); }
                 
+                let docsHtml = '';
+                if(d.driverPhoto) docsHtml += `<a href="${d.driverPhoto}" target="_blank" class="text-blue-600 underline text-xs block font-bold">👤 Photo</a>`;
+                if(d.licFront) docsHtml += `<a href="${d.licFront}" target="_blank" class="text-blue-600 underline text-xs block font-bold">📄 Lic Front</a>`;
+                if(d.licBack) docsHtml += `<a href="${d.licBack}" target="_blank" class="text-blue-600 underline text-xs block font-bold">📄 Lic Back</a>`;
+                if(!d.driverPhoto && !d.licFront && !d.licBack) docsHtml = '<span class="text-gray-400 italic text-xs">No Docs</span>';
+
                 const row = document.createElement('tr');
                 row.className = "border-b border-gray-100 hover:bg-gray-50 transition";
                 row.innerHTML = `
@@ -1589,6 +1637,7 @@
                     <td class="p-3"><span class="text-[11px] font-bold text-green-700 bg-green-50 border px-1.5 rounded">${calculatePreciseAgeExp(d.lmvIssue)}</span></td>
                     <td class="p-3">${convertDateToDDMMYYYY(d.lmvExpiry)}</td>
                     <td class="p-3">${convertDateToDDMMYYYY(d.lmvTrExpiry)}</td>
+                    <td class="p-3 space-y-1">${docsHtml}</td>
                     <td class="p-3">${getExpiryStatus(d.lmvExpiry, d.lmvTrExpiry)}</td>
                     <td class="p-3 flex flex-col gap-1">
                         <button onclick="editDriver('${id}', '${d.name}', '${d.mobile || ''}', '${d.password || ''}')" class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs">Edit</button>
@@ -1598,6 +1647,9 @@
                     </td>
                 `;
                 tbody.appendChild(row);
+            }
+            if(visibleCount === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" class="p-4 text-center italic text-gray-400">No drivers found matching search.</td></tr>';
             }
         }
 
@@ -1624,6 +1676,20 @@
             const detailsList = document.getElementById('driverDetailsList');
             
             if(detailsList && d) {
+                let docCardsHtml = '';
+                if(d.driverPhoto || d.licFront || d.licBack) {
+                    docCardsHtml = `
+                        <div class="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                            <p class="text-blue-800 text-[10px] font-bold uppercase mb-2">My Documents & Photos</p>
+                            <div class="flex flex-wrap gap-2">
+                                ${d.driverPhoto ? `<a href="${d.driverPhoto}" target="_blank" class="bg-white px-3 py-1 rounded border text-xs font-bold text-blue-600 shadow-sm hover:bg-blue-50">👤 View Photo</a>` : ''}
+                                ${d.licFront ? `<a href="${d.licFront}" target="_blank" class="bg-white px-3 py-1 rounded border text-xs font-bold text-blue-600 shadow-sm hover:bg-blue-50">📄 Licence Front</a>` : ''}
+                                ${d.licBack ? `<a href="${d.licBack}" target="_blank" class="bg-white px-3 py-1 rounded border text-xs font-bold text-blue-600 shadow-sm hover:bg-blue-50">📄 Licence Back</a>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
                 detailsList.innerHTML = `
                     <div class="grid grid-cols-2 gap-y-4 border-t pt-4">
                         <div><p class="text-gray-400 text-[10px] font-bold uppercase">Mobile</p><p class="font-bold text-gray-800">${d.mobile || 'N/A'}</p></div>
@@ -1631,6 +1697,7 @@
                         <div><p class="text-gray-400 text-[10px] font-bold uppercase">Experience</p><p class="font-bold text-green-600">${calculatePreciseAgeExp(d.lmvIssue)}</p></div>
                         <div><p class="text-gray-400 text-[10px] font-bold uppercase">LMV Expiry</p><p class="font-bold text-red-600">${convertDateToDDMMYYYY(d.lmvExpiry)}</p></div>
                     </div>
+                    ${docCardsHtml}
                     <div class="mt-4 p-3 bg-red-50 rounded-lg border border-red-100">
                         <p class="text-red-800 text-[10px] font-bold uppercase">Restricted Clients</p>
                         <p class="text-sm font-bold text-red-900 mt-1">${getRestrictionsForDriver(savedDriver)}</p>
@@ -1851,22 +1918,61 @@
             }
         };
 
+        async function uploadFileToPhp(fileInputEl) {
+            if (!fileInputEl.files || !fileInputEl.files[0]) return '';
+            const file = fileInputEl.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                const response = await fetch('https://hirecalldrivers.com/upload.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    return data.url;
+                }
+            } catch (err) {
+                console.error("Upload error:", err);
+            }
+            return '';
+        }
+
         const addDriverForm = document.getElementById('addDriverForm');
         if (addDriverForm) {
-            addDriverForm.addEventListener('submit', (e) => {
+            addDriverForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                push(ref(db, 'drivers'), {
-                    name: document.getElementById('addName').value.trim(),
-                    mobile: document.getElementById('addMobile').value.trim(),
-                    password: document.getElementById('addPassword').value.trim(),
-                    dob: document.getElementById('addDob').value || 'N/A',
-                    lmvIssue: document.getElementById('addLmvIssue').value || 'N/A',
-                    lmvExpiry: document.getElementById('addLmvExpiry').value,
-                    lmvTrExpiry: document.getElementById('addLmvTrExpiry').value
-                }).then(() => {
-                    alert('🎉 New Driver Saved Successfully!');
+                const saveBtn = addDriverForm.querySelector('button[type="submit"]');
+                const originalText = saveBtn.innerText;
+                saveBtn.innerText = "Uploading & Saving...";
+                saveBtn.disabled = true;
+
+                try {
+                    const photoUrl = await uploadFileToPhp(document.getElementById('addDriverPhoto'));
+                    const licFrontUrl = await uploadFileToPhp(document.getElementById('addLicFront'));
+                    const licBackUrl = await uploadFileToPhp(document.getElementById('addLicBack'));
+
+                    await push(ref(db, 'drivers'), {
+                        name: document.getElementById('addName').value.trim(),
+                        mobile: document.getElementById('addMobile').value.trim(),
+                        password: document.getElementById('addPassword').value.trim(),
+                        dob: document.getElementById('addDob').value || 'N/A',
+                        lmvIssue: document.getElementById('addLmvIssue').value || 'N/A',
+                        lmvExpiry: document.getElementById('addLmvExpiry').value,
+                        lmvTrExpiry: document.getElementById('addLmvTrExpiry').value,
+                        driverPhoto: photoUrl,
+                        licFront: licFrontUrl,
+                        licBack: licBackUrl
+                    });
+
+                    alert('🎉 New Driver Saved Successfully with Documents!');
                     addDriverForm.reset();
-                });
+                } catch (err) {
+                    alert('❌ Error saving driver: ' + err.message);
+                } finally {
+                    saveBtn.innerText = originalText;
+                    saveBtn.disabled = false;
+                }
             });
         }
 
