@@ -103,7 +103,7 @@
                 <div id="chatDriverList" class="space-y-2"></div>
             </div>
             
-            <div class="flex-1 flex flex-col h-full relative">
+            <div class="flex-1 flex flex-col h-full relative overflow-hidden">
                 <div class="flex justify-between items-center border-b pb-2 mb-4">
                     <h2 id="chatHeaderTitle" class="text-xl font-bold text-cyan-700">💬 Chat Room</h2>
                     <button id="adminClearChatBtn" onclick="clearCurrentChat()" class="hidden bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs px-3 py-1.5 rounded-lg border border-red-300 transition">
@@ -114,27 +114,30 @@
                     <div class="text-center text-gray-400 italic text-sm mt-10">Select a driver or type a message to start...</div>
                 </div>
                 
-                <!-- Input, Attachment, Camera & Voice Note Box -->
-                <div class="flex gap-2 items-center">
+                <!-- Input, Attachment, Camera & Voice Note Box (Fit to Screen) -->
+                <div class="flex items-center gap-1.5 p-2 bg-white border border-gray-200 rounded-lg w-full shrink-0">
                     <!-- File Attachment Input -->
                     <input type="file" id="chatFileInput" class="hidden" onchange="handleFileAttachment(this)">
-                    <button onclick="document.getElementById('chatFileInput').click()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2.5 rounded-lg transition text-base" title="Attach File / Screenshot">
+                    <button onclick="document.getElementById('chatFileInput').click()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg transition text-sm shrink-0" title="Attach File / Screenshot">
                         📎
                     </button>
 
                     <!-- Live Camera Capture Input -->
                     <input type="file" id="chatCameraInput" accept="image/*" class="hidden" onchange="handleCameraAttachment(this)">
-                    <button onclick="document.getElementById('chatCameraInput').click()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2.5 rounded-lg transition text-base" title="Take Photo">
+                    <button onclick="document.getElementById('chatCameraInput').click()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg transition text-sm shrink-0" title="Take Photo">
                         📷
                     </button>
 
                     <!-- Voice Note Record Button -->
-                    <button id="voiceRecordBtn" onclick="toggleVoiceRecording()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-2.5 rounded-lg transition text-base" title="Record Voice Note">
+                    <button id="voiceRecordBtn" onclick="toggleVoiceRecording()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg transition text-sm shrink-0" title="Record Voice Note">
                         🎤
                     </button>
 
-                    <input type="text" id="chatInput" placeholder="Type your message here..." class="flex-1 p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 outline-none">
-                    <button onclick="sendChatMessage()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-6 py-2.5 rounded-lg shadow transition">Send</button>
+                    <!-- Text Input -->
+                    <input type="text" id="chatInput" placeholder="Type a message..." class="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 outline-none bg-gray-50">
+                    
+                    <!-- Send Button -->
+                    <button onclick="sendChatMessage()" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold px-4 py-2 rounded-lg shadow transition text-sm shrink-0">Send</button>
                 </div>
             </div>
         </div>
