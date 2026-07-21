@@ -32,7 +32,7 @@
             <button onclick="switchTab('duty-section')" id="btn-duty-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded shadow flex items-center gap-2 transition text-sm">
                 <span>📝</span> Duty Logger
             </button>
-            <button onclick="switchTab('vacant-section')" id="btn-vacant-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm">
+            <button onclick="switchTab('vacant-section')" id="btn-vacant-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded shadow flex items-center gap-2 transition text-sm">
                 <span>🚗</span> Vacant Logger
             </button>
             <button onclick="switchTab('chat-section'); markChatRead();" id="btn-chat-section" class="tab-btn bg-gray-200 text-gray-700 font-bold px-4 py-2 rounded flex items-center gap-2 transition text-sm relative">
@@ -95,12 +95,16 @@
 
         <!-- Chat Section -->
         <div id="chat-section" class="tab-content hidden bg-white p-6 rounded-lg shadow-md border-t-4 border-cyan-500 h-[70vh] flex flex-col md:flex-row gap-4">
-            <div id="chat-admin-sidebar" class="w-full md:w-64 border-r border-gray-200 pr-4 hidden flex-col overflow-y-auto">
-                <h3 class="font-bold text-gray-700 mb-3 flex justify-between items-center">
+            <div id="chat-admin-sidebar" class="w-full md:w-64 border-r border-gray-200 pr-4 hidden flex-col">
+                <h3 class="font-bold text-gray-700 mb-3 flex justify-between items-center shrink-0">
                     Drivers
                     <span id="adminTotalUnread" class="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full hidden">0</span>
                 </h3>
-                <div id="chatDriverList" class="space-y-2"></div>
+                <!-- Search Box for Admin Driver List -->
+                <div class="mb-3 shrink-0">
+                    <input type="text" id="chatSearchDriverInput" oninput="filterChatDriversList()" placeholder="🔍 Search driver..." class="w-full p-2 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-cyan-500 outline-none">
+                </div>
+                <div id="chatDriverList" class="space-y-2 overflow-y-auto flex-1 pr-1"></div>
             </div>
             
             <div class="flex-1 flex flex-col h-full relative overflow-hidden">
@@ -123,7 +127,7 @@
                     </button>
 
                     <!-- Live Camera Capture Input -->
-                    <input type="file" id="chatCameraInput" accept="image/*" class="hidden" onchange="handleCameraAttachment(this)">
+                    <input type="file" id="chatCameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleCameraAttachment(this)">
                     <button onclick="document.getElementById('chatCameraInput').click()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-lg transition text-sm shrink-0" title="Take Photo">
                         📷
                     </button>
@@ -316,6 +320,21 @@
                         <label class="block text-xs font-semibold text-gray-700 mb-1">LMV-TR Expiry Date*</label>
                         <input type="date" id="addLmvTrExpiry" required class="w-full p-2 text-sm border rounded focus:ring-2 focus:ring-indigo-500">
                     </div>
+                    
+                    <!-- Pudhusa Add Panna 3 Fields -->
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Driver Profile Photo</label>
+                        <input type="file" id="addDriverPhoto" accept="image/*" class="w-full p-2 text-xs border rounded bg-white focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">License Front Photo</label>
+                        <input type="file" id="addLicFront" accept="image/*" class="w-full p-2 text-xs border rounded bg-white focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">License Back Photo</label>
+                        <input type="file" id="addLicBack" accept="image/*" class="w-full p-2 text-xs border rounded bg-white focus:ring-2 focus:ring-indigo-500">
+                    </div>
+
                     <div class="md:col-span-2 flex justify-end">
                         <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded text-sm font-bold shadow hover:bg-indigo-700 transition">Save Driver</button>
                     </div>
@@ -575,85 +594,85 @@
         }
         
         function hideAdminFunctionsForDriver() {
-    const savedDriver = localStorage.getItem('blossom_saved_driver_name');
-    const userRole = localStorage.getItem('userRole');
+            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+            const userRole = localStorage.getItem('userRole');
 
-    const vacantSearchContainer = document.getElementById('vacant-search-container');
-    const alertSearchContainer = document.getElementById('alert-search-container');
-    const vacantGreeting = document.getElementById('vacant-driver-greeting');
-    const driverResponseText = document.getElementById('driver-response-text');
-    const chatSidebar = document.getElementById('chat-admin-sidebar');
-    const adminClearChatBtn = document.getElementById('adminClearChatBtn');
-    
-    // அட்மின் கண்ட்ரோல் செக்ஷனைக் கட்டுப்படுத்த இந்த எலிமெண்ட் எடுக்கப்பட்டுள்ளது
-    const adminSection = document.getElementById('adminSection');
+            const vacantSearchContainer = document.getElementById('vacant-search-container');
+            const alertSearchContainer = document.getElementById('alert-search-container');
+            const vacantGreeting = document.getElementById('vacant-driver-greeting');
+            const driverResponseText = document.getElementById('driver-response-text');
+            const chatSidebar = document.getElementById('chat-admin-sidebar');
+            const adminClearChatBtn = document.getElementById('adminClearChatBtn');
+            const adminSection = document.getElementById('adminSection');
 
-    if (currentSystemView === 'admin' || userRole === 'admin') {
-        const allMenus = [
-            'btn-duty-section', 'btn-drivers-list-section',     
-            'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
-            'btn-duty-history-section', 'btn-feedback-section', 'btn-vacant-section', 
-            'btn-duty-assignment-section', 'btn-chat-section', 'btn-logout-section'         
-        ];
-        allMenus.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.setProperty('display', 'flex', 'important');
-        });
+            if (currentSystemView === 'admin' || userRole === 'admin') {
+                const allMenus = [
+                    'btn-duty-section', 'btn-drivers-list-section',     
+                    'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
+                    'btn-duty-history-section', 'btn-feedback-section', 'btn-vacant-section', 
+                    'btn-duty-assignment-section', 'btn-chat-section', 'btn-logout-section'         
+                ];
+                allMenus.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.setProperty('display', 'flex', 'important');
+                });
 
-        const drvDashBtn = document.getElementById('btn-driver-dashboard-section');
-        if(drvDashBtn) drvDashBtn.style.setProperty('display', 'none', 'important');
+                const drvDashBtn = document.getElementById('btn-driver-dashboard-section');
+                if(drvDashBtn) drvDashBtn.style.setProperty('display', 'none', 'important');
 
-        if(vacantSearchContainer) vacantSearchContainer.style.display = 'block';
-        if(alertSearchContainer) alertSearchContainer.style.display = 'block';
-        if(vacantGreeting) vacantGreeting.style.display = 'none';
-        if(driverResponseText) driverResponseText.innerText = 'கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.';
-        if(chatSidebar) chatSidebar.style.setProperty('display', 'flex', 'important');
-        if(adminClearChatBtn) adminClearChatBtn.style.setProperty('display', 'block', 'important');
-        
-        // அட்மினுக்கு மட்டும் அட்மின் கண்ட்ரோல் தெரியும்
-        if(adminSection) adminSection.style.setProperty('display', 'block', 'important');
+                if(vacantSearchContainer) vacantSearchContainer.style.display = 'block';
+                if(alertSearchContainer) alertSearchContainer.style.display = 'block';
+                if(vacantGreeting) vacantGreeting.style.display = 'none';
+                if(driverResponseText) driverResponseText.innerText = 'கீழே உங்கள் பெயரை டைப்பண்ணி "OK" பட்டனை அழுத்தவும்.';
+                if(chatSidebar) chatSidebar.style.setProperty('display', 'flex', 'important');
+                if(adminClearChatBtn) adminClearChatBtn.style.setProperty('display', 'block', 'important');
+                if(adminSection) adminSection.style.setProperty('display', 'block', 'important');
 
-        return; 
-    }
+                return; 
+            }
 
-    // டிரைவராக இருந்தால் அட்மின் கண்ட்ரோல் கண்டிப்பாகத் தெரியக்கூடாது (Hidden)
-    if(adminSection) adminSection.style.setProperty('display', 'none', 'important');
+            if(adminSection) adminSection.style.setProperty('display', 'none', 'important');
 
-    const menusToHide = [
-        'btn-duty-section', 'btn-drivers-list-section',     
-        'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
-        'btn-duty-history-section', 'btn-feedback-section'          
-    ];
+            const menusToHide = [
+                'btn-duty-section', 'btn-drivers-list-section',     
+                'btn-clients-list-section', 'btn-add-data-section', 'btn-restrictions-section',     
+                'btn-duty-history-section', 'btn-feedback-section'          
+            ];
 
-    menusToHide.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.setProperty('display', 'none', 'important');
-    });
+            menusToHide.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.setProperty('display', 'none', 'important');
+            });
 
-    const menusToShow = [
-        'btn-driver-dashboard-section', 'btn-vacant-section', 'btn-duty-assignment-section', 'btn-chat-section', 'btn-logout-section'
-    ];
-    
-    menusToShow.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.setProperty('display', savedDriver ? 'flex' : 'none', 'important');
-    });
+            const menusToShow = [
+                'btn-driver-dashboard-section', 'btn-vacant-section', 'btn-duty-assignment-section', 'btn-chat-section', 'btn-logout-section'
+            ];
+            
+            menusToShow.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.setProperty('display', savedDriver ? 'flex' : 'none', 'important');
+            });
 
-    if(vacantSearchContainer) vacantSearchContainer.style.display = 'none';
-    if(alertSearchContainer) alertSearchContainer.style.display = 'none';
-    if(chatSidebar) chatSidebar.style.setProperty('display', 'none', 'important');
-    if(adminClearChatBtn) adminClearChatBtn.style.setProperty('display', 'none', 'important');
-    const chatHeaderTitle = document.getElementById('chatHeaderTitle');
-    if(chatHeaderTitle) chatHeaderTitle.innerText = "💬 Chat with Admin";
-    
-    if(vacantGreeting && savedDriver) {
-        vacantGreeting.style.display = 'block';
-        vacantGreeting.innerHTML = `👋 வணக்கம் <b>${savedDriver}</b>!<br><span class="text-xs font-normal text-red-600 mt-1 block">கீழே உள்ள ON / OFF பட்டனை அழுத்தி உங்கள் ஸ்டேட்டஸை அப்டேட் செய்யவும்.</span>`;
-    }
-    if(driverResponseText && savedDriver) {
-        driverResponseText.innerHTML = `👋 வணக்கம் <b>${savedDriver}</b>!<br><span class="text-xs font-normal text-gray-600 mt-1 block">கீழே உள்ள "OK" பட்டனை அழுத்தி டியூட்டிக்கு ரெடி என்பதை உறுதி செய்யவும்.</span>`;
-    }
-}
+            if(vacantSearchContainer) vacantSearchContainer.style.display = 'none';
+            if(alertSearchContainer) alertSearchContainer.style.display = 'none';
+            if(chatSidebar) chatSidebar.style.setProperty('display', 'none', 'important');
+            if(adminClearChatBtn) adminClearChatBtn.style.setProperty('display', 'none', 'important');
+            const chatHeaderTitle = document.getElementById('chatHeaderTitle');
+            if(chatHeaderTitle) chatHeaderTitle.innerText = "💬 Chat with Admin";
+            
+            if(vacantGreeting && savedDriver) {
+                vacantGreeting.style.display = 'block';
+                vacantGreeting.innerHTML = `👋 வணக்கம் <b>${savedDriver}</b>!<br><span class="text-xs font-normal text-red-600 mt-1 block">கீழே உள்ள ON / OFF பட்டனை அழுத்தி உங்கள் ஸ்டேட்டஸை அப்டேட் செய்யவும்.</span>`;
+            }
+            if(driverResponseText && savedDriver) {
+                driverResponseText.innerHTML = `👋 வணக்கம் <b>${savedDriver}</b>!<br><span class="text-xs font-normal text-gray-600 mt-1 block">கீழே உள்ள "OK" பட்டனை அழுத்தி டியூட்டிக்கு ரெடி என்பதை உறுதி செய்யவும்.</span>`;
+            }
+            
+            // Driver-க்கு நேரடி Chat Box திறக்க இலக்கு செட் செய்தல்
+            if(savedDriver && !currentChatTarget) {
+                currentChatTarget = savedDriver;
+            }
+        }
 
         function checkAccess() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -704,6 +723,10 @@
             else {
                 currentSystemView = 'driver';
                 localStorage.setItem('userRole', 'driver');
+                const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+                if(savedDriver) {
+                    currentChatTarget = savedDriver;
+                }
             }
         }
 
@@ -726,6 +749,7 @@
             if(driver) {
                 localStorage.setItem('blossom_saved_driver_name', driver.name);
                 localStorage.setItem('userRole', 'driver');
+                currentChatTarget = driver.name;
                 const loginModal = document.getElementById('login-modal');
                 if(loginModal) {
                     loginModal.classList.add('hidden');
@@ -759,6 +783,10 @@
             });
         }
 
+        function filterChatDriversList() {
+            updateChatUI();
+        }
+
         function updateChatUI() {
             const userRole = localStorage.getItem('userRole');
             const savedDriver = localStorage.getItem('blossom_saved_driver_name');
@@ -766,12 +794,17 @@
             
             if (userRole === 'admin') {
                 const driverListEl = document.getElementById('chatDriverList');
+                const searchInput = document.getElementById('chatSearchDriverInput');
+                const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
                 if (driverListEl) {
                     driverListEl.innerHTML = '';
                     let chatDrivers = Object.keys(globalChatsData);
                     driversArray.forEach(d => { if(!chatDrivers.includes(d)) chatDrivers.push(d); });
                     
-                    chatDrivers.forEach(driverName => {
+                    let filteredDrivers = chatDrivers.filter(dName => dName.toLowerCase().includes(searchQuery));
+
+                    filteredDrivers.forEach(driverName => {
                         let unreadForThisDriver = 0;
                         const msgs = globalChatsData[driverName] || {};
                         for (let mId in msgs) {
@@ -782,7 +815,9 @@
                         driverListEl.innerHTML += `
                             <div onclick="selectDriverForChat('${driverName}')" class="p-3 border rounded-lg cursor-pointer hover:bg-cyan-50 flex justify-between items-center transition ${currentChatTarget === driverName ? 'bg-cyan-100 border-cyan-400' : 'bg-white'}">
                                 <span class="font-semibold text-sm text-gray-700">${driverName}</span>
-                                ${unreadForThisDriver > 0 ? `<span class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">${unreadForThisDriver}</span>` : ''}
+                                <div class="flex items-center gap-1.5">
+                                    ${unreadForThisDriver > 0 ? `<span class="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow animate-pulse">NEW (${unreadForThisDriver})</span>` : ''}
+                                </div>
                             </div>
                         `;
                     });
@@ -794,6 +829,7 @@
                     adminBadge.style.display = totalUnread > 0 ? 'inline-block' : 'none';
                 }
             } else if (savedDriver) {
+                if(!currentChatTarget) currentChatTarget = savedDriver;
                 const msgs = globalChatsData[savedDriver] || {};
                 for (let mId in msgs) {
                     if (msgs[mId].sender === 'admin' && !msgs[mId].read) totalUnread++;
@@ -825,13 +861,17 @@
         window.markChatRead = function() {
             const userRole = localStorage.getItem('userRole');
             const savedDriver = localStorage.getItem('blossom_saved_driver_name');
-            if (userRole === 'driver' && savedDriver && globalChatsData[savedDriver]) {
-                for(let mId in globalChatsData[savedDriver]) {
-                    if(globalChatsData[savedDriver][mId].sender === 'admin' && !globalChatsData[savedDriver][mId].read) {
-                        update(ref(db, `chats/${savedDriver}/${mId}`), { read: true });
+            if (userRole === 'driver' && savedDriver) {
+                currentChatTarget = savedDriver;
+                if(globalChatsData[savedDriver]) {
+                    for(let mId in globalChatsData[savedDriver]) {
+                        if(globalChatsData[savedDriver][mId].sender === 'admin' && !globalChatsData[savedDriver][mId].read) {
+                            update(ref(db, `chats/${savedDriver}/${mId}`), { read: true });
+                        }
                     }
                 }
             }
+            updateChatUI();
         };
 
         window.clearCurrentChat = function() {
@@ -847,53 +887,53 @@
         };
 
         window.renderMessages = function() {
-    const userRole = localStorage.getItem('userRole');
-    const savedDriver = localStorage.getItem('blossom_saved_driver_name');
-    let activeChatName = userRole === 'admin' ? currentChatTarget : savedDriver;
-    
-    if (!activeChatName) return;
-    const chatBox = document.getElementById('chatMessages');
-    if(!chatBox) return;
-    chatBox.innerHTML = '';
-    
-    const msgs = globalChatsData[activeChatName] || {};
-    const msgKeys = Object.keys(msgs).sort((a,b) => msgs[a].timestamp - msgs[b].timestamp);
-    
-    if (msgKeys.length === 0) {
-        chatBox.innerHTML = '<div class="text-center text-gray-400 italic text-sm mt-10">No messages yet. Say hi!</div>';
-        return;
-    }
+            const userRole = localStorage.getItem('userRole');
+            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+            let activeChatName = userRole === 'admin' ? currentChatTarget : savedDriver;
+            
+            if (!activeChatName) return;
+            const chatBox = document.getElementById('chatMessages');
+            if(!chatBox) return;
+            chatBox.innerHTML = '';
+            
+            const msgs = globalChatsData[activeChatName] || {};
+            const msgKeys = Object.keys(msgs).sort((a,b) => msgs[a].timestamp - msgs[b].timestamp);
+            
+            if (msgKeys.length === 0) {
+                chatBox.innerHTML = '<div class="text-center text-gray-400 italic text-sm mt-10">No messages yet. Say hi!</div>';
+                return;
+            }
 
-    msgKeys.forEach(mId => {
-        const m = msgs[mId];
-        const isMe = (userRole === 'admin' && m.sender === 'admin') || (userRole === 'driver' && m.sender === savedDriver);
-        
-        let contentHTML = '';
-        if (m.type === 'image') {
-            contentHTML = `<a href="${m.fileUrl}" target="_blank"><img src="${m.fileUrl}" class="max-w-xs rounded-lg mb-1 shadow-sm hover:opacity-90 transition"></a>`;
-        } else if (m.type === 'file') {
-            contentHTML = `<a href="${m.fileUrl}" target="_blank" download="${m.text}" class="underline font-bold flex items-center gap-1">📎 Download File</a>`;
-        } else if (m.type === 'audio') {
-            contentHTML = `<audio controls class="max-w-[220px] h-10 mb-1"><source src="${m.fileUrl}" type="audio/webm">Your browser does not support audio.</audio>`;
-        }
+            msgKeys.forEach(mId => {
+                const m = msgs[mId];
+                const isMe = (userRole === 'admin' && m.sender === 'admin') || (userRole === 'driver' && m.sender === savedDriver);
+                
+                let contentHTML = '';
+                if (m.type === 'image') {
+                    contentHTML = `<a href="${m.fileUrl}" target="_blank"><img src="${m.fileUrl}" class="max-w-xs rounded-lg mb-1 shadow-sm hover:opacity-90 transition"></a>`;
+                } else if (m.type === 'file') {
+                    contentHTML = `<a href="${m.fileUrl}" target="_blank" download="${m.text}" class="underline font-bold flex items-center gap-1">📎 Download File</a>`;
+                } else if (m.type === 'audio') {
+                    contentHTML = `<audio controls class="max-w-[220px] h-10 mb-1"><source src="${m.fileUrl}" type="audio/webm">Your browser does not support audio.</audio>`;
+                }
 
-        if (m.text && m.type === 'text') {
-            contentHTML += `<div>${m.text}</div>`;
-        } else if (m.text && (m.type === 'image' || m.type === 'file' || m.type === 'audio')) {
-            contentHTML += `<div class="text-xs mt-1">${m.text}</div>`;
-        }
+                if (m.text && m.type === 'text') {
+                    contentHTML += `<div>${m.text}</div>`;
+                } else if (m.text && (m.type === 'image' || m.type === 'file' || m.type === 'audio')) {
+                    contentHTML += `<div class="text-xs mt-1">${m.text}</div>`;
+                }
 
-        chatBox.innerHTML += `
-            <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                <div class="${isMe ? 'bg-cyan-600 text-white' : 'bg-gray-200 text-gray-800'} px-4 py-2 rounded-2xl max-w-[80%] text-sm shadow-sm break-words">
-                    ${contentHTML}
-                </div>
-                <span class="text-[10px] text-gray-400 mt-1 mx-1">${m.timeStr || ''}</span>
-            </div>
-        `;
-    });
-    chatBox.scrollTop = chatBox.scrollHeight;
-};
+                chatBox.innerHTML += `
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                        <div class="${isMe ? 'bg-cyan-600 text-white' : 'bg-gray-200 text-gray-800'} px-4 py-2 rounded-2xl max-w-[80%] text-sm shadow-sm break-words">
+                            ${contentHTML}
+                        </div>
+                        <span class="text-[10px] text-gray-400 mt-1 mx-1">${m.timeStr || ''}</span>
+                    </div>
+                `;
+            });
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
 
         window.sendChatMessage = function() {
             const userRole = localStorage.getItem('userRole');
@@ -921,203 +961,192 @@
         };
 
         window.handleFileAttachment = function(input) {
-    if (!input.files || !input.files[0]) return;
-    const file = input.files[0];
-    const userRole = localStorage.getItem('userRole');
-    const savedDriver = localStorage.getItem('blossom_saved_driver_name');
-    let targetDriver = userRole === 'admin' ? currentChatTarget : savedDriver;
-    
-    if (!targetDriver) {
-        alert("Please select a chat recipient first!");
-        input.value = '';
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    alert("Uploading file to server, please wait...");
-
-    fetch('https://hirecalldrivers.com/upload.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(async response => {
-        const text = await response.text();
-        try {
-            return JSON.parse(text);
-        } catch (e) {
-            console.error("Server raw response:", text);
-            throw new Error("Server returned an invalid response (Check PHP error logs).");
-        }
-    })
-    .then(data => {
-        if (data.status === 'success') {
-            const fileUrl = data.url;
-            const isImage = file.type.startsWith('image/');
-            let senderName = userRole === 'admin' ? 'admin' : savedDriver;
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const userRole = localStorage.getItem('userRole');
+            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+            let targetDriver = userRole === 'admin' ? currentChatTarget : savedDriver;
             
-            const now = new Date();
-            let hours = now.getHours();
-            const mins = String(now.getMinutes()).padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            const timeStr = `${hours % 12 || 12}:${mins} ${ampm}`;
+            if (!targetDriver) {
+                alert("Please select a chat recipient first!");
+                input.value = '';
+                return;
+            }
 
-            push(ref(db, `chats/${targetDriver}`), {
-                sender: senderName,
-                text: file.name,
-                fileUrl: fileUrl,
-                type: isImage ? 'image' : 'file',
-                read: false,
-                timestamp: Date.now(),
-                timeStr: timeStr
-            });
-            input.value = '';
-        } else {
-            alert("❌ File upload failed: " + (data.message || 'Unknown error'));
-            input.value = '';
-        }
-    })
-    .catch(error => {
-        console.error('Error uploading file:', error);
-        alert("❌ Error uploading file: " + error.message);
-        input.value = '';
-    });
-};
+            const formData = new FormData();
+            formData.append('file', file);
 
-// --- குட்டி பூனை சரிசெய்த கேமரா கோடு ஆரம்பம் ---
-window.handleCameraAttachment = function(input) {
-    if (!input.files || !input.files[0]) return;
-    const file = input.files[0];
+            alert("Uploading file to server, please wait...");
 
-    // கேமராவில் எடுத்த போட்டோவை ஒரு முறையான ஃபைலாக மாற்றிக் கொள்வது
-    const renamedFile = new File([file], "camera_photo_" + Date.now() + ".jpg", { type: file.type || 'image/jpeg' });
-
-    // DataTransfer மூலம் ஃபைலை இன்புட்டிற்குள் சரியாக இணைப்பது
-    const dataTransfer = new DataTransfer();
-    dataTransfer.items.add(renamedFile);
-    input.files = dataTransfer.files;
-
-    // இப்போது வழக்கம் போல ஃபைல் அப்லோட் ஃபங்ஷனை அழைக்கும்
-    window.handleFileAttachment(input);
-};
-// --- கேமரா கோடு முடிவு ---
-
-setTimeout(() => {
-    const cInput = document.getElementById('chatInput');
-    if (cInput) {
-        cInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') sendChatMessage();
-        });
-    }
-}, 1000);
-
-let mediaRecorder;
-let audioChunks = [];
-let isRecording = false;
-
-window.toggleVoiceRecording = function() {
-    const micBtn = document.getElementById('voiceRecordBtn');
-
-    if (!isRecording) {
-        // மைக்கை ஆன் செய்ய பர்மிஷன் கேட்பது
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-
-                mediaRecorder.ondataavailable = event => {
-                    audioChunks.push(event.data);
-                };
-
-                mediaRecorder.onstop = () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const audioFile = new File([audioBlob], "voice_note_" + Date.now() + ".webm", { type: 'audio/webm' });
+            fetch('https://hirecalldrivers.com/upload.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(async response => {
+                const text = await response.text();
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error("Server raw response:", text);
+                    throw new Error("Server returned an invalid response (Check PHP error logs).");
+                }
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    const fileUrl = data.url;
+                    const isImage = file.type.startsWith('image/');
+                    let senderName = userRole === 'admin' ? 'admin' : savedDriver;
                     
-                    // ரெக்கார்ட் செய்த ஆடியோவை அப்லோட் செய்ய அனுப்புவது
-                    uploadVoiceNote(audioFile);
-                };
+                    const now = new Date();
+                    let hours = now.getHours();
+                    const mins = String(now.getMinutes()).padStart(2, '0');
+                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                    const timeStr = `${hours % 12 || 12}:${mins} ${ampm}`;
 
-                mediaRecorder.start();
-                isRecording = true;
-                micBtn.style.backgroundColor = '#ef4444'; // ரெக்கார்ட் ஆகும்போது பட்டன் சிவப்பு நிறமாக மாறும் (Red)
-                micBtn.style.color = '#ffffff';
-                micBtn.title = "Recording... Click to Stop";
-                alert("🔴 Recording started... Speak now. Click mic again to stop.");
+                    push(ref(db, `chats/${targetDriver}`), {
+                        sender: senderName,
+                        text: file.name,
+                        fileUrl: fileUrl,
+                        type: isImage ? 'image' : 'file',
+                        read: false,
+                        timestamp: Date.now(),
+                        timeStr: timeStr
+                    });
+                    input.value = '';
+                } else {
+                    alert("❌ File upload failed: " + (data.message || 'Unknown error'));
+                    input.value = '';
+                }
             })
             .catch(error => {
-                console.error("Microphone access denied:", error);
-                alert("❌ Microphone permission denied or not supported on this browser.");
+                console.error('Error uploading file:', error);
+                alert("❌ Error uploading file: " + error.message);
+                input.value = '';
             });
-    } else {
-        // ரெக்கார்டிங்கை நிறுத்துவது
-        mediaRecorder.stop();
-        // கேமரா/மைக் ஸ்ட்ரீமை ஆஃப் செய்வது
-        mediaRecorder.stream.getTracks().forEach(track => track.stop());
-        isRecording = false;
-        micBtn.style.backgroundColor = '';
-        micBtn.style.color = '';
-        micBtn.title = "Record Voice Note";
-    }
-};
+        };
 
-function uploadVoiceNote(file) {
-    const userRole = localStorage.getItem('userRole');
-    const savedDriver = localStorage.getItem('blossom_saved_driver_name');
-    let targetDriver = userRole === 'admin' ? currentChatTarget : savedDriver;
-    
-    if (!targetDriver) {
-        alert("Please select a chat recipient first!");
-        return;
-    }
+        window.handleCameraAttachment = function(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
 
-    const formData = new FormData();
-    formData.append('file', file);
+            const renamedFile = new File([file], "camera_photo_" + Date.now() + ".jpg", { type: file.type || 'image/jpeg' });
 
-    alert("Uploading voice note, please wait...");
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(renamedFile);
+            input.files = dataTransfer.files;
 
-    fetch('https://hirecalldrivers.com/upload.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(async response => {
-        const text = await response.text();
-        try {
-            return JSON.parse(text);
-        } catch (e) {
-            throw new Error("Server returned an invalid response.");
-        }
-    })
-    .then(data => {
-        if (data.status === 'success') {
-            const fileUrl = data.url;
-            let senderName = userRole === 'admin' ? 'admin' : savedDriver;
+            window.handleFileAttachment(input);
+        };
+
+        setTimeout(() => {
+            const cInput = document.getElementById('chatInput');
+            if (cInput) {
+                cInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') sendChatMessage();
+                });
+            }
+        }, 1000);
+
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        window.toggleVoiceRecording = function() {
+            const micBtn = document.getElementById('voiceRecordBtn');
+
+            if (!isRecording) {
+                navigator.mediaDevices.getUserMedia({ audio: true })
+                    .then(stream => {
+                        mediaRecorder = new MediaRecorder(stream);
+                        audioChunks = [];
+
+                        mediaRecorder.ondataavailable = event => {
+                            audioChunks.push(event.data);
+                        };
+
+                        mediaRecorder.onstop = () => {
+                            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                            const audioFile = new File([audioBlob], "voice_note_" + Date.now() + ".webm", { type: 'audio/webm' });
+                            uploadVoiceNote(audioFile);
+                        };
+
+                        mediaRecorder.start();
+                        isRecording = true;
+                        micBtn.style.backgroundColor = '#ef4444';
+                        micBtn.style.color = '#ffffff';
+                        micBtn.title = "Recording... Click to Stop";
+                        alert("🔴 Recording started... Speak now. Click mic again to stop.");
+                    })
+                    .catch(error => {
+                        console.error("Microphone access denied:", error);
+                        alert("❌ Microphone permission denied or not supported on this browser.");
+                    });
+            } else {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                isRecording = false;
+                micBtn.style.backgroundColor = '';
+                micBtn.style.color = '';
+                micBtn.title = "Record Voice Note";
+            }
+        };
+
+        function uploadVoiceNote(file) {
+            const userRole = localStorage.getItem('userRole');
+            const savedDriver = localStorage.getItem('blossom_saved_driver_name');
+            let targetDriver = userRole === 'admin' ? currentChatTarget : savedDriver;
             
-            const now = new Date();
-            let hours = now.getHours();
-            const mins = String(now.getMinutes()).padStart(2, '0');
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            const timeStr = `${hours % 12 || 12}:${mins} ${ampm}`;
+            if (!targetDriver) {
+                alert("Please select a chat recipient first!");
+                return;
+            }
 
-            // Firebase-ல் ஆடியோ மெசேஜ் ஆக சேமிப்பது
-            push(ref(db, `chats/${targetDriver}`), {
-                sender: senderName,
-                text: "🎙️ Voice Message",
-                fileUrl: fileUrl,
-                type: 'audio',
-                read: false,
-                timestamp: Date.now(),
-                timeStr: timeStr
+            const formData = new FormData();
+            formData.append('file', file);
+
+            alert("Uploading voice note, please wait...");
+
+            fetch('https://hirecalldrivers.com/upload.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(async response => {
+                const text = await response.text();
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    throw new Error("Server returned an invalid response.");
+                }
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    const fileUrl = data.url;
+                    let senderName = userRole === 'admin' ? 'admin' : savedDriver;
+                    
+                    const now = new Date();
+                    let hours = now.getHours();
+                    const mins = String(now.getMinutes()).padStart(2, '0');
+                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                    const timeStr = `${hours % 12 || 12}:${mins} ${ampm}`;
+
+                    push(ref(db, `chats/${targetDriver}`), {
+                        sender: senderName,
+                        text: "🎙️ Voice Message",
+                        fileUrl: fileUrl,
+                        type: 'audio',
+                        read: false,
+                        timestamp: Date.now(),
+                        timeStr: timeStr
+                    });
+                } else {
+                    alert("❌ Voice upload failed: " + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error uploading voice:', error);
+                alert("❌ Error uploading voice note: " + error.message);
             });
-        } else {
-            alert("❌ Voice upload failed: " + (data.message || 'Unknown error'));
         }
-    })
-    .catch(error => {
-        console.error('Error uploading voice:', error);
-        alert("❌ Error uploading voice note: " + error.message);
-    });
-}
 
         function autoFillSavedDriverName() {
             const savedName = localStorage.getItem('blossom_saved_driver_name');
@@ -1535,6 +1564,7 @@ function uploadVoiceNote(file) {
                 
                 renderDriversTable(); 
                 loadDriverDashboard(); 
+                updateChatUI();
             });
         }
 
