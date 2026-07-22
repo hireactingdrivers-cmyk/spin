@@ -20,11 +20,16 @@ const messaging = getMessaging(app);
 onBackgroundMessage(messaging, (payload) => {
     console.log('[firebase-messaging-sw.js] Received background message ', payload);
     
-    const notificationTitle = payload.notification.title;
-    const notificationOptions = {
-        body: payload.notification.body,
-        icon: '/favicon.ico'
-    };
+    // Server-ல இருந்து 'notification' object வந்தா Firebase தானா notification காட்டும்.
+    // ஆனா 'data' object மட்டும் வந்தா, நாம manual-ஆ காட்டணும்.
+    
+    if (payload.data && !payload.notification) {
+        const notificationTitle = payload.data.title || "New Notification";
+        const notificationOptions = {
+            body: payload.data.body || "You have a new message.",
+            icon: '/favicon.ico'
+        };
 
-    self.registration.showNotification(notificationTitle, notificationOptions);
+        self.registration.showNotification(notificationTitle, notificationOptions);
+    }
 });
