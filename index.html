@@ -1330,6 +1330,23 @@ input.value = '';
 });
 };
 
+    import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
+
+// app என்பது நீங்கள் initializeApp() மூலம் உருவாக்கிய variable
+const messaging = getMessaging(app);
+
+// பயனரின் அனுமதியைக் கேட்டு Token-ஐ பெறுதல்
+getToken(messaging, { vapidKey: 'BJiuCAnldXk3Vj1L4oBn7seX7n8DmQNp3zUkdIXPuK38ZGDfdP-YLo23-NgPOi-7cZhM2pkJzMPk-mIo3Wcuj7I' })
+  .then((currentToken) => {
+    if (currentToken) {
+      console.log('🔥🔥 FCM Token:', currentToken); // இதைக் காப்பி செய்துகொள்ளவும்!
+    } else {
+      console.log('No registration token available. Request permission to generate one.');
+    }
+  }).catch((err) => {
+    console.error('An error occurred while retrieving token. ', err);
+  });
+
 window.handleCameraAttachment = function(input) {
 if (!input.files || !input.files[0]) return;
 const file = input.files[0];
