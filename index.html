@@ -623,53 +623,6 @@ loginModal.classList.remove('flex');
 if(selectionModal) selectionModal.classList.remove('hidden');
 };
 
-function urlBase64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding)
-        .replace(/\-/g, '+')
-        .replace(/_/g, '/');
-
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-
-    for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
-}
-
-// நீங்கள் அனுப்பிய Public Key
-const publicVapidKey = 'BJiuCAnldXk3Vj1L4oBn7seX7n8DmQNp3zUkdIXPuK38ZGDfdP-YLo23-NgPOi-7cZhM2pkJzMPk-mIo3Wcuj7I';
-
-async function subscribeToPushNotifications() {
-    if ('serviceWorker' in navigator && 'PushManager' in window) {
-        try {
-            // 1. Service Worker-ஐ பதிவு செய்தல்
-            const registration = await navigator.serviceWorker.register('/service-worker.js');
-            console.log('Service Worker Registered');
-
-            // 2. VAPID Key-ஐ மாற்றுதல்
-            const convertedVapidKey = urlBase64ToUint8Array(publicVapidKey);
-
-            // 3. Push Manager மூலம் Subscribe செய்தல்
-            const subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: convertedVapidKey
-            });
-
-            console.log('Push Notification Subscription Data:', subscription);
-
-            // 4. இந்த Subscription Data-வை உங்களின் Backend Database-க்கு அனுப்ப வேண்டும்
-            // await sendSubscriptionToBackend(subscription);
-
-        } catch (error) {
-            console.error('Push Notification Error:', error);
-        }
-    } else {
-        console.warn('Push messaging is not supported in this browser');
-    }
-}
-
 window.openLightbox = function(imgSrc, captionText) {
 const modal = document.getElementById('image-lightbox-modal');
 const img = document.getElementById('lightbox-img');
@@ -860,7 +813,7 @@ window.updateDriverDocuments = async function(driverId) {
         if (Object.keys(updateData).length > 0) {
             update(ref(db, 'drivers/' + driverId), updateData).then(() => {
                 alert("✅ Driver documents updated successfully!");
-                openAdminDriverProfile(driverId);
+                openAdminDriverProfile(driverId); // Refresh modal to show new uploads
             });
         } else {
             alert("❌ File upload failed.");
@@ -1329,23 +1282,6 @@ alert("❌ Error uploading file: " + error.message);
 input.value = '';
 });
 };
-
-    import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
-
-// app என்பது நீங்கள் initializeApp() மூலம் உருவாக்கிய variable
-const messaging = getMessaging(app);
-
-// பயனரின் அனுமதியைக் கேட்டு Token-ஐ பெறுதல்
-getToken(messaging, { vapidKey: 'BJiuCAnldXk3Vj1L4oBn7seX7n8DmQNp3zUkdIXPuK38ZGDfdP-YLo23-NgPOi-7cZhM2pkJzMPk-mIo3Wcuj7I' })
-  .then((currentToken) => {
-    if (currentToken) {
-      console.log('🔥🔥 FCM Token:', currentToken); // இதைக் காப்பி செய்துகொள்ளவும்!
-    } else {
-      console.log('No registration token available. Request permission to generate one.');
-    }
-  }).catch((err) => {
-    console.error('An error occurred while retrieving token. ', err);
-  });
 
 window.handleCameraAttachment = function(input) {
 if (!input.files || !input.files[0]) return;
@@ -2133,25 +2069,23 @@ const photoUrl = await uploadFileToPhp(document.getElementById('addDriverPhoto')
 const licFrontUrl = await uploadFileToPhp(document.getElementById('addLicFront'));
 const licBackUrl = await uploadFileToPhp(document.getElementById('addLicBack'));
 
-const name = document.getElementById('addName').value.trim();
-const mobile = document.getElementById('addMobile').value.trim();
-const password = document.getElementById('addPassword').value.trim();
-const dob = document.getElementById('addDob').value;
-const lmvIssue = document.getElementById('addLmvIssue').value;
-const lmvExpiry = document.getElementById('addLmvExpiry').value;
-const lmvTrExpiry = document.getElementById('addLmvTrExpiry').value;
-
 await push(ref(db, 'drivers'), {
-name, mobile, password, dob, lmvIssue, lmvExpiry, lmvTrExpiry,
+name: document.getElementById('addName').value.trim(),
+mobile: document.getElementById('addMobile').value.trim(),
+password: document.getElementById('addPassword').value.trim(),
+dob: document.getElementById('addDob').value || 'N/A',
+lmvIssue: document.getElementById('addLmvIssue').value || 'N/A',
+lmvExpiry: document.getElementById('addLmvExpiry').value,
+lmvTrExpiry: document.getElementById('addLmvTrExpiry').value,
 driverPhoto: photoUrl,
 licFront: licFrontUrl,
 licBack: licBackUrl
 });
 
-alert("✅ New Driver added successfully!");
+alert('🎉 New Driver Saved Successfully with Documents!');
 addDriverForm.reset();
 } catch (err) {
-alert("❌ Error saving driver: " + err.message);
+alert('❌ Error saving driver: ' + err.message);
 } finally {
 saveBtn.innerText = originalText;
 saveBtn.disabled = false;
@@ -2163,10 +2097,10 @@ const addClientForm = document.getElementById('addClientForm');
 if (addClientForm) {
 addClientForm.addEventListener('submit', (e) => {
 e.preventDefault();
-const clientName = document.getElementById('addClientName').value.trim();
-if (!clientName) return alert("Please enter client name!");
-push(ref(db, 'clients'), { name: clientName }).then(() => {
-alert("✅ Client added successfully!");
+const name = document.getElementById('addClientName').value.trim();
+if (!name) return;
+push(ref(db, 'clients'), { name }).then(() => {
+alert('🎉 New Client Saved Successfully!');
 addClientForm.reset();
 });
 });
@@ -2176,11 +2110,11 @@ const addRestrictionForm = document.getElementById('addRestrictionForm');
 if (addRestrictionForm) {
 addRestrictionForm.addEventListener('submit', (e) => {
 e.preventDefault();
-const resDriver = document.getElementById('resDriver').value.trim();
-const resClient = document.getElementById('resClient').value.trim();
-if (!resDriver || !resClient) return alert("Please enter both driver and client names!");
-push(ref(db, 'restrictions'), { driver: resDriver, client: resClient }).then(() => {
-alert("✅ Restriction added successfully!");
+const driver = document.getElementById('resDriver').value.trim();
+const client = document.getElementById('resClient').value.trim();
+if (!driver || !client) return;
+push(ref(db, 'restrictions'), { driver, client }).then(() => {
+alert('🚫 Restriction Saved Successfully!');
 addRestrictionForm.reset();
 });
 });
@@ -2194,26 +2128,16 @@ const driver = document.getElementById('dutyDriverInput').value.trim();
 const client = document.getElementById('dutyClientInput').value.trim();
 const date = document.getElementById('dutyDate').value;
 const time = document.getElementById('dutyTime').value;
-if (!driver || !client || !date || !time) return alert("Please fill all duty fields!");
+if (!driver || !client || !date || !time) return alert('Please fill all required fields.');
 
-let isForbidden = false;
-for (let rId in restrictionsDataMap) {
-if (restrictionsDataMap[rId].driver.toLowerCase().trim() === driver.toLowerCase().trim() &&
-restrictionsDataMap[rId].client.toLowerCase().trim() === client.toLowerCase().trim()) {
-isForbidden = true;
-break;
-}
-}
-if (isForbidden) return alert(`❌ Restricted! Driver [${driver}] avoids [${client}]!`);
-
-push(ref(db, 'duties'), { driver, client, date, time: convertTo12Hour(time) }).then(() => {
-alert("✅ Duty logged successfully!");
+push(ref(db, 'duties'), { driver, client, date, time }).then(() => {
+alert('📝 Duty Logged Successfully!');
 dutyForm.reset();
 });
 });
 }
 
-initializeSystem
+initializeSystem();
 </script>
 </body>
 </html>
